@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>agregar proveedor</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
+    <!-- boton back-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+     <style>
+        /* Centrar el contenido usando Flexbox */
+        body {
+          display: flex;
+          justify-content: center; /* Centrar horizontalmente */
+          align-items: center; /* Centrar verticalmente */
+          min-height: 75vh; /* Altura mínima de la pantalla completa */
+          }
+
+          input[type="number"] {
+            width: 50px;
+            text-align: center;
+            background: black;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+        }
+
+        /* Efecto neón al pasar el mouse */
+        input[type="number"]:hover,
+        input[type="number"]:focus {
+            box-shadow: 0 0 10px white;
+            border-color: 1px solid white;
+        }
+    </style>
+
+</head>
+<body>
+<main class="container p-5">
+     <form action="/proveedores" method="get" style="position: absolute; top: 40px; left: 70px;" >
+         <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+             arrow_back
+         </button>
+     </form>
+    <div class="row">
+        <div class="col-md-4 offset-md-4 ">
+            <div class="card border-light mb-3" style="max-width: 20rem;">
+                <div class="card-header titlewhiteS fondo">
+                    Introduzca los datos del proveedor
+                </div>
+                    <div class="card-body text-left">
+                        <form action="/agregar-proveedor" method="post">
+                            {{ form.hidden_tag() }}
+                            <div class="form-group">
+                                <label class= titleblack for="nombre">Nombre del Proveedor</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ingrese el nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label class= titleblack for="telefono">Teléfono</label>
+                                <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="Ingrese el teléfono" maxlength="20"  pattern="[0-9]+" required>
+                            </div>
+                            <div class="form-group">
+                                <label class= titleblack for="direccion">Dirección</label>
+                                <input type="text" id="direccion" name="direccion" class="form-control" placeholder="Ingrese la dirección" required>
+                            </div>
+                            <div class="form-group">
+                                <label class= titleblack for="email">Email</label>
+                                <input type="email" id="email" name="email" class="form-control" placeholder="Ingrese el email" required>
+                            </div>
+                            <div class="form-group">
+                                <label class= titleblack for="cif"> CIF</label>
+                                <input id="cif" name="cif" class="form-control" placeholder="Ingrese el cif" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="titleblack"> Tipo de Producto
+                                </label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="productos" value="Ordenador" id="Ordenador">
+                                    <label class="form-check-label" for="Ordenador">
+                                        Ordenador
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name= "productos" value="Tarjeta Gráfica" id="Tarjeta Gráfica">
+                                    <label class="form-check-label" for="Tarjeta Gráfica">
+                                        Tarjeta Gráfica
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox"  name= "productos" value="Procesador" id="Procesador">
+                                    <label class="form-check-label" for="Procesador">
+                                        Procesador
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="productos" value="Fuente" id="Fuente">
+                                    <label class="form-check-label" for="Fuente">
+                                        Fuente
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name= "productos" value="Disco Duro" id="Disco Duro">
+                                    <label class="form-check-label" for="Disco Duro">
+                                        Disco Duro
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name= "productos" value="Placa Base" id="Placa Base">
+                                    <label class="form-check-label" for="Placa Base">
+                                        Placa Base
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="productos" value="RAM" id="RAM">
+                                    <label class="form-check-label" for="RAM">
+                                        RAM
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class= titleblack for="tasa_de_descuento">Tasa de Descuento (%)</label>
+                                <input type="number" id="tasa_de_descuento" name="tasa_de_descuento" class="form-control" placeholder="Ingrese la tasa de descuento" min="0" max="100" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label class= titleblack for="iva">IVA (%)</label>
+                                <input style="titlewhite" type="number" id="iva" name="iva" class="form-control" placeholder="Ingrese el IVA" min="0" max="100" step="0.01" required>
+                            </div>
+                            <button class="btn-block neon-link titlewhite fondo" style="background-color: transparent; color: white;" type="submit">
+                                Registrar proveedor
+                            </button>
+                        </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

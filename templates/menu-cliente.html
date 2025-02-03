@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> menu </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
+    <!-- estilo bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
+    <!-- Iconos de Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400&display=swap">
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+    <style>
+        /* Centrar el contenido usando Flexbox */
+        body {
+          display: flex;
+          justify-content: center; /* Centrar horizontalmente */
+          align-items: center; /* Centrar verticalmente */
+          min-height: 40vh; /* Altura mínima de la pantalla completa */
+          }
+    </style>
+
+</head>
+<body>
+    <main class="container p-6">
+        <form action="/logout" method="post" style="position: absolute; top: 40px; left: 70px;">
+            <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+                logout
+            </button>
+        </form>
+        <!-- Botón de carrito de compras -->
+        <form action="/cesta" method="post" style="position: absolute; top: 40px; right: 70px;">
+            <button type="submit" class="material-symbols-outlined" aria-label="Ir a la cesta" style="font-size: 34px; background-color: transparent; color: white;">
+                shopping_cart
+            </button>
+        </form>
+        <div class="container-menu">
+            <div class="text-center titlewhite">
+                <h1 class=""></h1>
+                <h1 class="display-2 text-center mt-4 titlewhite">Suministros Informáticos</h1>
+                <h1 class="display-2 text-center titlewhite">CNCV</h1>
+            </div>
+            <div class="row d-flex justify-content-center mt-5">
+                <div class="col-md-4 d-flex justify-content-center">
+                    <a href="/productos_cliente" class="neon-link titlewhite text-center" style="font-size: 40px; background-color: transparent; color: white;">PRODUCTOS</a>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <a href="/perfil_cliente" class="neon-link titlewhite text-center" style="font-size: 40px; background-color: transparent; color: white;">PERFIL</a>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <a href="/graficas_cliente" class="neon-link titlewhite text-center" style="font-size: 40px; background-color: transparent; color: white;">GRÁFICOS</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmación de Compra</title>
+    <style>
+        /* Include your CSS styles here */
+        .flex {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 2rem auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: left;
+        }
+        .header h2 {
+            font-size: 2rem;
+            color: #4A5568;
+        }
+        .header p {
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+        .price {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .price span {
+            font-size: 2.5rem;
+            color: #2D3748;
+        }
+        .price span.base {
+            font-size: 1rem;
+            color: #718096;
+        }
+        .action {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+        .action a {
+            padding: 0.75rem 2rem;
+            color: white;
+            background-color: black;
+            border: 2px solid black;
+            border-radius: 9999px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .action a:hover {
+            background-color: transparent;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex">
+        <div class="header">
+            <h2>Confirmación de Compra</h2>
+            <p>Detalles de tu compra</p>
+        </div>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario (€)</th>
+                        <th>IVA (%)</th>
+                        <th>Total (€)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for compra in compras %}
+                    <tr>
+                        <td>{{ compra.producto.modelo }}</td>
+                        <td>{{ compra.cantidad }}</td>
+                        <td>{{ compra.precio_unitario }}</td>
+                        <td>{{ compra.proveedor.iva }}</td>
+                        <td>{{ compra.total }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="price">
+            <p>Total: <span>€{{ total }}</span></p>
+        </div>
+        <div class="action">
+            <a href="{{ url_for('productos_cliente') }}">Volver a Productos</a>
+        </div>
+    </div>
+</body>
+</html>

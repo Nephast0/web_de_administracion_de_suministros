@@ -1,0 +1,269 @@
+body {
+    background: #000000;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #434343, #000000);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #434343, #000000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.title-container {
+    display: flex; /* Activar flexbox */
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente (opcional si tiene altura fija) */
+    text-align: center; /* Asegura que el texto esté centrado */
+    width: 100%; /* Ocupar todo el ancho disponible */
+    margin: 0 auto; /* Asegura que no tenga márgenes inesperados */
+}
+
+table {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+th, td {
+    font-family: 'Grenze', monospace; /* O usa Google Fonts */
+    letter-spacing: 1px;
+    color: #FFFFFF;
+}
+
+th, td {
+    border-radius: 3px;
+}
+
+.material-symbols-outlined-p {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+
+tr:hover {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.01); /* Pequeño zoom */
+}
+
+.titletransp {
+  font-family: "Grenze", serif;
+  font-style: italic;
+  background: -webkit-linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.custom-search-btn {
+    padding: 4px;
+    height: 40px;
+    width: 30px;
+    border-width: 1px;
+    line-height: 1;
+    background-color: #fff; /* Opcional: para ajustar fondo */
+}
+
+.btn-back {
+  position: absolute; /* Permite colocar el botón fuera del flujo normal */
+  top: 20px; /* Ajusta la distancia desde arriba */
+  left: 10px; /* Mueve el botón más a la izquierda */
+  font-size: 24px; /* Tamaño del ícono */
+  background-color: transparent; /* Sin fondo */
+  border: none; /* Sin bordes */
+  color: white; /* Color del ícono */
+  cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+}
+
+/* Limitar la altura de la tabla y agregar scroll */
+.table-container {
+    margin: 20px auto; /* Centra horizontalmente y ajusta el espacio superior */
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 80%;
+    border: 1px solid #ccc;
+    text-align: center; /* Centra el contenido de la tabla si es necesario */
+}
+
+.btn:hover {
+    background-color: #ccc;
+}
+
+.custom-search-input {
+    height: 40px;
+    font-size: 14px;
+    padding: 4px;
+    border-radius: 0;
+}
+
+
+.titleblack {
+  font-family: "Grenze", serif;
+  font-weight: 900;
+  font-style: italic;
+  background: -webkit-linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: black;
+}
+
+.titlewhite {
+  font-family: "Grenze", serif;
+  font-weight: 900;
+  font-style: italic;
+  background: -webkit-linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: white;
+}
+
+.titlewhiteS {
+  font-family: "Grenze", serif;
+  font-weight: 300;
+  font-style: italic;
+  background: -webkit-linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: white;
+}
+.titlegrey {
+  font-family: "Grenze", serif;
+  font-weight: 300;
+  font-style: italic;
+  background: -webkit-linear-gradient(#eee, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: grey;
+}
+
+.fondo{
+  background: #232526;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #414345, #232526);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #414345, #232526); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.mx-2 {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+.btn {
+    background-color: transparent;
+    border: 2px solid white;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+.btn:hover {
+    background-color: #ccc;
+    color: black;
+}
+
+.container-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70vh; /* Mantener todo centrado en pantalla */
+}
+
+.row-menu {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    width: 90%; /* Ajusta el ancho del contenedor */
+}
+
+.col-md-4 {
+    text-align: center;
+}
+
+.neon-link {
+    padding: 10px 10px;
+    transition: 0.5s;
+    background-color: transparent;
+    color: white;
+}
+
+.neon-link:hover {
+    background-color: white;
+    color: black;
+}
+
+.neon-link {
+    transition: all 0.5s ease-in-out; /* Suaviza la transición */
+    position: relative;
+}
+
+.neon-link:hover {
+    color: #0ff; /* Cambia el color del texto */
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff; /* Efecto de neón */
+}
+
+.alert-container {
+  position: fixed;
+  top: 600px;
+  right: 825px;
+  width: 320px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Estilo base para las alertas */
+.modern-alert {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-radius: 1px;
+  font-family: "Grenze", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: transparent;
+  background-color: #transparent;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.5s ease-in-out;
+  opacity: 1;
+}
+
+/* Botón de cerrar */
+.close-alert {
+  background: none;
+  border: none;
+  color: #888888;
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-alert:hover {
+  color: #333333;
+}
+
+/* Colores personalizados por categoría */
+.alert-success {
+  border-left: 4px solid #27ae60; /* Verde */
+}
+
+.alert-danger {
+  border-left: 4px solid #e74c3c; /* Rojo */
+}
+
+.alert-info {
+  border-left: 4px solid #3498db; /* Azul */
+}
+
+.alert-warning {
+  border-left: 4px solid #f1c40f; /* Amarillo */
+}
+
+/* Animación para entrada */
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modern-alert {
+  animation: slideIn 0.5s ease-in-out;
+}

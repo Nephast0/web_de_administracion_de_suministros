@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>agregar-producto</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
+    <!-- boton back-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+     <style>
+        /* Centrar el contenido usando Flexbox */
+        body {
+          display: flex;
+          justify-content: center; /* Centrar horizontalmente */
+          align-items: center; /* Centrar verticalmente */
+          min-height: 75vh; /* Altura mínima de la pantalla completa */
+          }
+    </style>
+
+</head>
+<body>
+<main class="container p-5">
+     <form action="/productos" method="get" style="position: absolute; top: 40px; left: 70px;">
+        <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+            arrow_back
+        </button>
+     </form>
+    <div class="row">
+        <div class="col-md-5 offset-md-4">
+            <div class="card border-light mb-3" style="max-width: 20rem;">
+                <div class="card-header text-center titlewhiteS fondo">
+                    Introduzca los datos del producto
+                </div>
+                <div class="card-body">
+                    <form action="/agregar-producto" method="post">
+                        <!-- Selección de Proveedor -->
+                        <div class="form-group">
+                            <label class="titleblack" for="proveedor_id">Proveedor</label>
+                            <select class="form-control" id="proveedor" name="proveedor_id">
+                                <option value="">Seleccione un proveedor</option>
+                                {% for proveedor in proveedores %}
+                                    <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <!-- Campo de CIF autocompletado -->
+                            <label class="titleblack" for="cif">CIF de la Empresa:</label>
+                            <input class="form-control" id="cif" type="text" readonly>
+                        </div>
+                        <!-- Selección de Tipo de Producto -->
+                        <div class="form-group">
+                            <!-- Desplegable de tipos de producto -->
+                            <label class="titleblack"  for="tipo_producto">Tipo de Producto:</label>
+                            <select class="form-control" id="tipo_producto" name="tipo_producto">
+                                <option value="" disabled selected>Seleccione el tipo de producto</option>
+                            </select>
+                        </div>
+                        <!-- Selección de Marca -->
+                        <div class="form-group">
+                            <label class="titleblock" for="marca">Marca:</label>
+                            <select class="form-control" id="marca" name="marca" required>
+                                <option value="" disabled selected>Seleccione la Marca</option>
+                            </select>
+                        </div>
+                        <!-- Selección de Modelo -->
+                        <div class="form-group">
+                            <label class="titleblack" for="modelo">Modelo:</label>
+                            <select class="form-control" id="modelo" name="modelo">
+                                <option value="" disabled selected>Seleccione el Modelo</option>
+                            </select>
+                        </div>
+                        <!-- Resto de los campos del producto -->
+                        <div class="form-group">
+                            <label class="titleblack" for="descripcion">Descripción</label>
+                            <textarea id="descripcion" name="descripcion" class="form-control" placeholder="Descripción del producto" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="titleblack" for="cantidad">Cantidad</label>
+                            <input type="number" id="cantidad" name="cantidad" class="form-control" placeholder="Cantidad del producto" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="titleblack" for="cantidad_minima">Cantidad mínima</label>
+                            <input type="number" id="cantidad_minima" name="cantidad_minima" class="form-control" placeholder="Cantidad mínima requerida" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="titleblack" for="precio">Precio</label>
+                            <input type="number" id="precio" name="precio" step="0.01" class="form-control" placeholder="Precio del producto" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="titleblack" for="num_referencia">Número de referencia</label>
+                            <input type="text" id="num_referencia" name="num_referencia" class="form-control" placeholder="Número de referencia del producto" required>
+                        </div>
+                        <button type="submit" class="btn-block neon-link titlewhite fondo" style="background-color: transparent; color: white;">
+                            Agregar producto
+                        </button>
+                    </form>
+                    <!-- Script para actualizar los tipos de producto dinámicamente -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const proveedorSelect = document.getElementById('proveedor');
+                            const tiposProductoSelect = document.getElementById('tipo_producto');
+                            const cifInput = document.getElementById('cif');
+
+                            // Cuando se seleccione un proveedor
+                            proveedorSelect.addEventListener('change', function () {
+                                const proveedorId = this.value;
+
+                                // Cargar tipos de producto
+                                fetch(`/tipos-producto/${proveedorId}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        tiposProductoSelect.innerHTML = ''; // Limpiar opciones previas
+                                        if (data.tipos_producto) {
+                                            data.tipos_producto.forEach(tipo => {
+                                                const option = document.createElement('option');
+                                                option.value = tipo;
+                                                option.textContent = tipo;
+                                                tiposProductoSelect.appendChild(option);
+                                            });
+                                        }
+                                    });
+
+                                // Autocompletar el CIF
+                                fetch(`/proveedor/${proveedorId}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        cifInput.value = data.cif || ''; // Asignar el CIF
+                                    });
+                            });
+                        });
+                    </script>
+                    <script>
+                        document.getElementById("proveedor").addEventListener("change", function () {
+                            // Limpiar las opciones de Marca
+                            document.getElementById("marca").innerHTML = '<option value="" disabled selected>Seleccione la Marca</option>';
+                            // Limpiar las opciones de Modelo
+                            document.getElementById("modelo").innerHTML = '<option value="" disabled selected>Seleccione el Modelo</option>';
+                        });
+                    </script>
+                    <script>
+                        document.getElementById('tipo_producto').addEventListener('change', function() {
+                            var tipoProducto = this.options[this.selectedIndex].text; // Obtener el nombre seleccionado
+
+                            // Hacer la solicitud AJAX para obtener las marcas
+                            fetch(`/get_marcas?tipo_producto=${encodeURIComponent(tipoProducto)}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    var marcaSelect = document.getElementById('marca');
+                                    marcaSelect.innerHTML = '';  // Limpiar las opciones anteriores
+
+                                    // Agregar una opción vacía al inicio
+                                    var defaultOption = document.createElement('option');
+                                    defaultOption.value = '';
+                                    defaultOption.text = 'Seleccionar Marca';
+                                    marcaSelect.appendChild(defaultOption);
+
+                                    // Llenar el select con las nuevas marcas
+                                    data.forEach(function(marca) {
+                                        var option = document.createElement('option');
+                                        option.value = marca.nombre;
+                                        option.text = marca.nombre;
+                                        marcaSelect.appendChild(option);
+                                    });
+                                });
+                        });
+                    </script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                        const tipoProductoSelect = document.getElementById('tipo_producto');
+                        const marcaSelect = document.getElementById('marca');
+                        const modeloSelect = document.getElementById('modelo');
+
+                        // Cuando se selecciona una marca
+                        marcaSelect.addEventListener('change', function () {
+                            const tipoProducto = tipoProductoSelect.value.trim(); // Eliminar espacios en blanco
+                            const marca = this.value.trim(); // Eliminar espacios en blanco
+
+                            // Limpiar el select de modelos
+                            modeloSelect.innerHTML = '';
+
+                            // Agregar una opción predeterminada
+                            const defaultOption = document.createElement('option');
+                            defaultOption.value = '';
+                            defaultOption.textContent = 'Seleccione el Modelo';
+                            defaultOption.disabled = true;
+                            defaultOption.selected = true;
+                            modeloSelect.appendChild(defaultOption);
+
+                            // Verificar si se seleccionó un tipo de producto y una marca
+                            if (tipoProducto && marca) {
+                                // Hacer la solicitud al backend para obtener los modelos
+                                fetch(`/get_modelos?tipo_producto=${encodeURIComponent(tipoProducto)}&marca=${encodeURIComponent(marca)}`)
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Error al obtener los modelos');
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        if (data.error) {
+                                            alert(data.error);
+                                            return;
+                                        }
+
+                                        // Llenar el select con los modelos obtenidos
+                                        data.forEach(modeloObj => {
+                                            const option = document.createElement('option');
+                                            option.value = modeloObj.modelo; // Usar el nombre del modelo como valor
+                                            option.textContent = modeloObj.modelo; // Mostrar el nombre del modelo
+                                            modeloSelect.appendChild(option);
+                                        });
+                                    })
+                                    .catch(error => {
+                                        console.error('Error al cargar los modelos:', error);
+                                        alert('No se pudieron cargar los modelos. Inténtelo más tarde.');
+                                    });
+                                }
+                            });
+                        });
+                    </script>
+                    <!-- Bloque para mostrar mensajes flash -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        <div class="alert-container">
+                          {% for category, message in messages %}
+                            <div class="modern-alert alert-{{ category }}">
+                              <span>{{ message }}</span>
+                                 <!-- El tiempo de las alertas luego 5segs o más -->
+                              <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
+                            </div>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Producto</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <main class="container p-5">
+        <form action="/productos" method="post" style="position: absolute; top: 40px; left: 70px;">
+            <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+                arrow_back
+            </button>
+        </form>
+        <div class="alerts-container">
+            {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <div class="row">
+            <div class="col-md-5 offset-md-4">
+                <div class="card border-light mb-3" style="max-width: 20rem;">
+                    <div class="card-header text-center titlewhiteS fondo">
+                        Realice los Cambios que sean necesarios
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <!-- Campo Proveedor (Solo Lectura) -->
+                            <div class="form-group">
+                                <label class="titleblack" for="proveedor">Proveedor:</label>
+                                <input type="text" id="proveedor" value="{{ proveedor.nombre if proveedor else 'No asignado' }}" class="form-control" readonly>
+                            </div>
+                            <!-- Campo CIF del Proveedor (Solo Lectura) -->
+                            <div class="form-group">
+                                <label class="titleblack" for="cif">CIF:</label>
+                                <input type="text" id="cif" value="{{ proveedor.cif if proveedor else 'No disponible' }}" class="form-control" readonly>
+                            </div>
+                            <!-- Campo Tipo de Producto (Solo lectura) -->
+                            <div class="form-group">
+                                <label class="titleblack" for="tipo_producto">Tipo de Producto:</label>
+                                <input type="text" id="tipo_producto" name="tipo_producto" value="{{ producto.tipo_producto }}" class="form-control" readonly>
+                            </div>
+                            <!-- Campo Marca (Solo lectura) -->
+                            <div class="form-group">
+                                <label class="titleblack" for="marca">Marca:</label>
+                                <input type="text" id="marca" name="marca" value="{{ producto.marca }}" class="form-control" readonly>
+                            </div>
+                            <!-- Campo Modelo (Solo lectura) -->
+                            <div class="form-group">
+                                <label class="titleblack" for="modelo">Modelo:</label>
+                                <input type="text" id="modelo" name="modelo" value="{{ producto.modelo }}" class="form-control" readonly>
+                            </div>
+                            <!-- Campo Descripción -->
+                            <div class="form-group">
+                                <label class="titleblack" for="descripcion">Descripción:</label>
+                                <textarea id="descripcion" name="descripcion" class="form-control" required>{{ producto.descripcion }}</textarea>
+                            </div>
+                            <!-- Campo Cantidad -->
+                            <div class="form-group">
+                                <label class="titleblack" for="cantidad">Cantidad:</label>
+                                <input type="number" id="cantidad" name="cantidad" value="{{ producto.cantidad }}" class="form-control" required>
+                            </div>
+                            <!-- Campo Cantidad Mínima -->
+                            <div class="form-group">
+                                <label class="titleblack" for="cantidad_minima">Cantidad Mínima:</label>
+                                <input type="number" id="cantidad_minima" name="cantidad_minima" value="{{ producto.cantidad_minima }}" class="form-control" required>
+                            </div>
+                            <!-- Campo Precio -->
+                            <div class="form-group">
+                                <label class="titleblack" for="precio">Precio:</label>
+                                <input type="number" id="precio" name="precio" value="{{ producto.precio }}" step="0.01" class="form-control" required>
+                            </div>
+                            <!-- Campo Número de Referencia -->
+                            <div class="form-group">
+                                <label class="titleblack" for="num_referencia">Número de Referencia:</label>
+                                <input type="text" id="num_referencia" name="num_referencia" value="{{ producto.num_referencia }}" class="form-control" required readonly>
+                            </div>
+                            <!-- Botón de Guardar -->
+                            <button type="submit" class="btn neon-link btn-outline-light btn-block fondo titlewhite">
+                                Guardar Cambios
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

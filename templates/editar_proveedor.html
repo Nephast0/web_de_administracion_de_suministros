@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Proveedor</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <main class="container p-5">
+        <!-- Botón para regresar -->
+        <form action="/proveedores" method="get" style="position: absolute; top: 40px; left: 70px;">
+            <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+                arrow_back
+            </button>
+        </form>
+
+        <div class="row">
+            <div class="col-md-4 offset-md-4">
+                <div class="card border-light mb-3" style="max-width: 20rem;">
+                    <div class="card-header titlewhiteS fondo">Editar Proveedor</div>
+                    <div class="card-body text-left">
+                        <form action="{{ url_for('editar_proveedor', proveedor_id=proveedor.id) }}" method="post">
+                            {{ form.hidden_tag() }}
+
+                            <div class="form-group">
+                                <label class="titleblack" for="nombre">Nombre del Proveedor</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control" value="{{ proveedor.nombre }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="titleblack" for="telefono">Teléfono</label>
+                                <input type="tel" id="telefono" name="telefono" class="form-control" value="{{ proveedor.telefono }}" maxlength="20" pattern="[0-9]+" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="titleblack" for="direccion">Dirección</label>
+                                <input type="text" id="direccion" name="direccion" class="form-control" value="{{ proveedor.direccion }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="titleblack" for="email">Email</label>
+                                <input type="email" id="email" name="email" class="form-control" value="{{ proveedor.email }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="titleblack" for="cif">CIF</label>
+                                <input type="text" id="cif" name="cif" class="form-control" value="{{ proveedor.cif }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="titleblack">Tipo de Producto</label>
+                                {% set productos_lista = ['Ordenador', 'Tarjeta Gráfica', 'Procesador', 'Fuente', 'Disco Duro', 'Placa Base', 'RAM'] %}
+                                {% for producto in productos_lista %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="productos" value="{{ producto }}" id="{{ producto }}"
+                                        {% if producto in proveedor.tipo_producto %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ producto }}">
+                                        {{ producto }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Tasa de Descuento -->
+                            <div class="form-group">
+                                {{ form.tasa_de_descuento.label(class="titleblack") }}
+                                {{ form.tasa_de_descuento(class="form-control", type="number", min="0", max="100", step="0.01", required=True) }}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="titleblack" for="iva">IVA (%)</label>
+                                <input type="number" id="iva" name="iva" class="form-control" value="{{ proveedor.iva }}" min="0" max="100" step="0.01" required>
+                            </div>
+
+                            <button class="btn-block neon-link titlewhite fondo" style="background-color: transparent; color: white;" type="submit">
+                                Guardar Cambios
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
