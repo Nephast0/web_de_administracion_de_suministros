@@ -17,7 +17,32 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 
-</head>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        background-color: #222;
+    }
+    .container {
+        max-width: 600px;
+        margin: 50px auto;
+        background-color: #333;
+        padding: 20px;
+        text-align: center;
+        border-radius: 10px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+    .form-control {
+        border-radius: 10px;
+        padding: 8px;
+    }
+</style>
+
 <body>
     <main class="container p-5">
         <!-- Botón para regresar -->
@@ -26,71 +51,66 @@
                 arrow_back
             </button>
         </form>
-
         <div class="row">
-            <div class="col-md-4 offset-md-4">
-                <div class="card border-light mb-3" style="max-width: 20rem;">
-                    <div class="card-header titlewhiteS fondo">Editar Proveedor</div>
-                    <div class="card-body text-left">
-                        <form action="{{ url_for('editar_proveedor', proveedor_id=proveedor.id) }}" method="post">
-                            {{ form.hidden_tag() }}
+            <div class="col-md-12">
+                <h3 class="titlewhiteN">Editar Proveedor</h3>
+                <form action="{{ url_for('editar_proveedor', proveedor_id=proveedor.id) }}" method="post">
+                    {{ form.hidden_tag() }}
 
-                            <div class="form-group">
-                                <label class="titleblack" for="nombre">Nombre del Proveedor</label>
-                                <input type="text" id="nombre" name="nombre" class="form-control" value="{{ proveedor.nombre }}" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="titleblack" for="telefono">Teléfono</label>
-                                <input type="tel" id="telefono" name="telefono" class="form-control" value="{{ proveedor.telefono }}" maxlength="20" pattern="[0-9]+" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="titleblack" for="direccion">Dirección</label>
-                                <input type="text" id="direccion" name="direccion" class="form-control" value="{{ proveedor.direccion }}" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="titleblack" for="email">Email</label>
-                                <input type="email" id="email" name="email" class="form-control" value="{{ proveedor.email }}" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="titleblack" for="cif">CIF</label>
-                                <input type="text" id="cif" name="cif" class="form-control" value="{{ proveedor.cif }}" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="titleblack">Tipo de Producto</label>
-                                {% set productos_lista = ['Ordenador', 'Tarjeta Gráfica', 'Procesador', 'Fuente', 'Disco Duro', 'Placa Base', 'RAM'] %}
-                                {% for producto in productos_lista %}
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="productos" value="{{ producto }}" id="{{ producto }}"
-                                        {% if producto in proveedor.tipo_producto %}checked{% endif %}>
-                                    <label class="form-check-label" for="{{ producto }}">
-                                        {{ producto }}
-                                    </label>
-                                </div>
-                                {% endfor %}
-                            </div>
-
-                            <!-- Tasa de Descuento -->
-                            <div class="form-group">
-                                {{ form.tasa_de_descuento.label(class="titleblack") }}
-                                {{ form.tasa_de_descuento(class="form-control", type="number", min="0", max="100", step="0.01", required=True) }}
-                            </div>
-
-                            <div class="form-group">
-                                <label class="titleblack" for="iva">IVA (%)</label>
-                                <input type="number" id="iva" name="iva" class="form-control" value="{{ proveedor.iva }}" min="0" max="100" step="0.01" required>
-                            </div>
-
-                            <button class="btn-block neon-link titlewhite fondo" style="background-color: transparent; color: white;" type="submit">
-                                Guardar Cambios
-                            </button>
-                        </form>
+                    <div class="form-group">
+                        <label class="titlewhite" for="nombre">Nombre del Proveedor</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control" value="{{ proveedor.nombre }}" required>
                     </div>
-                </div>
+
+                    <div class="form-group">
+                        <label class="titlewhite" for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" class="form-control" value="{{ proveedor.telefono }}" maxlength="20" pattern="[0-9]+" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="titlewhite" for="direccion">Dirección</label>
+                        <input type="text" id="direccion" name="direccion" class="form-control" value="{{ proveedor.direccion }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="titlewhite" for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" value="{{ proveedor.email }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="titlewhite" for="cif">CIF</label>
+                        <input type="text" id="cif" name="cif" class="form-control" value="{{ proveedor.cif }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="titlewhite">Tipo de Producto</label>
+                        {% set productos_lista = ['Ordenador', 'Tarjeta Gráfica', 'Procesador', 'Fuente', 'Disco Duro', 'Placa Base', 'RAM'] %}
+                        {% for producto in productos_lista %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="productos" value="{{ producto }}" id="{{ producto }}"
+                                {% if producto in proveedor.tipo_producto %}checked{% endif %}>
+                            <label class="titlewhite form-check-label" for="{{ producto }}">
+                                {{ producto }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Tasa de Descuento -->
+                    <div class="form-group">
+                        {{ form.tasa_de_descuento.label(class="titlewhite") }}
+                        {{ form.tasa_de_descuento(class="form-control", type="number", min="0", max="100", step="0.01", required=True) }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="titlewhite" for="iva">IVA (%)</label>
+                        <input type="number" id="iva" name="iva" class="form-control" value="{{ proveedor.iva }}" min="0" max="100" step="0.01" required>
+                    </div>
+
+                    <button class="btn-block neon-link titlewhite fondo" type="submit">
+                        Guardar Cambios
+                    </button>
+                </form>
             </div>
         </div>
     </main>

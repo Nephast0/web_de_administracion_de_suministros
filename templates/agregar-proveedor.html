@@ -16,130 +16,148 @@
     <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 
      <style>
-        /* Centrar el contenido usando Flexbox */
         body {
           display: flex;
-          justify-content: center; /* Centrar horizontalmente */
-          align-items: center; /* Centrar verticalmente */
-          min-height: 75vh; /* Altura mínima de la pantalla completa */
-          }
-
-          input[type="number"] {
-            width: 50px;
-            text-align: center;
-            background: black;
-            color: white;
-            border: 1px solid white;
-            border-radius: 5px;
+          justify-content: center;
+          align-items: center;
+          min-height: 75vh;
+        }
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 8px;
+        }
+         /* Ocultar el checkbox original */
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #777; /* Color del borde */
+            background-color: #222; /* Color de fondo */
+            border-radius: 4px; /* Esquinas redondeadas */
+            position: relative;
+            cursor: pointer;
         }
 
-        /* Efecto neón al pasar el mouse */
-        input[type="number"]:hover,
-        input[type="number"]:focus {
-            box-shadow: 0 0 10px white;
-            border-color: 1px solid white;
+        /* Cambiar el color cuando está seleccionado */
+        input[type="checkbox"]:checked {
+            background-color: #555; /* Color de fondo cuando está marcado */
+            border-color: white; /* Color del borde cuando está marcado */
+        }
+
+        /* Agregar un check personalizado */
+        input[type="checkbox"]:checked::before {
+            content: '✔'; /* Símbolo de check */
+            font-size: 14px;
+            color: white !important; /* Color del check en blanco */
+            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
-
 </head>
 <body>
 <main class="container p-5">
-     <form action="/proveedores" method="get" style="position: absolute; top: 40px; left: 70px;" >
-         <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
-             arrow_back
-         </button>
-     </form>
-    <div class="row">
-        <div class="col-md-4 offset-md-4 ">
-            <div class="card border-light mb-3" style="max-width: 20rem;">
-                <div class="card-header titlewhiteS fondo">
-                    Introduzca los datos del proveedor
-                </div>
-                    <div class="card-body text-left">
-                        <form action="/agregar-proveedor" method="post">
-                            {{ form.hidden_tag() }}
-                            <div class="form-group">
-                                <label class= titleblack for="nombre">Nombre del Proveedor</label>
-                                <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ingrese el nombre" required>
-                            </div>
-                            <div class="form-group">
-                                <label class= titleblack for="telefono">Teléfono</label>
-                                <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="Ingrese el teléfono" maxlength="20"  pattern="[0-9]+" required>
-                            </div>
-                            <div class="form-group">
-                                <label class= titleblack for="direccion">Dirección</label>
-                                <input type="text" id="direccion" name="direccion" class="form-control" placeholder="Ingrese la dirección" required>
-                            </div>
-                            <div class="form-group">
-                                <label class= titleblack for="email">Email</label>
-                                <input type="email" id="email" name="email" class="form-control" placeholder="Ingrese el email" required>
-                            </div>
-                            <div class="form-group">
-                                <label class= titleblack for="cif"> CIF</label>
-                                <input id="cif" name="cif" class="form-control" placeholder="Ingrese el cif" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="titleblack"> Tipo de Producto
-                                </label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="productos" value="Ordenador" id="Ordenador">
-                                    <label class="form-check-label" for="Ordenador">
-                                        Ordenador
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name= "productos" value="Tarjeta Gráfica" id="Tarjeta Gráfica">
-                                    <label class="form-check-label" for="Tarjeta Gráfica">
-                                        Tarjeta Gráfica
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox"  name= "productos" value="Procesador" id="Procesador">
-                                    <label class="form-check-label" for="Procesador">
-                                        Procesador
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="productos" value="Fuente" id="Fuente">
-                                    <label class="form-check-label" for="Fuente">
-                                        Fuente
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name= "productos" value="Disco Duro" id="Disco Duro">
-                                    <label class="form-check-label" for="Disco Duro">
-                                        Disco Duro
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name= "productos" value="Placa Base" id="Placa Base">
-                                    <label class="form-check-label" for="Placa Base">
-                                        Placa Base
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="productos" value="RAM" id="RAM">
-                                    <label class="form-check-label" for="RAM">
-                                        RAM
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class= titleblack for="tasa_de_descuento">Tasa de Descuento (%)</label>
-                                <input type="number" id="tasa_de_descuento" name="tasa_de_descuento" class="form-control" placeholder="Ingrese la tasa de descuento" min="0" max="100" step="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label class= titleblack for="iva">IVA (%)</label>
-                                <input style="titlewhite" type="number" id="iva" name="iva" class="form-control" placeholder="Ingrese el IVA" min="0" max="100" step="0.01" required>
-                            </div>
-                            <button class="btn-block neon-link titlewhite fondo" style="background-color: transparent; color: white;" type="submit">
-                                Registrar proveedor
-                            </button>
-                        </form>
-                    </div>
+    <form action="/proveedores" method="get" style="position: absolute; top: 40px; left: 70px;" >
+        <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+            arrow_back
+        </button>
+    </form>
+    <h2 class="titlewhiteN text-center">Introduzca los datos del proveedor</h2>
+    <form action="/agregar-proveedor" method="post">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            <label class="titlewhite" for="nombre">Nombre del Proveedor</label>
+            <input autocomplete="off" type="text" id="nombre" name="nombre" class="form-control fondo titlewhite" placeholder="Ingrese el nombre" required>
+        </div>
+        <div class="form-group">
+            <label class="titlewhite" for="telefono">Teléfono</label>
+            <input autocomplete="off" type="tel" id="telefono" name="telefono" class="form-control fondo titlewhite" placeholder="Ingrese el teléfono" maxlength="20" pattern="[0-9]+" required>
+        </div>
+        <div class="form-group">
+            <label class="titlewhite" for="direccion">Dirección</label>
+            <input autocomplete="off" type="text" id="direccion" name="direccion" class="form-control fondo titlewhite" placeholder="Ingrese la dirección" required>
+        </div>
+        <div class="form-group">
+            <label class="titlewhite" for="email">Email</label>
+            <input autocomplete="off" type="email" id="email" name="email" class="form-control fondo titlewhite" placeholder="Ingrese el email ... @gmail" required>
+        </div>
+        <div class="form-group">
+            <label class="titlewhite" for="cif">CIF</label>
+            <input autocomplete="off" id="cif" name="cif" class="form-control fondo titlewhite" placeholder="Ingrese el cif" required>
+        </div>
+        <div class="form-group">
+            <label class="titlewhite">Tipo de Producto</label>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="productos" value="Ordenador" id="Ordenador">
+                <label class="form-check-label titlewhite" for="Ordenador">Ordenador</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="productos" value="Tarjeta Gráfica" id="Tarjeta Gráfica">
+                <label class="form-check-label titlewhite" for="Tarjeta Gráfica">Tarjeta Gráfica</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="productos" value="Procesador" id="Procesador">
+                <label class="form-check-label titlewhite" for="Procesador">Procesador</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="productos" value="Fuente" id="Fuente">
+                <label class="form-check-label titlewhite" for="Fuente">Fuente</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="productos" value="Disco Duro" id="Disco Duro">
+                <label class="form-check-label titlewhite" for="Disco Duro">Disco Duro</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="productos" value="RAM" id="RAM">
+                <label class="form-check-label titlewhite" for="RAM">RAM</label>
             </div>
         </div>
-    </div>
+        <div class="form-group">
+            <label class="titlewhite" for="tasa_de_descuento">Tasa de Descuento (%)</label>
+            <input type="number" id="tasa_de_descuento" name="tasa_de_descuento" class="form-control fondo titlewhite" placeholder="Ingrese la tasa de descuento" min="0" max="100" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label class="titlewhite" for="iva">IVA (%)</label>
+            <input type="number" id="iva" name="iva" class="form-control fondo titlewhite" placeholder="Ingrese el IVA" min="0" max="100" step="0.01" required>
+        </div>
+        <button class="btn-block neon-link titlewhite fondo" style="background-color: transparent; color: white;" type="submit">
+            Registrar proveedor
+        </button>
+    </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert-container">
+                    {% for category, message in messages %}
+                        <div class="modern-alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                            <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                setTimeout(() => {
+                    document.querySelectorAll(".modern-alert").forEach(alert => {
+                        alert.classList.add("hide");
+                        setTimeout(() => alert.remove(), 500);
+                    });
+                }, 5000); // Se oculta en 5 segundos
+            });
+        </script>
 </main>
 </body>
 </html>

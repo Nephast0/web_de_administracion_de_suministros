@@ -3,9 +3,10 @@ from glob import escape
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from sqlalchemy import func, extract
 import forms
 from forms import Formulario_de_registro, Login_form, EditarPerfilForm, ProveedorForm
-from models import Usuario, Producto, db, Proveedor, ActividadUsuario, CestaDeCompra
+from models import Usuario, Producto, db, Proveedor, ActividadUsuario, CestaDeCompra, Compra
 import logging
 
 # Configurar el logger
@@ -100,7 +101,7 @@ def root():
 @app.route("/registro", methods=["GET", "POST"])
 def registro():
     form = Formulario_de_registro()
-
+    
     # Verifica si el formulario se envió correctamente
     print("Método de solicitud:", request.method)
     if request.method == "POST":
@@ -112,7 +113,7 @@ def registro():
         # Crea un nuevo usuario con el rol seleccionado
         try:
             nuevo_usuario = Usuario(
-                nombre= form.nombre.data,
+                nombre=form.nombre.data,
                 usuario=form.usuario.data,
                 direccion=form.direccion.data,
                 contrasenya=form.contrasenya.data,
@@ -133,14 +134,19 @@ def registro():
                 modulo="Registro de Usuario"
             )
 
-            flash("¡Tu cuenta ha sido creada! Ahora puedes iniciar sesión.", "success")
+            flash("¡Tu cuenta ha sido creada con éxito! Ahora puedes iniciar sesión.", "success")
             return redirect(url_for("login"))
+
         except Exception as e:
             print("Error al intentar guardar el usuario en la base de datos:", str(e))
             flash(f"Ocurrió un error al registrar tu usuario: {str(e)}", "danger")
+
     else:
-        # Muestra por qué las validaciones fallaron (si aplican)
+        # Captura errores de validación y los muestra con flash
         print("Errores en la validación del formulario:", form.errors)
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"Error en {field}: {error}", "warning")
 
     return render_template("registro.html", form=form)
 
@@ -151,22 +157,26 @@ def login():
 
     if form.validate_on_submit():
         usuario = Usuario.query.filter_by(usuario=form.usuario.data).first()
+        flash(f"¡Bienvenido, {usuario.usuario}!", "success")
 
         if usuario and usuario.check_contrasenya(form.contrasenya.data):
             login_user(usuario)  # Inicia sesión del usuario
-
             # Verificación del rol del usuario
             if usuario.rol == "admin":  # Asegúrate de que los roles estén configurados en tu modelo
                 return redirect(url_for("menu_principal"))  # Ruta para el menú del administrador
             elif usuario.rol == "cliente":
                 return redirect(url_for("menu_cliente"))  # Ruta para el menú del cliente
-            else:
-                flash("Rol de usuario desconocido. Contacte al administrador.", "warning")
-                return redirect(url_for("login"))  # Regresa al login si hay un error
+
 
         else:
             flash("Usuario o contraseña incorrectos.", "danger")
-            print("Mensaje de error enviado.")
+
+    else:
+        # Captura errores de validación y los muestra con flash
+        print("Errores en la validación del formulario:", form.errors)
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"Error en {field}: {error}", "warning")
 
     return render_template("index.html", form=form)
 
@@ -183,9 +193,6 @@ def logout():
 def menu_principal():
     if current_user.is_authenticated and current_user.rol == "admin":
         return render_template("menu.html")
-    else:
-        flash("Acceso denegado. Solo para administradores.", "danger")
-        return redirect(url_for("index"))
 
 @app.route("/menu-cliente", methods=["GET", "POST"])
 @login_required
@@ -193,9 +200,6 @@ def menu_principal():
 def menu_cliente():
     if current_user.is_authenticated and current_user.rol == "cliente":  # Verifica que el rol sea Cliente
         return render_template("menu-cliente.html")  # Renderiza el menú del cliente
-    else:
-        flash("Acceso denegado. Solo para clientes.", "danger")
-        return redirect(url_for("index"))  # Redirige a la página de inicio si no cumple con el rol
 
 @app.route("/perfil_cliente", methods=["GET", "POST"])
 @login_required
@@ -233,21 +237,22 @@ def perfil_cliente():
 @login_required
 @role_required("admin")
 def productos():
-    # Obtener todos los productos usando Flask-SQLAlchemy
-    productos = Producto.query.all()  # Reemplaza session.query con Producto.query
-    print(productos)
-
-    # Renderizar la plantilla con los productos
-    return render_template("productos.html", productos=productos)
-
-
-
-
-
-
-
-
-
+    orden = request.args.get('orden', 'asc')
+    if orden == 'asc':
+        productos = Producto.query.order_by(Producto.modelo.asc()).all()
+    elif orden == 'desc':
+        productos = Producto.query.order_by(Producto.modelo.desc()).all()
+    elif orden == 'precio_asc':
+        productos = Producto.query.order_by(Producto.precio.asc()).all()
+    elif orden == 'precio_desc':
+        productos = Producto.query.order_by(Producto.precio.desc()).all()
+    elif orden == 'cantidad_asc':
+        productos = Producto.query.order_by(Producto.cantidad.asc()).all()
+    elif orden == 'cantidad_desc':
+        productos = Producto.query.order_by(Producto.cantidad.desc()).all()
+    else:
+        productos = Producto.query.all()
+    return render_template('productos.html', productos=productos, orden=orden)
 
 @app.route("/productos_cliente", methods=["GET", "POST"])
 @login_required
@@ -255,25 +260,31 @@ def productos():
 def productos_cliente():
     # Obtener todos los productos usando Flask-SQLAlchemy
     productos = Producto.query.all()
-    print(productos)
-
-    # Renderizar la plantilla con los productos
-    return render_template("productos-cliente.html", productos=productos)
+    alertas = [producto for producto in productos if producto.cantidad <= producto.cantidad_minima]
+    return render_template("productos-cliente.html", productos=productos, alertas= alertas)
 
 @app.route('/agregar_a_la_cesta/<producto_id>', methods=['POST'])
 @login_required
 @role_required("cliente")
 def agregar_a_la_cesta(producto_id):
-    usuario_id = current_user.id
-    item = CestaDeCompra.query.filter_by(usuario_id=usuario_id, producto_id=producto_id).first()
+    try:
+        # Verificar si el producto ya está en la cesta
+        item = CestaDeCompra.query.filter_by(usuario_id=current_user.id, producto_id=producto_id).first()
+        if item:
+            # Si el producto ya está en la cesta, incrementar la cantidad
+            item.cantidad += 1
+        else:
+            # Si el producto no está en la cesta, agregarlo
+            nuevo_item = CestaDeCompra(usuario_id=current_user.id, producto_id=producto_id, cantidad=1)
+            db.session.add(nuevo_item)
 
-    if item:
-        item.cantidad += 1
-    else:
-        nuevo_item = CestaDeCompra(usuario_id=usuario_id, producto_id=producto_id, cantidad=1)
-        db.session.add(nuevo_item)
+        db.session.commit()
+        flash('Producto agregado a la cesta', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error al agregar el producto a la cesta', 'danger')
+        print(e)
 
-    db.session.commit()
     return redirect(url_for('productos_cliente'))
 
 @app.route("/cesta", methods=['POST', 'GET'])
@@ -315,63 +326,135 @@ def eliminar_de_la_cesta(item_id):
 
     return redirect(url_for('cesta'))
 
-@app.route('/realizar_compra', methods=['POST'])
+@app.route('/confirmacion-de-compra', methods=['GET', 'POST'])
 @login_required
 @role_required("cliente")
-def realizar_compra():
-    usuario_id = current_user.id
-    cesta_items = CestaDeCompra.query.filter_by(usuario_id=usuario_id).all()
+def confirmacion_de_compra():
+    # Obtener los elementos de la cesta para el usuario actual
+    cesta_items = CestaDeCompra.query.filter_by(usuario_id=current_user.id).all()
+    total = sum(item.producto.precio * item.cantidad for item in cesta_items)
+
+    return render_template('confirmacion-de-compra.html', cesta_items=cesta_items, total=total)
+
+@app.route('/confirmar-compra', methods=['POST'])
+@login_required
+@role_required("cliente")
+def confirmar_compra():
+    direccion = request.form.get('direccion')
+    metodo_pago = request.form.get('metodo_pago')
+
+    if not direccion or not metodo_pago:
+        flash('Por favor, completa todos los campos', 'warning')
+        return redirect(url_for('confirmacion_de_compra'))
+
+    # Obtener los elementos de la cesta para el usuario actual
+    cesta_items = CestaDeCompra.query.filter_by(usuario_id=current_user.id).all()
 
     if not cesta_items:
         flash('No hay productos en la cesta', 'warning')
         return redirect(url_for('cesta'))
 
-    total = 0
-    compras = []
-    for item in cesta_items:
-        producto = item.producto
-        proveedor = producto.proveedor
-        precio_unitario = producto.precio
-        cantidad = item.cantidad
-        iva = proveedor.iva  # Asumiendo que cada proveedor tiene un atributo 'iva' que es el porcentaje de IVA
-        precio_con_iva = precio_unitario * (1 + iva / 100)
-        total_producto = precio_con_iva * cantidad
+    try:
+        pedidos = {}
 
-        compra = Compra(
-            producto_id=producto.id,
-            cantidad=cantidad,
-            precio_unitario=precio_unitario,
-            proveedor_id=proveedor.id,
-            total=total_producto
-        )
-        compras.append(compra)
-        total += total_producto
+        for item in cesta_items:
+            producto = Producto.query.get(item.producto_id)
+            proveedor_id = producto.proveedor_id  # Asumiendo que el producto tiene un campo proveedor_id
+            if producto:
+                if item.producto_id in pedidos:
+                    pedidos[item.producto_id]['cantidad'] += item.cantidad
+                else:
+                    pedidos[item.producto_id] = {
+                        'producto': producto,
+                        'cantidad': item.cantidad,
+                        'precio_unitario': producto.precio,
+                        'proveedor_id': proveedor_id
+                    }
 
-    # Guardar las compras en la base de datos
-    for compra in compras:
-        db.session.add(compra)
+        for producto_id, data in pedidos.items():
+            producto = data['producto']
+            cantidad = data['cantidad']
+            precio_unitario = data['precio_unitario']
+            proveedor_id = data['proveedor_id']
+            total = cantidad * precio_unitario
 
-    # Vaciar la cesta
-    for item in cesta_items:
-        db.session.delete(item)
+            # Verificar si hay suficiente inventario
+            if producto.cantidad < cantidad:
+                flash(f'No hay suficiente inventario para {producto.nombre}', 'danger')
+                return redirect(url_for('cesta'))
 
-    db.session.commit()
-    flash('Compra realizada con éxito', 'success')
+            # Actualizar la cantidad del producto en el inventario
+            producto.cantidad -= cantidad
 
-    return render_template('confirmacion_de_compra.html', compras=compras, total=total)
+            # Verificar si ya existe una compra del mismo producto y usuario
+            compra_existente = Compra.query.filter_by(producto_id=producto_id, usuario_id=current_user.id, estado="Pendiente").first()
+            if compra_existente:
+                compra_existente.cantidad += cantidad
+                compra_existente.total += total
+            else:
+                # Crear un nuevo registro de compra
+                nueva_compra = Compra(
+                    producto_id=producto_id,
+                    usuario_id=current_user.id,
+                    cantidad=cantidad,
+                    precio_unitario=precio_unitario,
+                    proveedor_id=proveedor_id,
+                    total=total,
+                    estado="Pendiente"
+                )
+                db.session.add(nueva_compra)
 
+            # Eliminar el producto de la cesta
+            db.session.delete(item)
 
+        db.session.commit()
 
+        flash('Compra realizada con éxito', 'success')
+        return redirect(url_for('pedidos'))
+    except Exception as e:
+        db.session.rollback()
+        flash('Error al realizar la compra', 'danger')
+        print(e)
+        return redirect(url_for('cesta'))
 
+@app.route("/pedidos", methods=["GET"])
+@login_required
+@role_required("cliente")
+def pedidos():
+    pedidos = Compra.query.filter_by(usuario_id=current_user.id).filter(Compra.estado != "Cancelado").all()
+    return render_template("pedidos.html", pedidos=pedidos)
 
+@app.route('/cancelar_pedido/<pedido_id>', methods=['POST'])
+@login_required
+@role_required("cliente")
+def cancelar_pedido(pedido_id):
+    pedido = Compra.query.get(pedido_id)
 
+    if not pedido or pedido.usuario_id != current_user.id:
+        flash('Pedido no encontrado o no tienes permiso para cancelarlo', 'danger')
+        return redirect(url_for('pedidos'))
 
+    if pedido.estado != "Pendiente":
+        flash('No se puede cancelar un pedido que no esté en estado Pendiente', 'warning')
+        return redirect(url_for('pedidos'))
 
+    try:
+        # Devolver la cantidad de productos al inventario
+        producto = Producto.query.get(pedido.producto_id)
+        if producto:
+            producto.cantidad += pedido.cantidad
 
+        # Cambiar el estado del pedido a "Cancelado"
+        pedido.estado = "Cancelado"
 
+        db.session.commit()
+        flash('Pedido cancelado y cantidad devuelta al inventario', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error al cancelar el pedido', 'danger')
+        print(e)
 
-
-
+    return redirect(url_for('pedidos'))
 
 # Endpoint para obtener los tipos de producto según el proveedor seleccionado
 @app.route('/tipos-producto/<proveedor_id>', methods=['GET'])
@@ -473,7 +556,6 @@ MARCAS_Y_MODELOS = {
     }
 }
 
-
 @app.route("/get_modelos", methods=["GET"])
 def get_modelos():
     tipo_producto = request.args.get("tipo_producto")  # Se obtiene el tipo de producto
@@ -542,7 +624,7 @@ def agregar_producto():
             # Registrar actividad
             registrar_actividad(
                 usuario_id=current_user.id,
-                accion=f"Se añadió producto: {nuevo_producto.descripcion} con ID {nuevo_producto.id}",
+                accion=f"Se añadió producto: {nuevo_producto.modelo} con ID {nuevo_producto.id}",
                 modulo="Gestión de Productos"
             )
 
@@ -630,23 +712,21 @@ def proveedores():
 @login_required
 @role_required("admin")
 def agregar_proveedor():
-    """
-    Ruta para agregar un nuevo proveedor a la base de datos.
-    """
     print(request.form)  # Debug: Ver los datos enviados por el formulario
 
-    if request.method == 'POST':
-        # Validar los datos del formulario
-        valido, datos_o_error = validar_datos_proveedor(request.form)
-        if not valido:
-            flash(datos_o_error, 'danger')  # Mostrar el mensaje de error
-            return render_template('agregar-proveedor.html', form=ProveedorForm())
+    form = ProveedorForm()  # Se crea el formulario antes de la validación
 
-        # Intentar guardar los datos en la base de datos
+    if request.method == 'POST' and request.form:  # ✅ Solo si el formulario tiene datos
+        valido, datos_o_error = validar_datos_proveedor(request.form)
+
+        if not valido:
+            flash(datos_o_error, 'danger')  # Mostrar mensaje de error solo si la validación falla
+            return render_template('agregar-proveedor.html', form=form)
+
         try:
-            nuevo_proveedor = Proveedor(**datos_o_error)  # Crear una instancia del modelo
-            db.session.add(nuevo_proveedor)              # Agregar a la sesión
-            db.session.commit()                          # Confirmar cambios
+            nuevo_proveedor = Proveedor(**datos_o_error)  # Crear instancia del modelo
+            db.session.add(nuevo_proveedor)
+            db.session.commit()
 
             # Registrar actividad
             registrar_actividad(
@@ -657,21 +737,18 @@ def agregar_proveedor():
 
             flash('Proveedor registrado exitosamente.', 'success')
             return redirect('/proveedores')
+
         except Exception as e:
             db.session.rollback()  # Revertir cambios en caso de error
-            app.logger.error(f"Error al guardar proveedor: {str(e)}")  # Registrar el error
+            app.logger.error(f"Error al guardar proveedor: {str(e)}")
             flash(f'Error al guardar el proveedor: {e}', 'danger')
 
-    # Si el método es GET o hay errores, renderizar el formulario
-    return render_template('agregar-proveedor.html', form=ProveedorForm())
+    return render_template('agregar-proveedor.html', form=form)  # ✅ GET solo renderiza el formulario
 
 @app.route('/editar_proveedor/<string:proveedor_id>', methods=['GET', 'POST'])
 @login_required
 @role_required("admin")
 def editar_proveedor(proveedor_id):
-    """
-    Ruta para editar un proveedor existente.
-    """
     # Buscar el proveedor por ID
     proveedor = Proveedor.query.get_or_404(proveedor_id)
 
@@ -708,7 +785,7 @@ def editar_proveedor(proveedor_id):
         except Exception as e:
             db.session.rollback()  # Revertir cambios en caso de error
             app.logger.error(f"Error al actualizar proveedor: {str(e)}")  # Registrar el error
-            flash(f'Error al actualizar el proveedor: {e}', 'danger')
+            flash(f'Error al actualizar el proveedor: {e}', 'error')
 
     # Cargar el formulario con los datos actuales (GET)
     form = ProveedorForm(
@@ -739,11 +816,147 @@ def eliminar_proveedor(id):
     )
     return redirect(url_for("proveedores"))  # Redirigir a la lista de proveedores
 
-@app.route("/graficas", methods=["GET"])
+@app.route('/graficas', methods=["GET"])
 @login_required
 @role_required("admin")
 def graficas():
-    return render_template("graficas.html", graficas= graficas)
+    return render_template("graficas.html")
+
+def get_intervalo(intervalo):
+    if intervalo == 'dia':
+        return extract('year', Compra.fecha), extract('doy', Compra.fecha), 'Día'
+    elif intervalo == 'semana':
+        return extract('year', Compra.fecha), extract('week', Compra.fecha), 'Semana'
+    elif intervalo == 'mes':
+        return extract('year', Compra.fecha), extract('month', Compra.fecha), 'Mes'
+    elif intervalo == 'trimestre':
+        return extract('year', Compra.fecha), func.ceil(extract('month', Compra.fecha) / 3), 'Trimestre'
+    elif intervalo == 'anio':
+        return extract('year', Compra.fecha), None, 'Año'
+    else:
+        return extract('year', Compra.fecha), extract('month', Compra.fecha), 'Mes'
+
+@app.route('/data/distribucion_productos')
+@login_required
+@role_required("admin")
+def data_distribucion_productos():
+    productos = db.session.query(Producto.tipo_producto, func.count(Producto.id)).group_by(Producto.tipo_producto).all()
+    tipos = [producto.tipo_producto for producto in productos]
+    cantidades = [producto[1] for producto in productos]
+    return jsonify({'tipos': tipos, 'cantidades': cantidades})
+
+@app.route('/data/ventas_totales')
+@login_required
+@role_required("admin")
+def data_ventas_totales():
+    intervalo = request.args.get('interval', 'mes')
+    year, period, period_label = get_intervalo(intervalo)
+    if period is None:
+        ventas = db.session.query(
+            year.label('year'),
+            func.sum(Compra.total).label('total')
+        ).group_by(year).all()
+        periodos = [f"{int(venta.year)}" for venta in ventas]
+    else:
+        ventas = db.session.query(
+            year.label('year'),
+            period.label('period'),
+            func.sum(Compra.total).label('total')
+        ).group_by(year, period).all()
+        periodos = [f"{int(venta.period)}/{int(venta.year)}" for venta in ventas]
+
+    totales = [venta.total for venta in ventas]
+    return jsonify({'periodos': periodos, 'totales': totales, 'period_label': period_label})
+
+@app.route('/data/productos_mas_vendidos')
+@login_required
+@role_required("admin")
+def data_productos_mas_vendidos():
+    ventas = db.session.query(
+        Compra.producto_id,
+        func.sum(Compra.cantidad).label('cantidad')
+    ).group_by(Compra.producto_id).order_by(func.sum(Compra.cantidad).desc()).limit(10).all()
+
+    productos = [db.session.query(Producto).get(venta.producto_id).modelo for venta in ventas]
+    cantidades = [venta.cantidad for venta in ventas]
+    return jsonify({'productos': productos, 'cantidades': cantidades})
+
+@app.route('/data/usuarios_registrados')
+def data_usuarios_registrados():
+    intervalo = request.args.get('interval', 'mes')  # Obtener el intervalo de la URL
+
+    # Seleccionar la columna de agrupación según el intervalo elegido
+    if intervalo == 'dia':
+        periodo = func.strftime('%Y-%m-%d', Usuario.fecha_registro)  # Agrupar por día
+    elif intervalo == 'semana':
+        periodo = func.strftime('%Y-%W', Usuario.fecha_registro)  # Agrupar por semana
+    elif intervalo == 'mes':
+        periodo = func.strftime('%Y-%m', Usuario.fecha_registro)  # Agrupar por mes
+    elif intervalo == 'anio':
+        periodo = func.strftime('%Y', Usuario.fecha_registro)  # Agrupar por año
+    else:
+        return jsonify({'error': 'Intervalo no válido'}), 400
+
+    # Consulta SQL para contar usuarios en el intervalo seleccionado
+    registros = db.session.query(
+        periodo.label('periodo'),
+        func.count(Usuario.id).label('total')
+    ).group_by(periodo).order_by(periodo).all()
+
+    # Convertir los datos en formato JSON
+    periodos = [registro.periodo for registro in registros]
+    totales = [registro.total for registro in registros]
+
+    return jsonify({'periodos': periodos, 'totales': totales})
+
+@app.route('/data/ingresos_por_usuario')
+@login_required
+@role_required("admin")
+def data_ingresos_por_usuario():
+    intervalo = request.args.get('interval', 'mes')
+    year, period, _ = get_intervalo(intervalo)
+    if period is None:
+        ingresos = db.session.query(
+            Usuario.usuario,
+            func.sum(Compra.total).label('total')
+        ).join(Compra).group_by(Usuario.usuario).all()
+        usuarios = [ingreso.usuario for ingreso in ingresos]
+    else:
+        ingresos = db.session.query(
+            Usuario.usuario,
+            year.label('year'),
+            period.label('period'),
+            func.sum(Compra.total).label('total')
+        ).join(Compra).group_by(Usuario.usuario, year, period).all()
+        usuarios = [f"{ingreso.usuario} ({int(ingreso.period)}/{int(ingreso.year)})" for ingreso in ingresos]
+
+    totales = [ingreso.total for ingreso in ingresos]
+    return jsonify({'usuarios': usuarios, 'ingresos': totales})
+
+@app.route('/data/compras_por_categoria')
+@login_required
+@role_required("admin")
+def data_compras_por_categoria():
+    compras = db.session.query(
+        Producto.tipo_producto,
+        func.count(Compra.id).label('total')
+    ).join(Compra).group_by(Producto.tipo_producto).all()
+    categorias = [compra.tipo_producto for compra in compras]
+    totales = [compra.total for compra in compras]
+    return jsonify({'categorias': categorias, 'compras': totales})
+
+@app.route('/data/productos_menos_vendidos')
+@login_required
+@role_required("admin")
+def data_productos_menos_vendidos():
+    ventas = db.session.query(
+        Compra.producto_id,
+        func.sum(Compra.cantidad).label('cantidad')
+    ).group_by(Compra.producto_id).order_by(func.sum(Compra.cantidad).asc()).limit(10).all()
+
+    productos = [db.session.query(Producto).get(venta.producto_id).modelo for venta in ventas]
+    cantidades = [venta.cantidad for venta in ventas]
+    return jsonify({'productos': productos, 'cantidades': cantidades})
 
 @app.route("/graficas_cliente", methods=["GET"])
 @login_required
@@ -751,15 +964,82 @@ def graficas():
 def graficas_cliente():
     return render_template("graficas-cliente.html", graficas= graficas)
 
-@app.route("/actividades", methods=["POST", "GET"])
+@app.route("/actividades", methods=["GET", "POST"])
+@login_required
+@role_required("admin")
 def actividades():
-    if current_user.rol != "admin":  # Solo admins pueden ver las actividades
-        flash("No tienes permiso para acceder a esta página.", "danger")
-        return redirect(url_for('index'))
+    # Capturar mensajes de éxito o error desde la URL
+    mensaje_exito = request.args.get("flash_success")
+    mensaje_error = request.args.get("flash_error")
 
+    if mensaje_exito:
+        flash(mensaje_exito, "success")
+    if mensaje_error:
+        flash(mensaje_error, "danger")
+
+    # Obtener actividades, usuarios y compras en orden descendente
     actividades = ActividadUsuario.query.order_by(ActividadUsuario.fecha.desc()).all()
     usuarios = Usuario.query.order_by(Usuario.fecha_registro.desc()).all()
-    return render_template("menu-admin.html", actividades=actividades, usuarios=usuarios)
+    compras = Compra.query.order_by(Compra.fecha.desc()).all()
+
+    return render_template("menu-admin.html", actividades=actividades, usuarios=usuarios, compras=compras)
+
+@app.route('/eliminar_usuario/<string:usuario_id>', methods=['POST'])
+@login_required
+@role_required("admin")
+def eliminar_usuario(usuario_id):
+    usuario = Usuario.query.get(usuario_id)
+
+    if not usuario:
+        flash("Usuario no encontrado.", "danger")
+        return redirect(url_for('actividades'))
+
+    # Evitar que un usuario elimine su propia cuenta
+    if usuario.id == current_user.id:
+        flash("No puedes eliminar tu propia cuenta.", "danger")
+        return redirect(url_for('actividades'))
+
+    try:
+        db.session.delete(usuario)
+        db.session.commit()
+        flash("Usuario eliminado correctamente.", "success")
+    except Exception as e:
+        db.session.rollback()  # Revertir cambios en caso de error
+        flash(f"Error al eliminar el usuario: {str(e)}", "danger")
+
+    return redirect(url_for('actividades'))
+
+@app.route('/cambiar_rol/<string:usuario_id>', methods=['POST'])
+@login_required
+@role_required("admin")
+def cambiar_rol(usuario_id):
+    usuario = Usuario.query.get(usuario_id)
+
+    if not usuario:
+        flash("Usuario no encontrado.", "danger")
+        return redirect(url_for('actividades'))
+
+    nuevo_rol = request.json.get("rol")  # Obtener el nuevo rol desde el JSON
+
+    # Evitar que un usuario cambie su propio rol
+    if usuario.id == current_user.id:
+        flash("No puedes cambiar tu propio rol.", "warning")
+        return redirect(url_for('actividades'))
+
+    # Validar que el rol sea válido
+    if nuevo_rol not in ["admin", "cliente"]:
+        flash("Rol inválido.", "danger")
+        return redirect(url_for('actividades'))
+
+    try:
+        usuario.rol = nuevo_rol
+        db.session.commit()
+        flash("Rol cambiado correctamente.", "success")
+    except Exception as e:
+        db.session.rollback()  # Revertir cambios en caso de error
+        flash(f"Error al actualizar el rol: {str(e)}", "danger")
+
+    return redirect(url_for('actividades'))
 
 if __name__ == "__main__":
     with app.app_context():  # Inicia un contexto de aplicación

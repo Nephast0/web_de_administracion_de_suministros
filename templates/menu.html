@@ -45,8 +45,8 @@
         <div class="container-menu d-flex justify-content-center">
             <div class="titlewhite">
                 <h1 class=""> </h1>
-                <h1 class="display-2 text-center mt-4 titlewhite">Suministros Informáticos</h1>
-                <h1 class="display-2 text-center titlewhite">CNCV</h1>
+                <h1 class="display-2 text-center mt-4 titlewhiteN">Suministros Informáticos</h1>
+                <h1 class="display-2 text-center titlewhiteN">CNCV</h1>
             </div>
 
             <!-- Ajustes en row-menu -->
@@ -55,13 +55,35 @@
                     <a href="/proveedores" class="neon-link mx-2 titlewhite link-menu" style="font-size: 40px; background-color: transparent; color: white;">PROVEEDORES</a>
                 </div>
                 <div class="col-md-4 d-flex justify-content-center">
-                    <a href="/productos" class="neon-link mx-2 titlewhite link-menu" style="font-size: 40px; background-color: transparent; color: white;">PRODUCTOS</a>
+                    <a href="/productos" class="neon-link mx-2 titlewhite link-menu" style="font-size: 40px; background-color: transparent; color: white;">INVENTARIO</a>
                 </div>
                 <div class="col-md-4 d-flex justify-content-center">
                     <a href="/graficas" class="neon-link mx-2 titlewhite link-menu" style="font-size: 40px; background-color: transparent; color: white;">GRÁFICOS</a>
                 </div>
             </div>
         </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert-container">
+                    {% for category, message in messages %}
+                        <div class="modern-alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                            <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                setTimeout(() => {
+                    document.querySelectorAll(".modern-alert").forEach(alert => {
+                        alert.classList.add("hide");
+                        setTimeout(() => alert.remove(), 500);
+                    });
+                }, 5000); // Se oculta en 5 segundos
+            });
+        </script>
     </main>
 </body>
 </html>

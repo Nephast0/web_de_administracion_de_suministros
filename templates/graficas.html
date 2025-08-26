@@ -2,33 +2,205 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>graficos</title>
+    <title>Gráficos</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
-    <!-- estilo bootstrap -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+
+    <!-- Estilo Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
-    <!-- icono de logout -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=logout" />
-    <!-- icono del buscador -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
-    <!-- icono del back -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
+
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap">
+
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Grenze:wght@100..900&family=Playfair+Display:wght@400..900&display=swap" rel="stylesheet">
 
+    <!-- Librería Chart.js para gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #333;
+            color: white;
+            font-family: 'Grenze', serif;
+        }
+        .container {
+            padding-top: 20px;
+        }
+        .card {
+            background-color: #444;
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .material-symbols-outlined {
+            font-size: 34px;
+            color: white;
+        }
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+        select {
+            background-color: #333; /* Color de fondo del dropdown */
+            color: white; /* Color del texto */
+            border: 1px solid #777; /* Borde para que combine con el tema */
+        }
+
+        select option {
+            background-color: #222; /* Color de fondo de las opciones */
+            color: white; /* Color del texto de las opciones */
+        }
+
+        /* Para cambiar el color cuando se pasa el cursor */
+        select option:hover {
+            background-color: #444;
+        }
+    </style>
 </head>
 <body>
-    <main class="container p-5">
-        <form action="/menu_principal" method="post" style="position: absolute; top: 40px; left: 70px;" >
-             <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
-                 arrow_back
-             </button>
-         </form>
-        <div class="Display-4 text-center titlewhite">
-            <h1>Gráficas</h1>
+    <main class="container">
+        <!-- Botón de volver -->
+        <form action="/menu_principal" method="post" class="position-absolute" style="top: 40px; left: 70px;">
+            <button type="submit" class="material-symbols-outlined" style="background-color: transparent;">
+                arrow_back
+            </button>
+        </form>
+
+        <div class="text-center mb-4">
+            <h1 class="titlewhiteN">Gráficas</h1>
+            <!-- Selector de intervalo de tiempo -->
+            <label for="intervaloTiempo" class="form-label titlewhiteN">Seleccione el intervalo de tiempo:</label>
+            <select id="intervaloTiempo" class="form-select w-50 mx-auto fondo titlewhite">
+                <option value="dia">Diario</option>
+                <option value="semana">Semanal</option>
+                <option value="mes" selected>Mensual</option>
+                <option value="trimestre">Trimestral</option>
+                <option value="anio">Anual</option>
+            </select>
+        </div>
+
+        <!-- Contenedor de Gráficas -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title titlewhiteN">Distribución de Productos por Tipo</h3>
+                        <canvas id="distribucionProductos"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title titlewhiteN">Ventas Totales</h3>
+                        <canvas id="ventasTotales"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title titlewhiteN">Productos Más Vendidos</h3>
+                        <canvas id="productosMasVendidos"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title titlewhiteN">Usuarios Registrados</h3>
+                        <canvas id="usuariosRegistrados"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title titlewhiteN">Ingresos por Usuario</h3>
+                        <canvas id="ingresosPorUsuario"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <script>
+        // Función para obtener datos de una API y convertirlos en JSON
+        async function fetchChartData(url) {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.status}`);
+            }
+            return response.json();
+        }
+
+        // Función para crear una gráfica con Chart.js
+        async function createChart(ctx, url, type, dataKey, labelKey, chartLabel) {
+            try {
+                const data = await fetchChartData(url);
+
+                const chartData = {
+                    labels: data[labelKey],
+                    datasets: [{
+                        label: chartLabel,
+                        data: data[dataKey],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2
+                    }]
+                };
+
+                return new Chart(ctx, {
+                    type: type,
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error al obtener los datos:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const intervaloTiempo = document.getElementById('intervaloTiempo');
+
+            // Función para actualizar todas las gráficas cuando cambia el intervalo
+            function updateCharts() {
+                const interval = intervaloTiempo.value;
+
+                createChart(document.getElementById('distribucionProductos'), `/data/distribucion_productos?interval=${interval}`, 'bar', 'cantidades', 'tipos', 'Cantidad');
+                createChart(document.getElementById('ventasTotales'), `/data/ventas_totales?interval=${interval}`, 'line', 'totales', 'periodos', 'Ventas Totales (€)');
+                createChart(document.getElementById('productosMasVendidos'), `/data/productos_mas_vendidos?interval=${interval}`, 'bar', 'cantidades', 'productos', 'Cantidad Vendida');
+                createChart(document.getElementById('usuariosRegistrados'), `/data/usuarios_registrados?interval=${interval}`, 'line', 'totales', 'periodos', 'Usuarios Registrados');
+                createChart(document.getElementById('ingresosPorUsuario'), `/data/ingresos_por_usuario?interval=${interval}`, 'bar', 'ingresos', 'usuarios', 'Ingresos (€)');
+            }
+
+            // Evento para actualizar las gráficas cuando se cambia el select
+            intervaloTiempo.addEventListener('change', updateCharts);
+
+            // Cargar las gráficas por primera vez
+            updateCharts();
+        });
+    </script>
 </body>
 </html>

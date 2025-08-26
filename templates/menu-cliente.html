@@ -27,35 +27,71 @@
 </head>
 <body>
     <main class="container p-6">
-        <form action="/logout" method="post" style="position: absolute; top: 40px; left: 70px;">
-            <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+        <form action="/logout" method="get" style="position: absolute; top: 40px; left: 70px;">
+            <button type="submit" class="material-symbols-outlined" aria-label="Cerrar Sesión" style="font-size: 34px; background-color: transparent; color: white;">
                 logout
             </button>
         </form>
         <!-- Botón de carrito de compras -->
-        <form action="/cesta" method="post" style="position: absolute; top: 40px; right: 70px;">
+        <form action="/cesta" method="get" style="position: absolute; top: 80px; right: 140px;">
             <button type="submit" class="material-symbols-outlined" aria-label="Ir a la cesta" style="font-size: 34px; background-color: transparent; color: white;">
                 shopping_cart
             </button>
         </form>
+        <form action="/perfil_cliente" method="get" style="position: absolute; top: 40px; right: 70px;">
+            <button type="submit" class="material-symbols-outlined" aria-label="Ir al perfil" style="font-size: 34px; background-color: transparent; color: white;">
+                person
+            </button>
+        </form>
+        <form action="/pedidos" method="get" style="position: absolute; top: 120px; right: 70px;">
+            <button type="submit" class="material-symbols-outlined" aria-label="Ir al perfil" style="font-size: 34px; background-color: transparent; color: white;">
+                orders
+            </button>
+        </form>
         <div class="container-menu">
             <div class="text-center titlewhite">
-                <h1 class=""></h1>
-                <h1 class="display-2 text-center mt-4 titlewhite">Suministros Informáticos</h1>
-                <h1 class="display-2 text-center titlewhite">CNCV</h1>
+                <h1 class="display-2 text-center mt-5 titlewhiteN mb-4">Suministros Informáticos</h1>
+                <!-- Aumenté 'mt-4' a 'mt-5' y 'mb-3' a 'mb-4' para más espacio -->
+                <h1 class="display-2 text-center titlewhiteN mb-5">CNCV</h1>
+                <!-- Se añadió 'mb-5' para mayor separación antes de los enlaces -->
             </div>
-            <div class="row d-flex justify-content-center mt-5">
-                <div class="col-md-4 d-flex justify-content-center">
-                    <a href="/productos_cliente" class="neon-link titlewhite text-center" style="font-size: 40px; background-color: transparent; color: white;">PRODUCTOS</a>
+            <div class="row d-flex justify-content-center align-items-center">
+                <div class="col-md-3 d-flex justify-content-center mb-3">
+                    <a href="/productos_cliente" class="neon-link titlewhite text-center"
+                       style="font-size: 40px; background-color: transparent; color: white;">PRODUCTOS</a>
                 </div>
-                <div class="col-md-4 d-flex justify-content-center">
-                    <a href="/perfil_cliente" class="neon-link titlewhite text-center" style="font-size: 40px; background-color: transparent; color: white;">PERFIL</a>
-                </div>
-                <div class="col-md-4 d-flex justify-content-center">
-                    <a href="/graficas_cliente" class="neon-link titlewhite text-center" style="font-size: 40px; background-color: transparent; color: white;">GRÁFICOS</a>
+
+                <!-- Columna vacía para aumentar separación -->
+                <div class="col-md-3"></div>
+
+                <div class="col-md-3 d-flex justify-content-center mb-3">
+                    <a href="/graficas_cliente" class="neon-link titlewhite text-center"
+                       style="font-size: 40px; background-color: transparent; color: white;">GRÁFICOS</a>
                 </div>
             </div>
         </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert-container">
+                    {% for category, message in messages %}
+                        <div class="modern-alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                            <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                setTimeout(() => {
+                    document.querySelectorAll(".modern-alert").forEach(alert => {
+                        alert.classList.add("hide");
+                        setTimeout(() => alert.remove(), 500);
+                    });
+                }, 5000); // Se oculta en 5 segundos
+            });
+        </script>
     </main>
 </body>
 </html>

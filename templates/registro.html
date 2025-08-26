@@ -9,60 +9,63 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-
+    <style>
+    .container {
+        max-width: 600px;
+        margin: 50px auto;
+        background-color: #333;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    .form-control {
+            border-radius: 5px;
+            padding: 8px;
+        }
+</style>
 </head>
 <body>
-    <main class="container p-5">
-        <form action="/logout" method="post" style="position: absolute; top: 40px; left: 70px;" >
+    <main class="container">
+        <form action="/logout" method="post" style="position: absolute; top: 20px; left: 20px;">
             {{ form.hidden_tag() }}
             <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
-                 arrow_back
+                arrow_back
             </button>
         </form>
-        <div class="row">
-            <div class="col-md-5 offset-md-4 mt-4">
-                <div class="card border-light mb-3" style="max-width: 20rem;">
-                    <div class="card-header text-center titlewhiteS fondo">
-                        Introduzca sus datos
-                    </div>
-                    <div class="card-body text-left">
-                        <form action="{{ url_for('registro') }}" method="post">
-                            {{ form.csrf_token }}
-                            <div class="form-group">
-                                <label for="nombre" class="form-label mt-4 titleblack">Nombre y Apellido</label>
-                                <input type="text" name="nombre" class="form-control" id="nombre" placeholder="Nombre Completo">
-                            </div>
-                            <div class="form-group">
-                                <label for="usuario" class="form-label mt-4 titleblack">Nombre de Usuario</label>
-                                <input type="text" name="usuario" class="form-control" id="usuario" placeholder="Usuario">
-                            </div>
-                            <div class="form-group">
-                                <label for="direccion" class="form-label mt-4 titleblack">Dirección de Usuario</label>
-                                <input type="text" name="direccion" class="form-control" id="direccion" placeholder="Dirección">
-                            </div>
-                            <div class="form-group">
-                                <label for="contrasenya" class="form-label mt-4 titleblack">Contraseña deseada</label>
-                                <input type="password" name="contrasenya" class="form-control" id="contrasenya" placeholder="Contraseña">
-                            </div>
-                            <div class="form-group">
-                                <label for="contrasenya2" class="form-label mt-4 titleblack">Confirmar contraseña</label>
-                                <input type="password" name="contrasenya2" class="form-control" id="contrasenya2" placeholder="Confirmar contraseña">
-                            </div>
-                            <div class="form-group">
-                                <label for="exampleInputRol1" class="form-label mt-4 titleblack">Rol (Cliente/Admin)</label>
-                                <select name="rol" class="form-control" id="exampleInputRol1">
-                                    <option value="cliente">Cliente</option>
-                                    <option value="admin">Administrador</option>
-                                </select>
-                            </div>
-                            <button class="btn-block neon-link titlewhite fondo" style="background-color: transparent; color: white;" type="submit">
-                                Registrar
-                            </button>
-                        </form>
-                    </div>
-                </div>
+        <h3 class="text-center titlewhiteN">Introduzca sus datos</h3>
+        <form action="{{ url_for('registro') }}" method="post">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                <label for="nombre" class="form-label titlewhite">Nombre y Apellido</label>
+                <input type="text" name="nombre" class="form-control" id="nombre" placeholder="Nombre Completo">
             </div>
-        </div>
+            <div class="form-group">
+                <label for="usuario" class="form-label titlewhite">Nombre de Usuario</label>
+                <input type="text" name="usuario" class="form-control" id="usuario" placeholder="Usuario">
+            </div>
+            <div class="form-group">
+                <label for="direccion" class="form-label titlewhite">Dirección de Usuario</label>
+                <input type="text" name="direccion" class="form-control" id="direccion" placeholder="Dirección">
+            </div>
+            <div class="form-group">
+                <label for="contrasenya" class="form-label titlewhite">Contraseña deseada</label>
+                <input type="password" name="contrasenya" class="form-control" id="contrasenya" placeholder="Contraseña">
+            </div>
+            <div class="form-group">
+                <label for="contrasenya2" class="form-label titlewhite">Confirmar contraseña</label>
+                <input type="password" name="contrasenya2" class="form-control" id="contrasenya2" placeholder="Confirmar contraseña">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputRol1" class="form-label titlewhite">Rol (Cliente/Admin)</label>
+                <select name="rol" class="form-control" id="exampleInputRol1">
+                    <option value="cliente">Cliente</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+            <button class="btn-block neon-link titlewhite fondo" type="submit">
+                Registrar
+            </button>
+        </form>
     </main>
 </body>
 </html>

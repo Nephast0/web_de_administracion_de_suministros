@@ -47,7 +47,7 @@ class Login_form(FlaskForm):
         ]
     )
     contrasenya = PasswordField(
-        "Contraseña",
+        "Contrasenya",
         validators=[
             DataRequired(message="La contraseña es obligatoria.")
         ]

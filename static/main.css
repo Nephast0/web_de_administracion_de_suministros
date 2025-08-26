@@ -17,6 +17,28 @@ table {
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
+/* Estilo para navegadores basados en WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 8px; /* Hace la scrollbar más delgada */
+}
+
+/* Track (fondo de la scrollbar) */
+::-webkit-scrollbar-track {
+  background: #222; /* Color del fondo de la scrollbar */
+  border-radius: 5px;
+}
+
+/* Handle (barra que se mueve) */
+::-webkit-scrollbar-thumb {
+  background: #555; /* Color del scrollbar */
+  border-radius: 5px;
+}
+
+/* Hover sobre el scrollbar */
+::-webkit-scrollbar-thumb:hover {
+  background: #777; /* Color cuando el usuario pasa el cursor */
+}
+
 tr {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -95,7 +117,6 @@ tr:hover {
     border-radius: 0;
 }
 
-
 .titleblack {
   font-family: "Grenze", serif;
   font-weight: 900;
@@ -113,14 +134,20 @@ tr:hover {
   -webkit-background-clip: text;
   -webkit-text-fill-color: white;
 }
-
-.titlewhiteS {
-  font-family: "Grenze", serif;
-  font-weight: 300;
-  font-style: italic;
-  background: -webkit-linear-gradient(#eee, #333);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: white;
+.titlewhiteN {
+    font-family: "Grenze", serif;
+    font-weight: 800;
+    font-style: italic;
+    /* Aplica un degradado de color */
+    background: -webkit-linear-gradient(#eee, #333);
+    -webkit-background-clip: text;
+    /* Mantiene el texto blanco pero permite el brillo */
+    -webkit-text-fill-color: white;
+    /* Agrega un efecto de neón con resplandor */
+    text-shadow:
+        0 0 5px rgba(255, 255, 255, 0.8),  /* Brillo suave alrededor */
+        0 0 10px rgba(255, 255, 255, 0.6), /* Capa intermedia de brillo */
+        0 0 20px rgba(255, 255, 255, 0.4); /* Efecto de neón más extendido */
 }
 .titlegrey {
   font-family: "Grenze", serif;
@@ -194,76 +221,91 @@ tr:hover {
 }
 
 .alert-container {
-  position: fixed;
-  top: 600px;
-  right: 825px;
-  width: 320px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 300px;
 }
 
-/* Estilo base para las alertas */
 .modern-alert {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-radius: 1px;
-  font-family: "Grenze", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  color: transparent;
-  background-color: #transparent;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.5s ease-in-out;
-  opacity: 1;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    color:white !important;
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff;
+    animation: flicker 1.5s infinite alternate;
+    margin-bottom: 10px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-/* Botón de cerrar */
-.close-alert {
-  background: none;
-  border: none;
-  color: #888888;
-  font-size: 18px;
-  cursor: pointer;
-  transition: color 0.2s;
+/* 🔹 Agregada animación de parpadeo sutil */
+@keyframes flicker {
+    0% {
+        opacity: 1;
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #fff;
+    }
+    100% {
+        opacity: 0.8;
+        text-shadow: 0 0 5px #ccc, 0 0 10px #ccc, 0 0 15px #ccc, 0 0 20px #ccc;
+    }
 }
 
-.close-alert:hover {
-  color: #333333;
-}
-
-/* Colores personalizados por categoría */
 .alert-success {
-  border-left: 4px solid #27ae60; /* Verde */
+    background: linear-gradient(45deg, #28a745, #218838);
 }
 
 .alert-danger {
-  border-left: 4px solid #e74c3c; /* Rojo */
-}
-
-.alert-info {
-  border-left: 4px solid #3498db; /* Azul */
+    background: linear-gradient(45deg, #dc3545, #c82333);
 }
 
 .alert-warning {
-  border-left: 4px solid #f1c40f; /* Amarillo */
+    background: linear-gradient(45deg, #ffc107, #e0a800);
+    color: black;
 }
 
-/* Animación para entrada */
-@keyframes slideIn {
-  from {
-    transform: translateY(-10px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+.alert-info {
+    background: linear-gradient(45deg, #2a7480, #138496);
+}
+
+.close-alert {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
 }
 
 .modern-alert {
-  animation: slideIn 0.5s ease-in-out;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.modern-alert.hide {
+    animation: fadeOut 0.5s ease-in-out forwards;
 }

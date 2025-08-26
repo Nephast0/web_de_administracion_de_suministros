@@ -19,78 +19,80 @@
     <style>
         /* Centrar el contenido usando Flexbox */
         body {
-          display: flex;
-          justify-content: center; /* Centrar horizontalmente */
-          align-items: center; /* Centrar verticalmente */
-          min-height: 70vh; /* Altura mínima de la pantalla completa */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            background-color: #222;
         }
-        input{
-            width: 50px;
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             text-align: center;
-            background: black;
-            color: white;
-            border: 1px solid white;
-            border-radius: 5px;
         }
-
-        /* Efecto neón al pasar el mouse */
-        input[type="number"]:hover,
-        input[type="number"]:focus {
-            box-shadow: 0 0 10px white;
-            border-color: 1px solid white;
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-control {
+            border-radius: 5px;
+            padding: 8px;
+        }
+        .btn-block {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+        }
+        .registrarse {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <main class="container p-6">
-        <div class="text-center titlewhite">
-            <h1 class="display-4 mt-4 titlewhite"> Suministros Informáticos </h1>
-            <h1 class="display-3 titlewhite"> cncv </h1>
-        </div>
-        <div class="row">
-        <div class="col-md-4 offset-md-4">
-            <div class="card border-light mb-3" style="max-width: 20rem;">
-                <div class="card-header text-center titlewhite fondo">
-                    iniciar sesión
-                </div>
-                <div class="card-body text-left">
-                    <form action="/login" method="post">
-                        {{ form.hidden_tag() }}
-                        <div class="form-group">
-                            <label for="exampleInputUser1" class="form-label mt-4 titleblack">Usuario</label>
-                            <input type="text" name="usuario" class="form-control" id="exampleInputUser1" aria-describedby="userHelp" placeholder="Usuario" autofocus>
-                            <label for="exampleInputPassword1" class="form-label mt-4 titleblack">Contraseña</label>
-                            <input type="password" name="contrasenya" class="form-control" id="exampleInputPassword1" placeholder="Contraseña" autocomplete="off">
-                            <button class="btn-block neon-link titlewhite fondo" style="background-color: transparent; color: white;" type="submit">
-                                iniciar
-                            </button>
-                        </div>
-                    </form>
-                    <form action="/registro" method="get">
-                        <div class="registrarse titlegrey">
-                            <a href="registro">
-                                Registrarse
-                            </a>
-                        </div>
-                    </form>
-                </div>
+    <main class="container">
+        <h1 class="display-4 titlewhiteN">Suministros Informáticos</h1>
+        <h2 class="display-3 titlewhiteN">cncv</h2>
+        <form action="/login" method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label for="exampleInputUser1" class="form-label titlewhite">Usuario</label>
+                <input type="text" name="usuario" class="form-control" id="exampleInputUser1" placeholder="Usuario" autofocus autocomplete="off">
             </div>
-            <!-- Bloque para mostrar mensajes flash -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
+            <div class="form-group">
+                <label for="exampleInputPassword1" class="form-label titlewhite">Contraseña</label>
+                <input type="password" name="contrasenya" class="form-control" id="exampleInputPassword1" placeholder="Contraseña" autocomplete="off">
+            </div>
+            <button class="btn-block neon-link titlewhite fondo" type="submit">Iniciar</button>
+        </form>
+        <form action="/registro" method="get" class="registrarse">
+            <a href="registro" class="neon-link titlewhite">Registrarse</a>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
                 <div class="alert-container">
-                  {% for category, message in messages %}
-                    <div class="modern-alert alert-{{ category }}">
-                      <span>{{ message }}</span>
-                         <!-- El tiempo de las alertas luego 5segs o más -->
-                      <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
-                    </div>
-                  {% endfor %}
+                    {% for category, message in messages %}
+                        <div class="modern-alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                            <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
+                        </div>
+                    {% endfor %}
                 </div>
-              {% endif %}
-            {% endwith %}
-        </div>
-        </div>
+            {% endif %}
+        {% endwith %}
     </main>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(() => {
+                document.querySelectorAll(".modern-alert").forEach(alert => {
+                    alert.classList.add("hide");
+                    setTimeout(() => alert.remove(), 500);
+                });
+            }, 5000); // Se oculta en 5 segundos
+        });
+    </script>
 </body>
 </html>

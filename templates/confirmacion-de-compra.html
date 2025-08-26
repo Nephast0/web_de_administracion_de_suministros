@@ -3,97 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <title>Confirmación de Compra</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- boton back-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     <style>
-        /* Include your CSS styles here */
-        .flex {
-            display: flex;
-            flex-direction: column;
-            background-color: white;
-            border-radius: 1.5rem;
-            padding: 2rem;
+        .container {
             max-width: 600px;
-            margin: 2rem auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            text-align: left;
-        }
-        .header h2 {
-            font-size: 2rem;
-            color: #4A5568;
-        }
-        .header p {
-            color: #718096;
-            margin-top: 0.5rem;
-        }
-        .price {
-            margin-top: 2rem;
-            text-align: center;
-        }
-        .price span {
-            font-size: 2.5rem;
-            color: #2D3748;
-        }
-        .price span.base {
-            font-size: 1rem;
-            color: #718096;
-        }
-        .action {
-            margin-top: 2rem;
-            display: flex;
-            justify-content: center;
-        }
-        .action a {
-            padding: 0.75rem 2rem;
-            color: white;
-            background-color: black;
-            border: 2px solid black;
-            border-radius: 9999px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .action a:hover {
-            background-color: transparent;
-            color: black;
+            margin-top: 50px;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
-    <div class="flex">
-        <div class="header">
-            <h2>Confirmación de Compra</h2>
-            <p>Detalles de tu compra</p>
-        </div>
-        <div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Precio Unitario (€)</th>
-                        <th>IVA (%)</th>
-                        <th>Total (€)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for compra in compras %}
-                    <tr>
-                        <td>{{ compra.producto.modelo }}</td>
-                        <td>{{ compra.cantidad }}</td>
-                        <td>{{ compra.precio_unitario }}</td>
-                        <td>{{ compra.proveedor.iva }}</td>
-                        <td>{{ compra.total }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="price">
-            <p>Total: <span>€{{ total }}</span></p>
-        </div>
-        <div class="action">
-            <a href="{{ url_for('productos_cliente') }}">Volver a Productos</a>
-        </div>
-    </div>
+    <main class="container p-5">
+            <form action="/cesta" method="post" style="position: absolute; top: 40px; left: 70px;">
+                <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+                    arrow_back
+                </button>
+            </form>
+            <h1 class="titlewhiteN text-center">Confirmación de Compra</h1>
+            <form action="{{ url_for('confirmar_compra') }}" method="post">
+                <div class="form-group">
+                    <label class="titlewhite" for="direccion">Dirección de Envío:</label>
+                    <input type="text" class="form-control" id="direccion" name="direccion" required>
+                </div>
+                <div class="form-group">
+                    <label class="titlewhite" for="metodo_pago">Método de Pago:</label>
+                    <select class="form-control" id="metodo_pago" name="metodo_pago" required>
+                        <option value="tarjeta">Tarjeta de Crédito/Débito</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="transferencia">Transferencia Bancaria</option>
+                    </select>
+                </div>
+                <div class="text-center">
+                    <button class="btn-block neon-link titlewhite fondo" type="submit">Confirmar Compra</button>
+                </div>
+            </form>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="alert-container">
+                                {% for category, message in messages %}
+                                    <div class="modern-alert alert-{{ category }}">
+                                        <span>{{ message }}</span>
+                                        <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                 {% endwith %}
+                 <script>
+                     document.addEventListener("DOMContentLoaded", function () {
+                        setTimeout(() => {
+                           document.querySelectorAll(".modern-alert").forEach(alert => {
+                               alert.classList.add("hide");
+                               setTimeout(() => alert.remove(), 500);
+                          });
+                       }, 5000); // Se oculta en 5 segundos
+                    });
+                 </script>
+    </main>
 </body>
 </html>

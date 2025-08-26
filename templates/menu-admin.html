@@ -30,7 +30,7 @@
 
         th, td {
             padding: 10px;
-            text-align: left;
+            text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.2); /* Bordes suaves */
         }
 
@@ -51,7 +51,7 @@
             z-index: 10; /* Asegura que esté por encima de otros elementos */
             padding: 10px;
             border: 1px solid #555;
-            text-align: left;
+            text-align: center;
         }
 
         tbody td button {
@@ -68,7 +68,37 @@
             padding-left: 0; /* Elimina los padding de Bootstrap */
             padding-right: 0;
         }
+        select {
+            background-color: #333; /* Color de fondo del dropdown */
+            color: white; /* Color del texto */
+            border: 1px solid #777; /* Borde para que combine con el tema */
+        }
 
+        select option {
+            background-color: #222; /* Color de fondo de las opciones */
+            color: white; /* Color del texto de las opciones */
+        }
+
+        /* Para cambiar el color cuando se pasa el cursor */
+        select option:hover {
+            background-color: #444;
+        }
+        /* Botones personalizados */
+        .btn-neon-r {
+            background: transparent;
+            color: red;
+            border: 1px solid white;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        /* Efecto neón en botones */
+        .btn-neon-r:hover {
+            background: transparent;
+            color: black;
+            box-shadow: 0 0 5px red;
+        }
     </style>
 </head>
 <body>
@@ -81,11 +111,11 @@
         </form>
         <div class="row">
             <div class="col-md-10 mx-auto">
-                <h1 class="text-center titlewhite">Actividades del Sistema</h1>
+                <h1 class="text-center titlewhiteN">Actividades del Sistema</h1>
                 <div class="table-container">
                     <table>
                         <thead>
-                        <tr>
+                        <tr class="titlewhiteN">
                             <th>ID</th>
                             <th>Usuario</th>
                             <th>Acción</th>
@@ -106,16 +136,17 @@
                         </tbody>
                     </table>
                 </div>
-                <h1 class="text-center titlewhite">Registro de Usuarios</h1>
+                <h1 class="text-center titlewhiteN">Registro de Usuarios</h1>
                 <div class="table-container">
                     <table>
                         <thead>
-                        <tr>
+                        <tr class="titlewhiteN">
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Usuario</th>
                             <th>Rol</th>
                             <th>Fecha de Registro</th>
+                            <th>Opciones</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -124,12 +155,97 @@
                             <td>{{ usuario.id }}</td>
                             <td>{{ usuario.nombre }}</td>
                             <td>{{ usuario.usuario }}</td>
-                            <td>{{ usuario.rol }}</td>
+                            <td>
+                                <select class="form-select fondo titlewhite" onchange="cambiarRol('{{ usuario.id }}', this.value)">
+                                    <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>Admin</option>
+                                    <option value="cliente" {% if usuario.rol == 'cliente' %}selected{% endif %}>Cliente</option>
+                                </select>
+                            </td>
                             <td>{{ usuario.fecha_registro }}</td>
+                            <td>
+                                <button class="btn-neon-r btn-sm btn-outline-light titlewhite" onclick="eliminarUsuario('{{ usuario.id }}')">Eliminar</button>
+                            </td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                </div>
+                <h1 class="text-center titlewhiteN">Registro de Compras</h1>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                        <tr class="titlewhiteN">
+                            <th>Compra-ID</th>
+                            <th>Producto-ID</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Proveedor-ID</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for compra in compras %}
+                        <tr>
+                            <td>{{ compra.id }}</td>
+                            <td>{{ compra.producto_id }}</td>
+                            <td>{{ compra.cantidad }}</td>
+                            <td>{{ compra.precio_unitario }}</td>
+                            <td>{{ compra.proveedor_id }}</td>
+                            <td>{{ compra.total }}</td>
+                            <td>{{ compra.estado }}</td>
+                            <td>{{ compra.fecha }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="alert-container">
+                                {% for category, message in messages %}
+                                    <div class="modern-alert alert-{{ category }} titlewhite">
+                                        <span>{{ message }}</span>
+                                        <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            setTimeout(() => {
+                                document.querySelectorAll(".modern-alert").forEach(alert => {
+                                    alert.classList.add("hide");
+                                    setTimeout(() => alert.remove(), 500);
+                                });
+                            }, 5000); // Se oculta en 5 segundos
+                        });
+                    </script>
+                    <script>
+                        // Función para cambiar el rol de un usuario
+                        function cambiarRol(usuarioId, nuevoRol) {
+                            fetch(`/cambiar_rol/${usuarioId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',  // Enviar en formato JSON
+                                },
+                                body: JSON.stringify({ rol: nuevoRol })  // Enviar el nuevo rol
+                            })
+                            .then(response => response.json())  // Asegura que el servidor devuelve JSON
+                            .then(data => {
+                                if (data.success) {
+                                    // Redirigir agregando el mensaje en la URL
+                                    window.location.href = "/actividades?flash_success=" + encodeURIComponent(data.message);
+                                } else {
+                                    window.location.href = "/actividades?flash_error=" + encodeURIComponent(data.message);
+                                }
+                            })
+                            .catch(error => {
+                                alert("Error al cambiar el rol: " + error);
+                            });
+                        }
+                    </script>
                 </div>
             </div>
         </div>
