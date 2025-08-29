@@ -2,10 +2,9 @@ import secrets
 from datetime import datetime
 import bcrypt
 from flask_login import UserMixin
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, String, Float
+from .db import db
 
-db= SQLAlchemy()
 
 class Usuario(UserMixin, db.Model):
     __tablename__ = "usuario"

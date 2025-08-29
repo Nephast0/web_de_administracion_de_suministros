@@ -1,34 +1,43 @@
+
+# utilidades y login
 from functools import wraps
-from glob import escape
-from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from sqlalchemy import func, extract
-import forms
-from forms import Formulario_de_registro, Login_form, EditarPerfilForm, ProveedorForm
-from models import Usuario, Producto, db, Proveedor, ActividadUsuario, CestaDeCompra, Compra
-import logging
+# usa la app creada en la factory
+from flask import current_app as app, render_template, redirect, url_for, flash, request, jsonify
+from flask_login import login_user, logout_user, login_required, current_user
+from markupsafe import escape
+# DB y helpers SQLAlchemy (para func.count, func.strftime, etc.)
+from sqlalchemy import func  # ← para tus consultas con func.*
+from . import forms
+# tus modelos y formularios
+# (elige una de estas dos formas según uses nombres calificados o directos)
+from .forms import Formulario_de_registro, Login_form, ProveedorForm, EditarPerfilForm
+# extensiones inicializadas en __init__.py
+from .extensions import login_manager
+from .models import *  # o explícitos: Usuario, Producto, Proveedor, ...
 
-# Configurar el logger
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-bcrypt = Bcrypt()
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///administracion.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ECHO"] = True
-db.init_app(app)
-app.config['WTF_CSRF_ENABLED'] = False
-app.config["SECRET_KEY"] = "ad877c"
-with app.app_context():
-    db.create_all()
 
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+# o bien:
+# from .forms import Formulario_de_registro, Login_form, EditarPerfilForm, ProveedorForm
+
+# CUIDADO: aquí NO crees app = Flask(...).
+# Tampoco: LoginManager(app). Ya lo inicializamos en __init__.py
+
+@login_manager.user_loader
+def cargar_usuario(usuario_id):
+    return db.session.get(Usuario, str(usuario_id))   # ajusta al modelo real
+
+# (pega aquí tus decoradores auxiliares)
+# (pega aquí TODAS tus rutas con @app.route)
+# @app.route("/")
+# def index():
+#     return render_template("index.html")
+
 
 @login_manager.user_loader
 def cargar_usuario(usuario_id):
     return db.session.get(Usuario, str(usuario_id))
 
+# def role_required(role):
 def role_required(role):
     def decorator(f):
         @wraps(f)
@@ -37,14 +46,17 @@ def role_required(role):
                 flash("Acceso denegado.", "danger")
                 return redirect(url_for("index"))
             return f(*args, **kwargs)
+
         return wrapped
+
     return decorator
+
 
 def registrar_actividad(usuario_id, accion, modulo):
     """
     Registra una actividad de usuario en la base de datos.
 
-    :param usuario_id: ID del usuario que realiza la acción
+    :param usuario_id: El usuario que realiza la acción
     :param accion: Descripción de la acción realizada
     :param modulo: Módulo o funcionalidad donde ocurrió la acción
     """
@@ -59,6 +71,7 @@ def registrar_actividad(usuario_id, accion, modulo):
     except Exception as e:
         db.session.rollback()
         app.logger.error(f"Error al registrar la actividad: {e}")
+
 
 def validar_datos_proveedor(form):
     """
@@ -93,15 +106,18 @@ def validar_datos_proveedor(form):
     }
     return True, datos
 
+# 👇 A partir de aquí, pega TODAS tus rutas:
+# @app.route("/")
 @app.route("/", methods=["GET"])
 def root():
-    form= Login_form()
-    return render_template("index.html", form= form)
+    form = Login_form()
+    return render_template("index.html", form=form)
+
 
 @app.route("/registro", methods=["GET", "POST"])
 def registro():
     form = Formulario_de_registro()
-    
+
     # Verifica si el formulario se envió correctamente
     print("Método de solicitud:", request.method)
     if request.method == "POST":
@@ -129,7 +145,7 @@ def registro():
 
             # Registrar actividad
             registrar_actividad(
-                usuario_id=nuevo_usuario.id,  # ID del usuario actual
+                usuario_id=nuevo_usuario.id,  # id del usuario actual
                 accion=f"Registró un nuevo usuario: {nuevo_usuario.usuario}",
                 modulo="Registro de Usuario"
             )
@@ -149,6 +165,7 @@ def registro():
                 flash(f"Error en {field}: {error}", "warning")
 
     return render_template("registro.html", form=form)
+
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
@@ -180,12 +197,14 @@ def login():
 
     return render_template("index.html", form=form)
 
-@app.route("/logout", methods= ["POST", "GET"])
+
+@app.route("/logout", methods=["POST", "GET"])
 @login_required
 def logout():
     logout_user()
     flash("Has cerrado la sesión  correctamente.", "info")
     return redirect(url_for("login"))
+
 
 @app.route("/menu_principal", methods=["GET", "POST"])
 @login_required
@@ -194,6 +213,7 @@ def menu_principal():
     if current_user.is_authenticated and current_user.rol == "admin":
         return render_template("menu.html")
 
+
 @app.route("/menu-cliente", methods=["GET", "POST"])
 @login_required
 @role_required("cliente")
@@ -201,11 +221,12 @@ def menu_cliente():
     if current_user.is_authenticated and current_user.rol == "cliente":  # Verifica que el rol sea Cliente
         return render_template("menu-cliente.html")  # Renderiza el menú del cliente
 
+
 @app.route("/perfil_cliente", methods=["GET", "POST"])
 @login_required
 @role_required("cliente")
 def perfil_cliente():
-    #obtenemos el usuario actual
+    # obtenemos el usuario actual
     usuario = current_user
 
     # Crear el formulario
@@ -231,7 +252,8 @@ def perfil_cliente():
             db.session.rollback()
             flash("Error al actualizar el perfil. Inténtalo nuevamente.", "danger")
 
-    return render_template("perfil-cliente.html", form=form, usuario= usuario)
+    return render_template("perfil-cliente.html", form=form, usuario=usuario)
+
 
 @app.route("/productos", methods=["GET", "POST"])
 @login_required
@@ -254,6 +276,7 @@ def productos():
         productos = Producto.query.all()
     return render_template('productos.html', productos=productos, orden=orden)
 
+
 @app.route("/productos_cliente", methods=["GET", "POST"])
 @login_required
 @role_required("cliente")
@@ -261,7 +284,8 @@ def productos_cliente():
     # Obtener todos los productos usando Flask-SQLAlchemy
     productos = Producto.query.all()
     alertas = [producto for producto in productos if producto.cantidad <= producto.cantidad_minima]
-    return render_template("productos-cliente.html", productos=productos, alertas= alertas)
+    return render_template("productos-cliente.html", productos=productos, alertas=alertas)
+
 
 @app.route('/agregar_a_la_cesta/<producto_id>', methods=['POST'])
 @login_required
@@ -287,6 +311,7 @@ def agregar_a_la_cesta(producto_id):
 
     return redirect(url_for('productos_cliente'))
 
+
 @app.route("/cesta", methods=['POST', 'GET'])
 @login_required
 @role_required("cliente")
@@ -298,6 +323,7 @@ def cesta():
         total += item.producto.precio * item.cantidad
 
     return render_template("cesta.html", cesta_items=cesta_items, total=total)
+
 
 @app.route('/actualizar_cesta/<item_id>', methods=['POST'])
 @login_required
@@ -314,6 +340,7 @@ def actualizar_cesta(item_id):
     db.session.commit()
     return redirect(url_for('cesta'))
 
+
 @app.route('/eliminar_de_la_cesta/<item_id>', methods=['POST'])
 @login_required
 @role_required("cliente")
@@ -326,6 +353,7 @@ def eliminar_de_la_cesta(item_id):
 
     return redirect(url_for('cesta'))
 
+
 @app.route('/confirmacion-de-compra', methods=['GET', 'POST'])
 @login_required
 @role_required("cliente")
@@ -335,6 +363,7 @@ def confirmacion_de_compra():
     total = sum(item.producto.precio * item.cantidad for item in cesta_items)
 
     return render_template('confirmacion-de-compra.html', cesta_items=cesta_items, total=total)
+
 
 @app.route('/confirmar-compra', methods=['POST'])
 @login_required
@@ -387,7 +416,8 @@ def confirmar_compra():
             producto.cantidad -= cantidad
 
             # Verificar si ya existe una compra del mismo producto y usuario
-            compra_existente = Compra.query.filter_by(producto_id=producto_id, usuario_id=current_user.id, estado="Pendiente").first()
+            compra_existente = Compra.query.filter_by(producto_id=producto_id, usuario_id=current_user.id,
+                                                      estado="Pendiente").first()
             if compra_existente:
                 compra_existente.cantidad += cantidad
                 compra_existente.total += total
@@ -417,12 +447,14 @@ def confirmar_compra():
         print(e)
         return redirect(url_for('cesta'))
 
+
 @app.route("/pedidos", methods=["GET"])
 @login_required
 @role_required("cliente")
 def pedidos():
     pedidos = Compra.query.filter_by(usuario_id=current_user.id).filter(Compra.estado != "Cancelado").all()
     return render_template("pedidos.html", pedidos=pedidos)
+
 
 @app.route('/cancelar_pedido/<pedido_id>', methods=['POST'])
 @login_required
@@ -456,6 +488,7 @@ def cancelar_pedido(pedido_id):
 
     return redirect(url_for('pedidos'))
 
+
 # Endpoint para obtener los tipos de producto según el proveedor seleccionado
 @app.route('/tipos-producto/<proveedor_id>', methods=['GET'])
 def obtener_tipos_producto(proveedor_id):
@@ -471,6 +504,7 @@ def obtener_tipos_producto(proveedor_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 # Endpoint para obtener la información del proveedor
 @app.route('/proveedor/<proveedor_id>', methods=['GET'])
 def obtener_proveedor(proveedor_id):
@@ -485,6 +519,7 @@ def obtener_proveedor(proveedor_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 MARCAS = {
     'Procesador': ['Intel', 'AMD', 'Qualcomm', 'ARM', 'Apple'],
     'Placa Base': ['Asus', 'Gigabyte', 'MSI', 'ASRock', 'Biostar'],
@@ -495,6 +530,7 @@ MARCAS = {
     'Tarjeta Gráfica': ['NVIDIA', 'AMD', 'ASUS', 'EVGA', 'ZOTAC'],
 }
 
+
 @app.route('/get_marcas', methods=['GET'])
 def get_marcas():
     tipo_producto = request.args.get('tipo_producto')  # Obtener el nombre del tipo de producto
@@ -503,16 +539,19 @@ def get_marcas():
     marcas_json = [{'id': idx, 'nombre': marca} for idx, marca in enumerate(marcas)]
     return jsonify(marcas_json)
 
+
 MARCAS_Y_MODELOS = {
     'Procesador': {
         'Intel': ['Core i9-13900K', 'Core i7-13700K', 'Core i5-13600K', 'Core i3-13100', 'Xeon W9-3495X'],
         'AMD': ['Ryzen 9 7950X', 'Ryzen 7 7800X3D', 'Ryzen 5 7600X', 'Ryzen 3 4100', 'Threadripper PRO 5995WX'],
-        'Qualcomm': ['Snapdragon 8cx Gen 3', 'Snapdragon 8 Gen 2', 'Snapdragon 7+ Gen 2', 'Snapdragon 6 Gen 1', 'Snapdragon 888'],
+        'Qualcomm': ['Snapdragon 8cx Gen 3', 'Snapdragon 8 Gen 2', 'Snapdragon 7+ Gen 2', 'Snapdragon 6 Gen 1',
+                     'Snapdragon 888'],
         'ARM': ['Cortex-X4', 'Cortex-A78', 'Cortex-A55', 'Neoverse N2', 'Ethos-N78'],
         'Apple': ['M2 Ultra', 'M2 Max', 'M2 Pro', 'A17 Bionic', 'M3'],
     },
     'Placa Base': {
-        'Asus': ['ROG Crosshair X670E Hero', 'TUF Gaming X570-Plus', 'PRIME Z690-P', 'ROG Strix B550-F', 'ProArt Z790-Creator'],
+        'Asus': ['ROG Crosshair X670E Hero', 'TUF Gaming X570-Plus', 'PRIME Z690-P', 'ROG Strix B550-F',
+                 'ProArt Z790-Creator'],
         'Gigabyte': ['Z790 AORUS Master', 'B550 AORUS Elite', 'X670 AORUS Elite AX', 'Z690 GAMING X', 'H610M H'],
         'MSI': ['MPG Z790 Carbon Wi-Fi', 'MAG B550 TOMAHAWK', 'PRO B760-P DDR4', 'MEG X670E ACE', 'H510M-A PRO'],
         'ASRock': ['X670E Taichi', 'B550M Steel Legend', 'Z690 Phantom Gaming 4', 'H570M-ITX', 'A520M-HDV'],
@@ -521,7 +560,8 @@ MARCAS_Y_MODELOS = {
     'Ordenador': {
         'HP': ['OMEN 45L', 'Pavilion Gaming Desktop', 'Victus 15L', 'EliteDesk 800 G9', 'Z2 G9 Tower'],
         'Dell': ['Alienware Aurora R15', 'XPS Desktop', 'OptiPlex 7000', 'Precision 3660', 'Inspiron 3910'],
-        'Lenovo': ['Legion Tower 7i', 'IdeaCentre Gaming 5i', 'ThinkCentre M75q Gen 2', 'Yoga AIO 7', 'ThinkStation P360'],
+        'Lenovo': ['Legion Tower 7i', 'IdeaCentre Gaming 5i', 'ThinkCentre M75q Gen 2', 'Yoga AIO 7',
+                   'ThinkStation P360'],
         'Acer': ['Predator Orion 7000', 'Aspire TC-1760', 'Nitro 50', 'Veriton N', 'ConceptD 500'],
         'Apple': ['Mac Studio M2 Ultra', 'Mac Mini M2', 'iMac 24” M1', 'MacBook Pro 16” M3', 'MacBook Air 15” M2'],
         'Asus': ['ROG Strix G10', 'TUF Gaming GT301', 'ExpertCenter D5', 'ProArt Station PD5', 'Zen AiO 24'],
@@ -541,20 +581,29 @@ MARCAS_Y_MODELOS = {
         'Hitachi': ['Ultrastar He10', 'Travelstar 7K1000', 'Deskstar NAS 4TB', 'C10K1800', '5K500 B'],
     },
     'RAM': {
-        'Kingston': ['FURY Beast 16GB DDR5', 'HyperX Predator 32GB DDR4', 'ValueRAM 8GB DDR4', 'FURY Renegade 32GB DDR5', 'HyperX Impact 16GB DDR4'],
-        'Corsair': ['Vengeance LPX 16GB DDR4', 'Dominator Platinum RGB 32GB DDR5', 'Vengeance RGB Pro 32GB DDR4', 'LPX 8GB DDR4', 'TWINX 16GB DDR3'],
-        'G.Skill': ['Trident Z RGB 32GB DDR4', 'Ripjaws V 16GB DDR4', 'Flare X 16GB DDR5', 'Sniper X 8GB DDR4', 'Aegis 32GB DDR4'],
-        'Crucial': ['Ballistix 16GB DDR4', 'Crucial DDR5 32GB', 'Crucial DDR4 8GB', 'Ballistix MAX 16GB DDR4', 'Crucial DDR3 16GB'],
-        'Patriot': ['Viper Steel 32GB DDR4', 'Viper RGB 16GB DDR4', 'Signature Line 8GB DDR4', 'Viper Elite II 16GB DDR4', 'Viper Venom DDR5 32GB'],
+        'Kingston': ['FURY Beast 16GB DDR5', 'HyperX Predator 32GB DDR4', 'ValueRAM 8GB DDR4',
+                     'FURY Renegade 32GB DDR5', 'HyperX Impact 16GB DDR4'],
+        'Corsair': ['Vengeance LPX 16GB DDR4', 'Dominator Platinum RGB 32GB DDR5', 'Vengeance RGB Pro 32GB DDR4',
+                    'LPX 8GB DDR4', 'TWINX 16GB DDR3'],
+        'G.Skill': ['Trident Z RGB 32GB DDR4', 'Ripjaws V 16GB DDR4', 'Flare X 16GB DDR5', 'Sniper X 8GB DDR4',
+                    'Aegis 32GB DDR4'],
+        'Crucial': ['Ballistix 16GB DDR4', 'Crucial DDR5 32GB', 'Crucial DDR4 8GB', 'Ballistix MAX 16GB DDR4',
+                    'Crucial DDR3 16GB'],
+        'Patriot': ['Viper Steel 32GB DDR4', 'Viper RGB 16GB DDR4', 'Signature Line 8GB DDR4',
+                    'Viper Elite II 16GB DDR4', 'Viper Venom DDR5 32GB'],
     },
     'Tarjeta Gráfica': {
-        'NVIDIA': ['GeForce RTX 4090', 'GeForce RTX 4080 Super', 'GeForce RTX 4070 Ti', 'GeForce RTX 4060 Ti', 'GeForce GTX 1650 Super'],
+        'NVIDIA': ['GeForce RTX 4090', 'GeForce RTX 4080 Super', 'GeForce RTX 4070 Ti', 'GeForce RTX 4060 Ti',
+                   'GeForce GTX 1650 Super'],
         'AMD': ['Radeon RX 7900 XTX', 'Radeon RX 7800 XT', 'Radeon RX 7700 XT', 'Radeon RX 7600', 'Radeon RX 6700 XT'],
         'ASUS': ['ROG Strix RTX 4090', 'TUF Gaming RTX 4080', 'Dual RTX 4060', 'ProArt RTX 4070', 'Phoenix GTX 1630'],
-        'EVGA': ['EVGA FTW3 RTX 3090', 'EVGA XC3 RTX 3080', 'EVGA SC Ultra RTX 3060', 'EVGA KO RTX 2060', 'EVGA GT 710'],
-        'ZOTAC': ['ZOTAC Gaming RTX 4090 AMP Extreme', 'ZOTAC Gaming RTX 4080 Trinity', 'ZOTAC Twin Edge RTX 3060', 'ZOTAC Mini RTX 3050', 'ZOTAC GT 1030'],
+        'EVGA': ['EVGA FTW3 RTX 3090', 'EVGA XC3 RTX 3080', 'EVGA SC Ultra RTX 3060', 'EVGA KO RTX 2060',
+                 'EVGA GT 710'],
+        'ZOTAC': ['ZOTAC Gaming RTX 4090 AMP Extreme', 'ZOTAC Gaming RTX 4080 Trinity', 'ZOTAC Twin Edge RTX 3060',
+                  'ZOTAC Mini RTX 3050', 'ZOTAC GT 1030'],
     }
 }
+
 
 @app.route("/get_modelos", methods=["GET"])
 def get_modelos():
@@ -567,6 +616,7 @@ def get_modelos():
         return jsonify(modelos_json)
 
     return jsonify({"error": "No hay modelos disponibles"}), 404
+
 
 @app.route("/agregar-producto", methods=["GET", "POST"])
 @login_required
@@ -589,7 +639,8 @@ def agregar_producto():
             precio = float(request.form.get("precio", 0.0))
             proveedor_id = request.form.get("proveedor_id", "").strip()
 
-            print(f"Datos recibidos: tipo={tipo}, marca={marca}, modelo={modelo}, descripcion={descripcion}, cantidad={cantidad}, precio={precio}, proveedor_id={proveedor_id}")
+            print(
+                f"Datos recibidos: tipo={tipo}, marca={marca}, modelo={modelo}, descripcion={descripcion}, cantidad={cantidad}, precio={precio}, proveedor_id={proveedor_id}")
 
             # Validar que todos los campos requeridos estén presentes
             if not tipo or not marca or not proveedor_id:
@@ -641,6 +692,7 @@ def agregar_producto():
 
     return render_template("agregar-producto.html", proveedores=proveedores)
 
+
 @app.route("/editar_producto/<string:id>", methods=["GET", "POST"])
 @login_required
 @role_required("admin")
@@ -675,14 +727,15 @@ def editar_producto(id):
     # Renderizar el formulario de edición con el proveedor
     return render_template("editar_producto.html", producto=producto, proveedor=proveedor)
 
+
 @app.route("/eliminar_producto/<string:id>", methods=["POST"])
 @login_required
 @role_required("admin")
 def eliminar_producto(id):
-    #busca el producto por el id
+    # busca el producto
     producto = Producto.query.get_or_404(id)
     if producto:
-        #eliminar de la base de datos
+        # eliminar de la base de datos
         db.session.delete(producto)
         db.session.commit()
 
@@ -694,10 +747,11 @@ def eliminar_producto(id):
         )
 
         flash("Producto eliminado correctamente", "success")
-        #redireccionar a la lista de productos
+        # redireccionar a la lista de productos
         return redirect(url_for("productos"))
     else:
         return "Producto no encontrado", 404
+
 
 @app.route("/proveedores", methods=["GET", "POST"])
 @login_required
@@ -707,6 +761,7 @@ def proveedores():
     proveedores = Proveedor.query.all()  # Recuperar todos los proveedores
     print("Datos recuperados:", proveedores)
     return render_template("proveedores.html", proveedores=proveedores)
+
 
 @app.route('/agregar-proveedor', methods=['GET', 'POST'])
 @login_required
@@ -744,6 +799,7 @@ def agregar_proveedor():
             flash(f'Error al guardar el proveedor: {e}', 'danger')
 
     return render_template('agregar-proveedor.html', form=form)  # ✅ GET solo renderiza el formulario
+
 
 @app.route('/editar_proveedor/<string:proveedor_id>', methods=['GET', 'POST'])
 @login_required
@@ -800,6 +856,7 @@ def editar_proveedor(proveedor_id):
     )
     return render_template('editar_proveedor.html', form=form, proveedor=proveedor)
 
+
 @app.route("/eliminar_proveedor/<string:id>", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -816,25 +873,28 @@ def eliminar_proveedor(id):
     )
     return redirect(url_for("proveedores"))  # Redirigir a la lista de proveedores
 
+
 @app.route('/graficas', methods=["GET"])
 @login_required
 @role_required("admin")
 def graficas():
     return render_template("graficas.html")
 
+
 def get_intervalo(intervalo):
     if intervalo == 'dia':
-        return extract('year', Compra.fecha), extract('doy', Compra.fecha), 'Día'
+        return func.extract, func.extract('doy', Compra.fecha), 'Día'
     elif intervalo == 'semana':
-        return extract('year', Compra.fecha), extract('week', Compra.fecha), 'Semana'
+        return func.extract('year', Compra.fecha), func.extract('week', Compra.fecha), 'Semana'
     elif intervalo == 'mes':
-        return extract('year', Compra.fecha), extract('month', Compra.fecha), 'Mes'
+        return func.extract('year', Compra.fecha), func.extract('month', Compra.fecha), 'Mes'
     elif intervalo == 'trimestre':
-        return extract('year', Compra.fecha), func.ceil(extract('month', Compra.fecha) / 3), 'Trimestre'
+        return func.extract('year', Compra.fecha), func.ceil(func.extract('month', Compra.fecha) / 3), 'Trimestre'
     elif intervalo == 'anio':
-        return extract('year', Compra.fecha), None, 'Año'
+        return func.extract('year', Compra.fecha), None, 'Año'
     else:
-        return extract('year', Compra.fecha), extract('month', Compra.fecha), 'Mes'
+        return func.extract('year', Compra.fecha), func.extract('month', Compra.fecha), 'Mes'
+
 
 @app.route('/data/distribucion_productos')
 @login_required
@@ -844,6 +904,7 @@ def data_distribucion_productos():
     tipos = [producto.tipo_producto for producto in productos]
     cantidades = [producto[1] for producto in productos]
     return jsonify({'tipos': tipos, 'cantidades': cantidades})
+
 
 @app.route('/data/ventas_totales')
 @login_required
@@ -868,6 +929,7 @@ def data_ventas_totales():
     totales = [venta.total for venta in ventas]
     return jsonify({'periodos': periodos, 'totales': totales, 'period_label': period_label})
 
+
 @app.route('/data/productos_mas_vendidos')
 @login_required
 @role_required("admin")
@@ -880,6 +942,7 @@ def data_productos_mas_vendidos():
     productos = [db.session.query(Producto).get(venta.producto_id).modelo for venta in ventas]
     cantidades = [venta.cantidad for venta in ventas]
     return jsonify({'productos': productos, 'cantidades': cantidades})
+
 
 @app.route('/data/usuarios_registrados')
 def data_usuarios_registrados():
@@ -909,6 +972,7 @@ def data_usuarios_registrados():
 
     return jsonify({'periodos': periodos, 'totales': totales})
 
+
 @app.route('/data/ingresos_por_usuario')
 @login_required
 @role_required("admin")
@@ -933,6 +997,7 @@ def data_ingresos_por_usuario():
     totales = [ingreso.total for ingreso in ingresos]
     return jsonify({'usuarios': usuarios, 'ingresos': totales})
 
+
 @app.route('/data/compras_por_categoria')
 @login_required
 @role_required("admin")
@@ -944,6 +1009,7 @@ def data_compras_por_categoria():
     categorias = [compra.tipo_producto for compra in compras]
     totales = [compra.total for compra in compras]
     return jsonify({'categorias': categorias, 'compras': totales})
+
 
 @app.route('/data/productos_menos_vendidos')
 @login_required
@@ -958,11 +1024,13 @@ def data_productos_menos_vendidos():
     cantidades = [venta.cantidad for venta in ventas]
     return jsonify({'productos': productos, 'cantidades': cantidades})
 
+
 @app.route("/graficas_cliente", methods=["GET"])
 @login_required
 @role_required("cliente")
 def graficas_cliente():
-    return render_template("graficas-cliente.html", graficas= graficas)
+    return render_template("graficas-cliente.html", graficas=graficas)
+
 
 @app.route("/actividades", methods=["GET", "POST"])
 @login_required
@@ -983,6 +1051,7 @@ def actividades():
     compras = Compra.query.order_by(Compra.fecha.desc()).all()
 
     return render_template("menu-admin.html", actividades=actividades, usuarios=usuarios, compras=compras)
+
 
 @app.route('/eliminar_usuario/<string:usuario_id>', methods=['POST'])
 @login_required
@@ -1008,6 +1077,7 @@ def eliminar_usuario(usuario_id):
         flash(f"Error al eliminar el usuario: {str(e)}", "danger")
 
     return redirect(url_for('actividades'))
+
 
 @app.route('/cambiar_rol/<string:usuario_id>', methods=['POST'])
 @login_required
@@ -1040,9 +1110,7 @@ def cambiar_rol(usuario_id):
         flash(f"Error al actualizar el rol: {str(e)}", "danger")
 
     return redirect(url_for('actividades'))
-
-if __name__ == "__main__":
-    with app.app_context():  # Inicia un contexto de aplicación
-        db.create_all()  # Crea las tablas en la base de datos
-        print("Tablas creadas exitosamente.")
-    app.run(debug=True)
+# def index():
+#     return render_template("index.html")
+#
+# ... (pega el resto de tus @app.route, tal cual) ...

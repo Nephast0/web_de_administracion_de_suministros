@@ -17,5 +17,8 @@ env/
 instance/
 *.db
 
+# Migraciones cache (mantén la carpeta, excluye cachés)
+migrations/*.log
+
 # Otros
 *.log

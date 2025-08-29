@@ -66,6 +66,18 @@
                 Registrar
             </button>
         </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert-container">
+                    {% for category, message in messages %}
+                        <div class="modern-alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                            <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
     </main>
 </body>
 </html>
