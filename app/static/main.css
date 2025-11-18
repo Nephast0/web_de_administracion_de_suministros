@@ -53,6 +53,100 @@ label {
     color: var(--muted);
 }
 
+/* Estética consistente de formularios */
+form .form-group {
+    margin-bottom: 14px;
+}
+
+form label {
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    color: #d6d6d8;
+    margin-bottom: 6px;
+    display: block;
+}
+
+form .form-control {
+    background: #151517;
+    border: 1px solid rgba(142, 240, 255, 0.25);
+    color: #f5f5f5;
+    border-radius: 10px;
+    padding: 12px 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+form .form-control:focus {
+    border-color: #8ef0ff;
+    box-shadow: 0 0 0 3px rgba(142, 240, 255, 0.18);
+    background: #131314;
+    outline: none;
+}
+
+/* Estética de títulos tipo brand */
+.brand {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.brand h1 {
+    font-family: "Playfair Display", serif;
+    letter-spacing: 2px;
+    font-size: clamp(28px, 4vw, 36px);
+    margin-bottom: 6px;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.445);
+}
+
+.brand h2 {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(22px, 3.4vw, 28px);
+    letter-spacing: 3px;
+    color: #8ef0ff;
+    text-shadow: 0 0 10px rgba(142, 240, 255, 0.4);
+}
+
+/* Botones CTA */
+.cta {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #8ef0ff, #6d9cf6);
+    color: #0b0c0f;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 10px 30px rgba(109, 156, 246, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 32px rgba(109, 156, 246, 0.45);
+}
+
+.cta:active {
+    transform: translateY(0);
+}
+
+.cta-inline {
+    width: auto;
+    min-width: 140px;
+    padding-inline: 14px;
+}
+
+.btn-danger-light {
+    background: rgba(255, 107, 107, 0.12);
+    border: 1px solid #ff6b6b;
+    color: #ff9a9a;
+    border-radius: 10px;
+    padding: 8px 12px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.btn-danger-light:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(255, 107, 107, 0.3);
+}
+
 /* Estilo para navegadores basados en WebKit (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
   width: 8px; /* Hace la scrollbar más delgada */
@@ -318,59 +412,63 @@ tr:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 32px 16px;
+    padding: 32px 24px;
 }
 
 .menu-hero {
-    width: min(900px, 100%);
+    width: min(1200px, 100%);
+    min-height: 70vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 28px;
     position: relative;
     text-align: center;
-}
-
-.menu-actions {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 0 8px;
+    margin: 0 auto;
 }
 
 .icon-btn {
-    background: transparent;
-    border: 1px solid var(--stroke);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
     border-radius: 12px;
-    color: var(--text);
-    padding: 8px 10px;
-    font-size: 30px;
+    color: #0b0c0f;
+    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
     line-height: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 10px 26px rgba(109, 156, 246, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .icon-btn:hover {
-    border-color: var(--accent);
-    box-shadow: 0 10px 26px rgba(142, 240, 255, 0.25);
     transform: translateY(-1px);
+    box-shadow: 0 12px 30px rgba(109, 156, 246, 0.45);
 }
 
+.menu-actions-abs {
+    position: absolute;
+    top: 16px;
+    z-index: 5;
+}
+
+.menu-actions-left { left: 16px; }
+.menu-actions-right { right: 16px; }
+
 .menu-card {
-    background: var(--card);
-    border: 1px solid var(--stroke);
-    border-radius: 18px;
-    padding: 48px 40px;
-    box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(6px);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 24px 16px 10px;
+    box-shadow: none;
+    backdrop-filter: none;
     width: 100%;
+    max-width: 1100px;
 }
 
 .menu-title h1,
@@ -381,26 +479,34 @@ tr:hover {
 }
 
 .menu-title h1 {
-    font-size: clamp(32px, 5vw, 44px);
-    margin-bottom: 8px;
+    font-size: clamp(30px, 4.6vw, 42px);
+    margin-bottom: 6px;
 }
 
 .menu-title h2 {
-    font-size: clamp(26px, 4vw, 36px);
+    font-size: clamp(22px, 3.4vw, 32px);
 }
 
 .menu-links {
-    margin-top: 32px;
+    margin-top: 36px;
     display: flex;
     justify-content: center;
-    gap: 32px;
+    gap: clamp(18px, 4vw, 38px);
     flex-wrap: wrap;
 }
 
 .menu-links a {
-    font-size: clamp(18px, 2.8vw, 24px);
+    font-size: clamp(18px, 2.4vw, 22px);
     text-transform: uppercase;
     letter-spacing: 2px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.menu-links a:hover {
+    border-color: var(--stroke);
 }
 
 @keyframes fadeIn {
@@ -431,4 +537,37 @@ tr:hover {
 
 .modern-alert.hide {
     animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+/* Botón de regreso unificado */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid var(--stroke);
+    background: rgba(19, 20, 22, 0.85);
+    color: #c8f1ff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.back-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 30px rgba(109, 156, 246, 0.3);
+}
+
+.back-btn .material-symbols-outlined {
+    font-size: 28px;
+    color: inherit;
+    line-height: 1;
+}
+
+.back-btn.material-symbols-outlined {
+    font-size: 28px;
+    color: inherit;
+    line-height: 1;
 }

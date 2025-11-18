@@ -10,13 +10,13 @@
 </style>
 {% endblock %}
 
-{% block content %}
-<main class="container p-5">
+    {% block content %}
+    <main class="container p-5">
     <form action="/productos" method="get" style="position: absolute; top: 40px; left: 70px;">
-        {{ csrf_token() }}
-        <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
-            arrow_back
-        </button>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="back-btn material-symbols-outlined">
+                arrow_back
+            </button>
     </form>
     <div class="row">
         <div class="col-md-8 offset-md-2">

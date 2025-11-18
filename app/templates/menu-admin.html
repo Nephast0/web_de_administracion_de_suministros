@@ -1,131 +1,203 @@
 {% extends "base.html" %}
 {% block title %}Actividades y usuarios{% endblock %}
+
 {% block page_styles %}
 <style>
+    .admin-wrapper {
+        background: rgba(32, 32, 34, 0.9);
+        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        padding: 24px 20px;
+        box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04);
+        backdrop-filter: blur(6px);
+    }
+
+    .top-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
     .table-container table { width: 100%; border-collapse: collapse; }
-    .table-container th, .table-container td { padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.2); }
-    .table-container th { background-color: rgba(0, 0, 0, 0.8); text-transform: uppercase; }
-    .table-container td { background-color: #333; color: white; border-bottom: 1px solid #444; }
+    .table-container th, .table-container td {
+        padding: 12px;
+        text-align: center;
+        border: 1px solid rgba(142, 240, 255, 0.15);
+    }
+    .table-container {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    .table-container th {
+        background: rgba(17, 18, 22, 0.9);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #c8f1ff;
+    }
+    .table-container td {
+        background-color: #16181d;
+        color: #e7edf3;
+        border-bottom: 1px solid rgba(142, 240, 255, 0.08);
+    }
     .table-container thead th { position: sticky; top: 0; z-index: 10; }
-    .btn-neon-r { background: transparent; color: red; border: 1px solid white; padding: 5px 10px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-    .btn-neon-r:hover { color: black; box-shadow: 0 0 5px red; }
+
+    .btn-danger-light {
+        background: rgba(255, 107, 107, 0.12);
+        border: 1px solid #ff6b6b;
+        color: #ff9a9a;
+        border-radius: 10px;
+        padding: 8px 12px;
+        transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+    .btn-danger-light:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(255, 107, 107, 0.25);
+    }
+
+    .role-select {
+        min-width: 140px;
+        background: #0f1115;
+        border: 1px solid rgba(142, 240, 255, 0.25);
+        color: #e7edf3;
+        border-radius: 10px;
+        padding: 10px 12px;
+    }
+    .role-select:focus {
+        outline: none;
+        border-color: #8ef0ff;
+        box-shadow: 0 0 0 3px rgba(142, 240, 255, 0.18);
+        background: #0c0d10;
+    }
+
+    .cta-inline {
+        width: auto;
+        padding-inline: 14px;
+        min-width: 160px;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="container py-4">
-    <div class="d-flex align-items-center mb-4">
-        <a class="material-symbols-outlined" href="{{ url_for('inventario.menu_principal') }}" aria-label="Volver al menú admin">
-            arrow_back
-        </a>
-        <h1 class="ms-3 titlewhiteN mb-0">Panel administrativo</h1>
+    <div class="admin-wrapper">
+        <div class="top-actions">
+            <div class="d-flex align-items-center gap-2">
+                <form action="{{ url_for('inventario.menu_principal') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="back-btn" aria-label="Volver al menú principal">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
+                </form>
+            </div>
+            <h1 class="titlewhiteN mb-0">Panel administrativo</h1>
+        </div>
+
+        <section class="mb-4">
+            <h2 class="titlewhiteN">Actividades del Sistema</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr class="titlewhiteN">
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Acción</th>
+                            <th>Módulo</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for actividad in actividades %}
+                        <tr>
+                            <td>{{ actividad.id }}</td>
+                            <td>{{ actividad.usuario.usuario }}</td>
+                            <td>{{ actividad.accion }}</td>
+                            <td>{{ actividad.modulo }}</td>
+                            <td>{{ actividad.fecha }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="titlewhiteN">Registro de Usuarios</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr class="titlewhiteN">
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Fecha de Registro</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td>{{ usuario.id }}</td>
+                            <td>{{ usuario.nombre }}</td>
+                            <td>{{ usuario.usuario }}</td>
+                            <td>
+                                <select class="role-select" onchange="cambiarRol('{{ usuario.id }}', this.value)">
+                                    <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>Admin</option>
+                                    <option value="cliente" {% if usuario.rol == 'cliente' %}selected{% endif %}>Cliente</option>
+                                </select>
+                            </td>
+                            <td>{{ usuario.fecha_registro }}</td>
+                            <td>
+                                <button class="btn-danger-light" onclick="eliminarUsuario('{{ usuario.id }}')">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="titlewhiteN">Registro de Compras</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr class="titlewhiteN">
+                            <th>Compra-ID</th>
+                            <th>Producto-ID</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Proveedor-ID</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for compra in compras %}
+                        <tr>
+                            <td>{{ compra.id }}</td>
+                            <td>{{ compra.producto_id }}</td>
+                            <td>{{ compra.cantidad }}</td>
+                            <td>{{ compra.precio_unitario }}</td>
+                            <td>{{ compra.proveedor_id }}</td>
+                            <td>{{ compra.total }}</td>
+                            <td>{{ compra.estado }}</td>
+                            <td>{{ compra.fecha }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
-
-    <!-- Tabla de actividad del sistema: mantenemos la misma data pero usando el layout base -->
-    <section class="mb-4">
-        <h2 class="titlewhiteN">Actividades del Sistema</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr class="titlewhiteN">
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Acción</th>
-                        <th>Módulo</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for actividad in actividades %}
-                    <tr>
-                        <td>{{ actividad.id }}</td>
-                        <td>{{ actividad.usuario.usuario }}</td>
-                        <td>{{ actividad.accion }}</td>
-                        <td>{{ actividad.modulo }}</td>
-                        <td>{{ actividad.fecha }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="mb-4">
-        <h2 class="titlewhiteN">Registro de Usuarios</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr class="titlewhiteN">
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Usuario</th>
-                        <th>Rol</th>
-                        <th>Fecha de Registro</th>
-                        <th>Opciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for usuario in usuarios %}
-                    <tr>
-                        <td>{{ usuario.id }}</td>
-                        <td>{{ usuario.nombre }}</td>
-                        <td>{{ usuario.usuario }}</td>
-                        <td>
-                            <select class="form-select fondo titlewhite" onchange="cambiarRol('{{ usuario.id }}', this.value)">
-                                <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>Admin</option>
-                                <option value="cliente" {% if usuario.rol == 'cliente' %}selected{% endif %}>Cliente</option>
-                            </select>
-                        </td>
-                        <td>{{ usuario.fecha_registro }}</td>
-                        <td>
-                            <button class="btn-neon-r btn-sm btn-outline-light titlewhite" onclick="eliminarUsuario('{{ usuario.id }}')">Eliminar</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section>
-        <h2 class="titlewhiteN">Registro de Compras</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr class="titlewhiteN">
-                        <th>Compra-ID</th>
-                        <th>Producto-ID</th>
-                        <th>Cantidad</th>
-                        <th>Precio Unitario</th>
-                        <th>Proveedor-ID</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for compra in compras %}
-                    <tr>
-                        <td>{{ compra.id }}</td>
-                        <td>{{ compra.producto_id }}</td>
-                        <td>{{ compra.cantidad }}</td>
-                        <td>{{ compra.precio_unitario }}</td>
-                        <td>{{ compra.proveedor_id }}</td>
-                        <td>{{ compra.total }}</td>
-                        <td>{{ compra.estado }}</td>
-                        <td>{{ compra.fecha }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
 </main>
 {% endblock %}
 
 {% block page_scripts %}
 <script>
-    // Token compartido para las llamadas POST y mantener CSRF activo en la vista.
     const csrfToken = "{{ csrf_token() }}";
 
     function cambiarRol(usuarioId, nuevoRol) {

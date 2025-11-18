@@ -104,20 +104,20 @@
      <main class="container p-5">
          <!-- Botón de volver -->
          <form action="/menu_principal" method="post" class="position-absolute" style="position: absolute; top: 40px; left: 70px; z-index:100;">
-            {{ csrf_token() }}
-            <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit"  class="brand">
                 arrow_back
             </button>
         </form>
         <div class="row">
             <div class="col-md-12">
-                <div class="titlewhiteN text-center">
+                <div class="brand text-center">
                     <h1>Proveedores</h1>
                 </div>
                 <div class="table-container">
                     <table>
                         <thead>
-                            <tr class="titlewhiteN">
+                            <tr class="brand">
                                 <th>Fecha</th>
                                 <th>Nombre</th>
                                 <th>Telefono</th>
@@ -145,14 +145,14 @@
                                     <td>
                                         <!-- Botón Editar -->
                                         <a href="{{ url_for('proveedores.editar_proveedor', proveedor_id = proveedor.id) }}">
-                                            <button class="btn-neon-g btn-sm neon-link btn-outline-light titlewhite">
+                                            <button class="cta cta-inline">
                                                 editar
                                             </button>
                                         </a>
                                                                                                              <!-- Botón Eliminar -->
                                         <form action="{{ url_for('proveedores.eliminar_proveedor', id=proveedor.id) }}" method="POST" style="display: inline;">
-                                            {{ csrf_token() }}
-                                            <button class="btn-neon-r btn-sm neon-link btn-outline-light titlewhite" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button class="btn-danger-light" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');">
                                                 eliminar
                                             </button>
                                         </form>
@@ -164,8 +164,8 @@
                 </div>
                 <div class="text-center">
                     <form action="/agregar-proveedor" method="post">
-                            {{ csrf_token() }}
-                            <button class="btn-agregar neon-link titlewhite" style="background-color: transparent; color: white;" type="submit">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="cta cta-inline" type="submit">
                                 Agregar nuevo proveedor
                             </button>
                     </form>

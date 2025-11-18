@@ -3,7 +3,7 @@
 {% block content %}
 <main class="container p-5">
     <form action="/cesta" method="get" style="position: absolute; top: 40px; left: 70px;">
-        <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;" aria-label="Volver a la cesta">
+        <button type="submit" class="back-btn material-symbols-outlined" aria-label="Volver a la cesta">
             arrow_back
         </button>
     </form>
@@ -39,7 +39,7 @@
                     <div class="bg-dark p-4 rounded">
                         <h3 class="titlewhite">Información de envío</h3>
                         <form action="{{ url_for('inventario.confirmar_compra') }}" method="post">
-                            {{ csrf_token() }}
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="mb-3">
                                 <label for="direccion" class="form-label titlewhite">Dirección</label>
                                 <input type="text" class="form-control fondo titlewhite" id="direccion" name="direccion" required>

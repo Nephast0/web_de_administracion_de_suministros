@@ -3,14 +3,14 @@
 {% block content %}
 <main class="container p-5 position-relative">
     <form action="{{ url_for('proveedores.proveedores') }}" method="get" style="position: absolute; top: 40px; left: 70px;">
-        <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background: transparent; color: white;" aria-label="Volver a proveedores">arrow_back</button>
+        <button type="submit" class="back-btn material-symbols-outlined" aria-label="Volver a proveedores">arrow_back</button>
     </form>
 
     <div class="row">
         <div class="col-md-8 offset-md-2">
             <h2 class="text-center titlewhiteN mb-4">Editar producto</h2>
             <form method="post">
-                {{ csrf_token() }}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label class="titlewhite" for="marca">Marca</label>
                     <input type="text" class="form-control fondo titlewhite" id="marca" name="marca" value="{{ producto.marca }}" required>

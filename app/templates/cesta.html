@@ -19,8 +19,8 @@
 {% block content %}
 <main class="container p-5 position-relative">
     <form action="/menu-cliente" method="post" style="position: absolute; top: 40px; left: 70px;">
-        {{ csrf_token() }}
-        <button type="submit" class="material-symbols-outlined" aria-label="Volver al menú del cliente">arrow_back</button>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="back-btn material-symbols-outlined" aria-label="Volver al menú del cliente">arrow_back</button>
     </form>
     <div class="row">
         <div class="col-md-10 mx-auto">
@@ -46,15 +46,15 @@
                                         <td>{{ item.producto.descripcion }}</td>
                                         <td>
                                             <form action="{{ url_for('inventario.actualizar_cesta', item_id=item.id) }}" method="post" style="display: inline;">
-                                                {{ csrf_token() }}
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                                 <input style="text-center titlewhite fondo" type="number" name="cantidad" value="{{ item.cantidad }}" min="1" data-precio="{{ item.producto.precio }}" class="cantidad" />
                                             </form>
                                         </td>
                                         <td class="precio-total">{{ precio_total_producto }}</td>
                                         <td>
                                             <form action="{{ url_for('inventario.eliminar_de_la_cesta', item_id=item.id) }}" method="post" style="display: inline;">
-                                                {{ csrf_token() }}
-                                                <button class="btn btn-sm btn-neon btn-outline-light titlewhite" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');" aria-label="Eliminar {{ item.producto.modelo }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button class="btn-danger-light" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');" aria-label="Eliminar {{ item.producto.modelo }}">
                                                     Eliminar
                                                 </button>
                                             </form>
@@ -64,10 +64,10 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-center">
+                        <div class="text-center">
                         <h2 class="titlewhite">Total: €<span id="total">{{ total }}</span></h2>
                         <form action="{{ url_for('inventario.confirmacion_de_compra') }}" method="post">
-                            {{ csrf_token() }}
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn-block neon-link titlewhite fondo">
                                 Realizar compra
                             </button>

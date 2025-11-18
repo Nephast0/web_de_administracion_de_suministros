@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Menú Admin{% endblock %}
+{% block body_class %}menu-body{% endblock %}
+
+{% block page_styles %}
+<style>
+    .menu-body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px;
+    }
+
+    .menu-hero {
+        width: min(1200px, 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+        position: relative;
+        text-align: center;
+        margin: 0 auto;
+        padding-top: 36px;
+    }
+
+    .menu-actions-abs {
+        position: absolute;
+        top: 12px;
+        z-index: 5;
+    }
+    .menu-actions-left { left: 12px; }
+    .menu-actions-right { right: 12px; }
+
+    .menu-title {
+        margin-top: 10px;
+    }
+    .menu-title h1 { margin-bottom: 6px; }
+
+    .menu-links {
+        margin-top: 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        width: 100%;
+    }
+    .menu-links .cta {
+        width: 100%;
+        min-width: 0;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="menu-hero">
+    <div class="menu-actions-abs menu-actions-left">
+        <form action="{{ url_for('auth.logout') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="cta cta-inline" aria-label="Cerrar sesión">Logout</button>
+        </form>
+    </div>
+    <div class="menu-actions-abs menu-actions-right">
+        <form action="/actividades" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="cta cta-inline" aria-label="Panel de actividades">Actividades</button>
+        </form>
+    </div>
+
+    <div class="menu-title brand">
+        <h1 class="titlewhiteN mb-2">Suministros Informáticos</h1>
+        <h2 class="titlewhiteN">CNCV</h2>
+    </div>
+    <div class="menu-links">
+        <form action="/proveedores" method="get" class="link-form flex-fill">
+            <button type="submit" class="cta">Proveedores</button>
+        </form>
+        <form action="/productos" method="get" class="link-form flex-fill">
+            <button type="submit" class="cta">Inventario</button>
+        </form>
+        <form action="/graficas" method="get" class="link-form flex-fill">
+            <button type="submit" class="cta">Gráficos</button>
+        </form>
+    </div>
+</main>
+{% endblock %}

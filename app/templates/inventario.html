@@ -17,15 +17,13 @@
 {% block content %}
 <main class="container my-4 position-relative">
     <form action="{{ url_for('inventario.menu_principal') }}" method="post" style="position: absolute; top: 20px; left: 20px;">
-        {{ csrf_token() }}
-        <button type="submit" class="material-symbols-outlined" style="font-size: 32px; background: transparent; color: white;" aria-label="Volver al menú">
-            arrow_back
-        </button>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="back-btn brand" aria-label="Volver al menú">arrow_back</button>
     </form>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="titlewhiteN">Inventario</h1>
-        <a href="/agregar-producto" class="btn btn-outline-light">Agregar producto</a>
+        <h1 class="brand">Inventario</h1>
+        <a href="/agregar-producto" class="cta cta-inline text-decoration-none">Agregar producto</a>
     </div>
 
     <div class="mb-3">
@@ -71,10 +69,10 @@
                         <td>{{ producto.num_referencia }}</td>
                         <td>{{ producto.proveedor.nombre if producto.proveedor else 'N/A' }}</td>
                         <td class="text-nowrap">
-                            <a href="{{ url_for('proveedores.editar_producto', id=producto.id) }}" class="btn btn-sm btn-outline-warning" aria-label="Editar {{ producto.modelo }}">Editar</a>
+                            <a href="{{ url_for('proveedores.editar_producto', id=producto.id) }}" class="cta cta-inline text-decoration-none" aria-label="Editar {{ producto.modelo }}">Editar</a>
                             <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}" method="post" class="d-inline">
-                                {{ csrf_token() }}
-                                <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('¿Eliminar {{ producto.modelo }}?');" aria-label="Eliminar {{ producto.modelo }}">Eliminar</button>
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn-danger-light" type="submit" onclick="return confirm('¿Eliminar {{ producto.modelo }}?');" aria-label="Eliminar {{ producto.modelo }}">Eliminar</button>
                             </form>
                         </td>
                     </tr>

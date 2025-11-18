@@ -21,7 +21,7 @@ inventario_bp = Blueprint("inventario", __name__)
 @role_required("admin")
 def menu_principal():
     if current_user.is_authenticated and current_user.rol == "admin":
-        return render_template("menu.html")
+        return render_template("menu_principal.html")
 
 
 @inventario_bp.route("/menu-cliente", methods=["GET", "POST"])
@@ -77,7 +77,7 @@ def productos():
         productos = Producto.query.order_by(Producto.cantidad.desc()).all()
     else:
         productos = Producto.query.all()
-    return render_template('productos.html', productos=productos, orden=orden)
+    return render_template('inventario_admin.html', productos=productos, orden=orden)
 
 
 @inventario_bp.route("/productos_cliente", methods=["GET", "POST"])
