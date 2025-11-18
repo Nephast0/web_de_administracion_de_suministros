@@ -1,98 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>login</title>
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block body_class %}login-body{% endblock %}
+{% block page_styles %}
+<style>
+    .login-body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        background-color: #222;
+    }
+    .login-container {
+        max-width: 600px;
+        background-color: #333;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        text-align: center;
+    }
+    .login-form .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
+    .login-form .btn-block {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}
 
-    <!--estilo de hoja-->
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-
-    <!--Tema de bootstrap-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
-
-    <!--Tema de googleFonts-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-
-    <style>
-        /* Centrar el contenido usando Flexbox */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 70vh;
-            background-color: #222;
-        }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background-color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        .form-control {
-            border-radius: 5px;
-            padding: 8px;
-        }
-        .btn-block {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-        }
-        .registrarse {
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <main class="container">
-        <h1 class="display-4 titlewhiteN">Suministros Informáticos</h1>
-        <h2 class="display-3 titlewhiteN">cncv</h2>
-        <form action="/login" method="post">
-            {{ form.hidden_tag() }}
-            <div class="form-group">
-                <label for="exampleInputUser1" class="form-label titlewhite">Usuario</label>
-                <input type="text" name="usuario" class="form-control" id="exampleInputUser1" placeholder="Usuario" autofocus autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label for="exampleInputPassword1" class="form-label titlewhite">Contraseña</label>
-                <input type="password" name="contrasenya" class="form-control" id="exampleInputPassword1" placeholder="Contraseña" autocomplete="off">
-            </div>
-            <button class="btn-block neon-link titlewhite fondo" type="submit">Iniciar</button>
-        </form>
-        <form action="/registro" method="get" class="registrarse">
-            <a href="/registro" class="neon-link titlewhite">Registrarse</a>
-        </form>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="alert-container">
-                    {% for category, message in messages %}
-                        <div class="modern-alert alert-{{ category }}">
-                            <span>{{ message }}</span>
-                            <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-    </main>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            setTimeout(() => {
-                document.querySelectorAll(".modern-alert").forEach(alert => {
-                    alert.classList.add("hide");
-                    setTimeout(() => alert.remove(), 500);
-                });
-            }, 5000); // Se oculta en 5 segundos
-        });
-    </script>
-</body>
-</html>
+{% block content %}
+<main class="login-container">
+    <h1 class="display-4 titlewhiteN">Suministros Informáticos</h1>
+    <h2 class="display-3 titlewhiteN">cncv</h2>
+    <form action="{{ url_for('auth.login') }}" method="post" class="login-form">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            <label for="exampleInputUser1" class="form-label titlewhite">Usuario</label>
+            <input type="text" name="usuario" class="form-control" id="exampleInputUser1" placeholder="Usuario" autofocus autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1" class="form-label titlewhite">Contraseña</label>
+            <input type="password" name="contrasenya" class="form-control" id="exampleInputPassword1" placeholder="Contraseña" autocomplete="off">
+        </div>
+        <button class="btn-block neon-link titlewhite fondo" type="submit">Iniciar</button>
+    </form>
+    <div class="registrarse mt-3">
+        <a href="{{ url_for('auth.registro') }}" class="neon-link titlewhite">Registrarse</a>
+    </div>
+</main>
+{% endblock %}

@@ -1,118 +1,47 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Proveedor</title>
+{% extends "base.html" %}
+{% block title %}Editar proveedor{% endblock %}
+{% block content %}
+<main class="container p-5 position-relative">
+    <form action="{{ url_for('proveedores.proveedores') }}" method="get" style="position: absolute; top: 40px; left: 70px;">
+        <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background: transparent; color: white;" aria-label="Volver a proveedores">arrow_back</button>
+    </form>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-
-<style>
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 70vh;
-        background-color: #222;
-    }
-    .container {
-        max-width: 600px;
-        margin: 50px auto;
-        background-color: #333;
-        padding: 20px;
-        text-align: center;
-        border-radius: 10px;
-    }
-    .form-group {
-        margin-bottom: 15px;
-        text-align: left;
-    }
-    .form-control {
-        border-radius: 10px;
-        padding: 8px;
-    }
-</style>
-
-<body>
-    <main class="container p-5">
-        <!-- Botón para regresar -->
-        <form action="/proveedores" method="get" style="position: absolute; top: 40px; left: 70px;">
-            <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
-                arrow_back
-            </button>
-        </form>
-        <div class="row">
-            <div class="col-md-12">
-                <h3 class="titlewhiteN">Editar Proveedor</h3>
-                <form action="{{ url_for('editar_proveedor', proveedor_id=proveedor.id) }}" method="post">
-                    {{ form.hidden_tag() }}
-
-                    <div class="form-group">
-                        <label class="titlewhite" for="nombre">Nombre del Proveedor</label>
-                        <input type="text" id="nombre" name="nombre" class="form-control" value="{{ proveedor.nombre }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="titlewhite" for="telefono">Teléfono</label>
-                        <input type="tel" id="telefono" name="telefono" class="form-control" value="{{ proveedor.telefono }}" maxlength="20" pattern="[0-9]+" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="titlewhite" for="direccion">Dirección</label>
-                        <input type="text" id="direccion" name="direccion" class="form-control" value="{{ proveedor.direccion }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="titlewhite" for="email">Email</label>
-                        <input type="email" id="email" name="email" class="form-control" value="{{ proveedor.email }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="titlewhite" for="cif">CIF</label>
-                        <input type="text" id="cif" name="cif" class="form-control" value="{{ proveedor.cif }}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="titlewhite">Tipo de Producto</label>
-                        {% set productos_lista = ['Ordenador', 'Tarjeta Gráfica', 'Procesador', 'Fuente', 'Disco Duro', 'Placa Base', 'RAM'] %}
-                        {% for producto in productos_lista %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="productos" value="{{ producto }}" id="{{ producto }}"
-                                {% if producto in proveedor.tipo_producto %}checked{% endif %}>
-                            <label class="titlewhite form-check-label" for="{{ producto }}">
-                                {{ producto }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <!-- Tasa de Descuento -->
-                    <div class="form-group">
-                        {{ form.tasa_de_descuento.label(class="titlewhite") }}
-                        {{ form.tasa_de_descuento(class="form-control", type="number", min="0", max="100", step="0.01", required=True) }}
-                    </div>
-
-                    <div class="form-group">
-                        <label class="titlewhite" for="iva">IVA (%)</label>
-                        <input type="number" id="iva" name="iva" class="form-control" value="{{ proveedor.iva }}" min="0" max="100" step="0.01" required>
-                    </div>
-
-                    <button class="btn-block neon-link titlewhite fondo" type="submit">
-                        Guardar Cambios
-                    </button>
-                </form>
-            </div>
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2 class="text-center titlewhiteN mb-4">Editar proveedor</h2>
+            <form method="post">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label class="titlewhite" for="nombre">Nombre</label>
+                    <input type="text" class="form-control fondo titlewhite" id="nombre" name="nombre" value="{{ form.nombre.data or proveedor.nombre }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="titlewhite" for="telefono">Teléfono</label>
+                    <input type="tel" class="form-control fondo titlewhite" id="telefono" name="telefono" value="{{ form.telefono.data or proveedor.telefono }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="titlewhite" for="direccion">Dirección</label>
+                    <input type="text" class="form-control fondo titlewhite" id="direccion" name="direccion" value="{{ form.direccion.data or proveedor.direccion }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="titlewhite" for="email">Email</label>
+                    <input type="email" class="form-control fondo titlewhite" id="email" name="email" value="{{ form.email.data or proveedor.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="titlewhite" for="cif">CIF</label>
+                    <input type="text" class="form-control fondo titlewhite" id="cif" name="cif" value="{{ form.cif.data or proveedor.cif }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="titlewhite" for="tasa_de_descuento">Tasa de descuento</label>
+                    <input type="number" step="0.01" min="0" max="100" class="form-control fondo titlewhite" id="tasa_de_descuento" name="tasa_de_descuento" value="{{ form.tasa_de_descuento.data or proveedor.tasa_de_descuento }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="titlewhite" for="iva">IVA</label>
+                    <input type="number" step="0.01" min="0" max="100" class="form-control fondo titlewhite" id="iva" name="iva" value="{{ form.iva.data or proveedor.iva }}" required>
+                </div>
+                <button class="btn-block neon-link titlewhite fondo" type="submit">Guardar cambios</button>
+            </form>
         </div>
-    </main>
-</body>
-</html>
+    </div>
+</main>
+{% endblock %}

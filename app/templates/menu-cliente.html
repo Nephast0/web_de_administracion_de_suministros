@@ -1,97 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title> menu </title>
+{% extends "base.html" %}
+{% block title %}Menú Cliente{% endblock %}
+{% block body_class %}app-body d-flex align-items-center justify-content-center{% endblock %}
+{% block page_styles %}
+<style>
+    .menu-actions a { font-size: 40px; background-color: transparent; color: white; }
+    .menu-actions .material-symbols-outlined { font-size: 34px; }
+</style>
+{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
-    <!-- estilo bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
-    <!-- Iconos de Google Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400&display=swap">
-    <!-- Fuentes -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+{% block content %}
+<main class="container p-4 text-center">
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <a class="material-symbols-outlined" href="{{ url_for('auth.logout') }}" aria-label="Cerrar Sesión">logout</a>
+        </div>
+        <div class="d-flex gap-3">
+            <a class="material-symbols-outlined" href="{{ url_for('inventario.cesta') }}" aria-label="Ir a la cesta">shopping_cart</a>
+            <a class="material-symbols-outlined" href="{{ url_for('inventario.perfil_cliente') }}" aria-label="Ir al perfil">person</a>
+            <a class="material-symbols-outlined" href="{{ url_for('inventario.pedidos') }}" aria-label="Ver pedidos">orders</a>
+        </div>
+    </div>
 
-    <style>
-        /* Centrar el contenido usando Flexbox */
-        body {
-          display: flex;
-          justify-content: center; /* Centrar horizontalmente */
-          align-items: center; /* Centrar verticalmente */
-          min-height: 40vh; /* Altura mínima de la pantalla completa */
-          }
-    </style>
-
-</head>
-<body>
-    <main class="container p-6">
-        <form action="/logout" method="get" style="position: absolute; top: 40px; left: 70px;">
-            <button type="submit" class="material-symbols-outlined" aria-label="Cerrar Sesión" style="font-size: 34px; background-color: transparent; color: white;">
-                logout
-            </button>
-        </form>
-        <!-- Botón de carrito de compras -->
-        <form action="/cesta" method="get" style="position: absolute; top: 80px; right: 140px;">
-            <button type="submit" class="material-symbols-outlined" aria-label="Ir a la cesta" style="font-size: 34px; background-color: transparent; color: white;">
-                shopping_cart
-            </button>
-        </form>
-        <form action="/perfil_cliente" method="get" style="position: absolute; top: 40px; right: 70px;">
-            <button type="submit" class="material-symbols-outlined" aria-label="Ir al perfil" style="font-size: 34px; background-color: transparent; color: white;">
-                person
-            </button>
-        </form>
-        <form action="/pedidos" method="get" style="position: absolute; top: 120px; right: 70px;">
-            <button type="submit" class="material-symbols-outlined" aria-label="Ir al perfil" style="font-size: 34px; background-color: transparent; color: white;">
-                orders
-            </button>
-        </form>
-        <div class="container-menu">
-            <div class="text-center titlewhite">
-                <h1 class="display-2 text-center mt-5 titlewhiteN mb-4">Suministros Informáticos</h1>
-                <!-- Aumenté 'mt-4' a 'mt-5' y 'mb-3' a 'mb-4' para más espacio -->
-                <h1 class="display-2 text-center titlewhiteN mb-5">CNCV</h1>
-                <!-- Se añadió 'mb-5' para mayor separación antes de los enlaces -->
+    <div class="container-menu">
+        <div class="text-center titlewhite mb-5">
+            <h1 class="display-2 titlewhiteN mb-2">Suministros Informáticos</h1>
+            <h2 class="display-4 titlewhiteN">CNCV</h2>
+        </div>
+        <div class="row d-flex justify-content-center align-items-center menu-actions">
+            <div class="col-md-3 d-flex justify-content-center mb-3">
+                <a href="{{ url_for('inventario.productos_cliente') }}" class="neon-link titlewhite text-center">PRODUCTOS</a>
             </div>
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-md-3 d-flex justify-content-center mb-3">
-                    <a href="/productos_cliente" class="neon-link titlewhite text-center"
-                       style="font-size: 40px; background-color: transparent; color: white;">PRODUCTOS</a>
-                </div>
-
-                <!-- Columna vacía para aumentar separación -->
-                <div class="col-md-3"></div>
-
-                <div class="col-md-3 d-flex justify-content-center mb-3">
-                    <a href="/graficas_cliente" class="neon-link titlewhite text-center"
-                       style="font-size: 40px; background-color: transparent; color: white;">GRÁFICOS</a>
-                </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-3 d-flex justify-content-center mb-3">
+                <a href="{{ url_for('reportes.graficas_cliente') }}" class="neon-link titlewhite text-center">GRÁFICOS</a>
             </div>
         </div>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="alert-container">
-                    {% for category, message in messages %}
-                        <div class="modern-alert alert-{{ category }}">
-                            <span>{{ message }}</span>
-                            <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                setTimeout(() => {
-                    document.querySelectorAll(".modern-alert").forEach(alert => {
-                        alert.classList.add("hide");
-                        setTimeout(() => alert.remove(), 500);
-                    });
-                }, 5000); // Se oculta en 5 segundos
-            });
-        </script>
-    </main>
-</body>
-</html>
+    </div>
+</main>
+{% endblock %}

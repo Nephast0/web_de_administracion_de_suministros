@@ -1,16 +1,8 @@
-<html lang="en" xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="UTF-8">
-    <title>registro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-    <style>
-    .container {
+{% extends "base.html" %}
+{% block title %}Registro{% endblock %}
+{% block page_styles %}
+<style>
+    .registro-container {
         max-width: 600px;
         margin: 50px auto;
         background-color: #333;
@@ -18,66 +10,48 @@
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
-    .form-control {
-            border-radius: 5px;
-            padding: 8px;
-        }
 </style>
-</head>
-<body>
-    <main class="container">
-        <form action="/logout" method="post" style="position: absolute; top: 20px; left: 20px;">
-            {{ form.hidden_tag() }}
-            <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
-                arrow_back
-            </button>
-        </form>
-        <h3 class="text-center titlewhiteN">Introduzca sus datos</h3>
-        <form action="{{ url_for('registro') }}" method="post">
-            {{ form.csrf_token }}
-            <div class="form-group">
-                <label for="nombre" class="form-label titlewhite">Nombre y Apellido</label>
-                <input type="text" name="nombre" class="form-control" id="nombre" placeholder="Nombre Completo">
-            </div>
-            <div class="form-group">
-                <label for="usuario" class="form-label titlewhite">Nombre de Usuario</label>
-                <input type="text" name="usuario" class="form-control" id="usuario" placeholder="Usuario">
-            </div>
-            <div class="form-group">
-                <label for="direccion" class="form-label titlewhite">Dirección de Usuario</label>
-                <input type="text" name="direccion" class="form-control" id="direccion" placeholder="Dirección">
-            </div>
-            <div class="form-group">
-                <label for="contrasenya" class="form-label titlewhite">Contraseña deseada</label>
-                <input type="password" name="contrasenya" class="form-control" id="contrasenya" placeholder="Contraseña">
-            </div>
-            <div class="form-group">
-                <label for="contrasenya2" class="form-label titlewhite">Confirmar contraseña</label>
-                <input type="password" name="contrasenya2" class="form-control" id="contrasenya2" placeholder="Confirmar contraseña">
-            </div>
-            <div class="form-group">
-                <label for="exampleInputRol1" class="form-label titlewhite">Rol (Cliente/Admin)</label>
-                <select name="rol" class="form-control" id="exampleInputRol1">
-                    <option value="cliente">Cliente</option>
-                    <option value="admin">Administrador</option>
-                </select>
-            </div>
-            <button class="btn-block neon-link titlewhite fondo" type="submit">
-                Registrar
-            </button>
-        </form>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="alert-container">
-                    {% for category, message in messages %}
-                        <div class="modern-alert alert-{{ category }}">
-                            <span>{{ message }}</span>
-                            <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-    </main>
-</body>
-</html>
+{% endblock %}
+
+{% block content %}
+<main class="registro-container">
+    <form action="{{ url_for('auth.login') }}" method="post" style="position: absolute; top: 20px; left: 20px;">
+        {{ form.csrf_token }}
+        <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
+            arrow_back
+        </button>
+    </form>
+    <h3 class="text-center titlewhiteN">Introduzca sus datos</h3>
+    <form action="{{ url_for('auth.registro') }}" method="post">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            <label for="nombre" class="form-label titlewhite">Nombre y Apellido</label>
+            <input type="text" name="nombre" class="form-control" id="nombre" placeholder="Nombre Completo">
+        </div>
+        <div class="form-group">
+            <label for="usuario" class="form-label titlewhite">Nombre de Usuario</label>
+            <input type="text" name="usuario" class="form-control" id="usuario" placeholder="Usuario">
+        </div>
+        <div class="form-group">
+            <label for="direccion" class="form-label titlewhite">Dirección de Usuario</label>
+            <input type="text" name="direccion" class="form-control" id="direccion" placeholder="Dirección">
+        </div>
+        <div class="form-group">
+            <label for="contrasenya" class="form-label titlewhite">Contraseña deseada</label>
+            <input type="password" name="contrasenya" class="form-control" id="contrasenya" placeholder="Contraseña">
+        </div>
+        <div class="form-group">
+            <label for="contrasenya2" class="form-label titlewhite">Confirmar contraseña</label>
+            <input type="password" name="contrasenya2" class="form-control" id="contrasenya2" placeholder="Confirmar contraseña">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputRol1" class="form-label titlewhite">Rol (Cliente/Admin)</label>
+            <select name="rol" class="form-control" id="exampleInputRol1">
+                <option value="cliente">Cliente</option>
+                <option value="admin">Administrador</option>
+            </select>
+        </div>
+        <button class="btn-block neon-link titlewhite fondo" type="submit">Registrar</button>
+    </form>
+</main>
+{% endblock %}

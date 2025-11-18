@@ -12,11 +12,15 @@ class Formulario_de_registro(FlaskForm):
     )
     usuario = StringField(
         "Usuario",
-        validators=[DataRequired(), Length(min=3, max=100)]
+        # Ajustamos la longitud máxima para que coincida con la columna
+        # (50 caracteres) y evitar truncados en BD.
+        validators=[DataRequired(), Length(min=3, max=50)]
     )
     direccion = StringField(
         "Direccion",
-        validators=[DataRequired(), Length(min=3, max=100)]
+        # Se amplía a 150 para acompañar el tamaño de columna y permitir
+        # direcciones más completas.
+        validators=[DataRequired(), Length(min=3, max=150)]
     )
     contrasenya = PasswordField(
         "Contraseña",
@@ -41,9 +45,10 @@ class EditarPerfilForm(FlaskForm):
 class Login_form(FlaskForm):
     usuario = StringField(
         "Usuario",
+        # Se alinea el máximo con la columna de usuario (50 caracteres).
         validators=[
             DataRequired(message="El nombre de usuario es obligatorio."),
-            Length(min=3, max=20, message="El nombre de usuario debe tener entre 3 y 20 caracteres.")
+            Length(min=3, max=50, message="El nombre de usuario debe tener entre 3 y 50 caracteres.")
         ]
     )
     contrasenya = PasswordField(
@@ -173,4 +178,44 @@ class ProveedorForm(FlaskForm):
             DataRequired(message="El IVA es obligatorio."),
             NumberRange(min=0, max=100, message="El IVA debe estar entre 0 y 100.")
         ]
+    )
+
+
+class AgregarProductoForm(FlaskForm):
+    """Formulario liviano para validar altas de producto vía WTForms.
+
+    Se deshabilita el CSRF en la vista que lo consume para poder reutilizar las
+    plantillas existentes sin romperlas, pero mantenemos validaciones de
+    longitud y rango para bloquear datos inválidos antes de tocar la BD.
+    """
+
+    tipo_producto = StringField(
+        'Tipo de producto',
+        validators=[DataRequired(), Length(max=100)],
+    )
+    marca = StringField(
+        'Marca',
+        validators=[DataRequired(), Length(max=100)],
+    )
+    modelo = StringField(
+        'Modelo',
+        validators=[DataRequired(), Length(max=120)],
+    )
+    descripcion = TextAreaField(
+        'Descripción', validators=[Optional(), Length(max=500)]
+    )
+    cantidad = IntegerField(
+        'Cantidad', validators=[DataRequired(), NumberRange(min=0)]
+    )
+    cantidad_minima = IntegerField(
+        'Cantidad mínima', validators=[Optional(), NumberRange(min=0)]
+    )
+    precio = FloatField(
+        'Precio', validators=[DataRequired(), NumberRange(min=0.01)]
+    )
+    num_referencia = StringField(
+        'Número de referencia', validators=[DataRequired(), Length(max=80)]
+    )
+    proveedor_id = StringField(
+        'Proveedor', validators=[DataRequired(), Length(max=8)]
     )

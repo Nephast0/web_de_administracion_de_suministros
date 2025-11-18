@@ -1,237 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>productos</title>
+{% extends "base.html" %}
+{% block title %}Productos{% endblock %}
+{% block page_styles %}
+<style>
+    table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+    th, td { padding: 10px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); }
+    th { background-color: rgba(0, 0, 0, 0.8); text-transform: uppercase; }
+    td { background-color: #333; color: white; border-bottom: 1px solid #444; }
+    thead th { position: sticky; top: 0; z-index: 10; }
+    td:nth-child(4) { word-wrap: break-word; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .table-container { max-width: 100%; }
+    main.container { max-width: 100%; padding-left: 0; padding-right: 0; }
+    .material-symbols-outlined { font-size: 34px; background-color: transparent; color: white; }
+    select { background-color: #333; color: white; border: 1px solid #777; }
+    select option { background-color: #222; color: white; }
+    select option:hover { background-color: #444; }
+    .btn-neon-r { background: transparent; color: red; border: 1px solid white; padding: 5px 10px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
+    .btn-neon-r:hover { color: black; box-shadow: 0 0 5px red; }
+    .btn-neon-g { background: transparent; color: green; border: 1px solid white; padding: 5px 10px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
+    .btn-neon-g:hover { color: black; box-shadow: 0 0 5px green; }
+    .alerta-container { background-color: #ff9800; color: white; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+</style>
+{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+{% block content %}
+<main class="container p-5">
+    <div class="d-flex align-items-center mb-4">
+        <a class="material-symbols-outlined" href="{{ url_for('inventario.menu_principal') }}" aria-label="Volver al menú">
+            arrow_back
+        </a>
+        <h1 class="ms-3 titlewhiteN mb-0">Productos Disponibles</h1>
+    </div>
 
-    <style>
-        table {
-            width: 100%;
-            table-layout: fixed; /* Distribuir mejor las columnas */
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        th {
-            background-color: rgba(0, 0, 0, 0.8);
-            text-transform: uppercase;
-        }
-        td {
-            background-color: #333;
-            color: white;
-            border-bottom: 1px solid #444;
-        }
-        thead th {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            text-align: center;
-        }
-        td:nth-child(4) { /* Descripción */
-            word-wrap: break-word; /* Ajustar el texto para que no expanda la tabla */
-            overflow: hidden;
-            text-overflow: ellipsis; /* Mostrar "..." si el texto es muy largo */
-            max-width: 200px; /* Ajusta esto según el diseño */
-        }
-        tbody td button {
-            z-index: 1;
-            position: relative;
-        }
-        .table-container {
-            max-width: 100%;
-        }
-        main.container {
-            max-width: 100%;
-            padding-left: 0;
-            padding-right: 0;
-        }
-        .material-symbols-outlined {
-            font-size: 34px;
-            background-color: transparent;
-            color: white;
-        }
-        select {
-            background-color: #333; /* Color de fondo del dropdown */
-            color: white; /* Color del texto */
-            border: 1px solid #777; /* Borde para que combine con el tema */
-        }
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="mb-3">
+                <label for="ordenar" class="form-label titlewhite">Ordenar por:</label>
+                <select id="ordenar" class="form-select fondo titlewhite" onchange="window.location.href=this.value;">
+                    <option value="{{ url_for('inventario.productos', orden='asc') }}" {% if orden == 'asc' %}selected{% endif %}>ABC...</option>
+                    <option value="{{ url_for('inventario.productos', orden='desc') }}" {% if orden == 'desc' %}selected{% endif %}>ZYX...</option>
+                    <option value="{{ url_for('inventario.productos', orden='precio_asc') }}" {% if orden == 'precio_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                    <option value="{{ url_for('inventario.productos', orden='precio_desc') }}" {% if orden == 'precio_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                    <option value="{{ url_for('inventario.productos', orden='cantidad_asc') }}" {% if orden == 'cantidad_asc' %}selected{% endif %}>Cantidad: Menor a Mayor</option>
+                    <option value="{{ url_for('inventario.productos', orden='cantidad_desc') }}" {% if orden == 'cantidad_desc' %}selected{% endif %}>Cantidad: Mayor a Menor</option>
+                </select>
+            </div>
 
-        select option {
-            background-color: #222; /* Color de fondo de las opciones */
-            color: white; /* Color del texto de las opciones */
-        }
-
-        /* Para cambiar el color cuando se pasa el cursor */
-        select option:hover {
-            background-color: #444;
-        }
-        /* Botones personalizados */
-        .btn-neon-r {
-            background: transparent;
-            color: red;
-            border: 1px solid white;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        /* Efecto neón en botones */
-        .btn-neon-r:hover {
-            background: transparent;
-            color: black;
-            box-shadow: 0 0 5px red;
-        }
-
-        .btn-neon-g {
-            background: transparent;
-            color: green;
-            border: 1px solid white;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        /* Efecto neón en botones */
-        .btn-neon-g:hover {
-            background: transparent;
-            color: black;
-            box-shadow: 0 0 5px green;
-        }
-        .alerta-reponer {
-            color: #ff9800;
-            font-weight: bold;
-        }
-        .alerta-container {
-            background-color: #ff9800;
-            color: white;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-     <main class="container p-5">
-         <!-- Botón de volver -->
-         <form action="/menu_principal" method="post" class="position-absolute" style="top: 40px; left: 70px;">
-             <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
-                 arrow_back
-             </button>
-         </form>
-         <div class="row">
-             <div class="col-md-10 mx-auto">
-                 <h1 class="text-center titlewhiteN">Productos Disponibles</h1>
-                 <!-- Filtro de Ordenación -->
-                <div class="mb-3">
-                    <label for="ordenar" class="form-label titlewhite">Ordenar por:</label>
-                    <select id="ordenar" class="form-select fondo titlewhite" onchange="window.location.href=this.value;">
-                        <option value="{{ url_for('productos', orden='asc') }}" {% if orden == 'asc' %}selected{% endif %}>ABC...</option>
-                        <option value="{{ url_for('productos', orden='desc') }}" {% if orden == 'desc' %}selected{% endif %}>ZYX...</option>
-                        <option value="{{ url_for('productos', orden='precio_asc') }}" {% if orden == 'precio_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
-                        <option value="{{ url_for('productos', orden='precio_desc') }}" {% if orden == 'precio_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
-                        <option value="{{ url_for('productos', orden='cantidad_asc') }}" {% if orden == 'cantidad_asc' %}selected{% endif %}>Cantidad: Menor a Mayor</option>
-                        <option value="{{ url_for('productos', orden='cantidad_desc') }}" {% if orden == 'cantidad_desc' %}selected{% endif %}>Cantidad: Mayor a Menor</option>
-                    </select>
+            {% if alertas %}
+                <div class="alerta-container">
+                    <h2>Productos que necesitan reposición:</h2>
+                    <ul>
+                        {% for producto in alertas %}
+                            <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{ producto.cantidad }})</li>
+                        {% endfor %}
+                    </ul>
                 </div>
-                <!-- Alertas de Reposición -->
-                {% if alertas %}
-                    <div class="alerta-container">
-                        <h2>Productos que necesitan reposición:</h2>
-                        <ul>
-                            {% for producto in alertas %}
-                                <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{ producto.cantidad }})</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
-                 <div class="table-container">
-                     <table>
-                         <thead>
-                             <tr class="titlewhiteN">
-                                 <th>Tipo</th>
-                                 <th>Marca</th>
-                                 <th>Modelo</th>
-                                 <th>Descripción</th>
-                                 <th>Precio (€)</th>
-                                 <th>Cantidad Disponible</th>
-                                 <th>Opciones</th>
-                             </tr>
-                         </thead>
-                         <tbody>
-                             {% for producto in productos %}
-                                 <tr>
-                                     <td>{{ producto.tipo_producto }}</td>
-                                     <td>{{ producto.marca }}</td>
-                                     <td>{{ producto.modelo }}</td>
-                                     <td>{{ producto.descripcion }}</td>
-                                     <td>{{ producto.precio }}</td>
-                                     <td>{{ producto.cantidad }}</td>
-                                     <td>
-                                         <div class="btn-group">
-                                             <!-- Botón Editar -->
-                                             <form action="{{ url_for('editar_producto', id=producto.id) }}" method="get">
-                                                 <button class="btn-neon-g btn-sm btn-outline-light titlewhite" aria-label="Editar {{ producto.nombre }}">
-                                                     Editar
-                                                 </button>
-                                             </form>
-                                             <!-- Botón Eliminar -->
-                                             <form action="{{ url_for('eliminar_producto', id=producto.id) }}" method="POST">
-                                                 <button class="btn-neon-r btn-sm btn-outline-light titlewhite" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');" aria-label="Eliminar {{ producto.nombre }}">
-                                                     Eliminar
-                                                 </button>
-                                             </form>
-                                         </div>
-                                     </td>
-                                 </tr>
-                             {% endfor %}
-                         </tbody>
-                     </table>
-                 </div>
-                 <div class="text-center mt-4">
-                     <form action="/agregar-producto" method="post">
-                         <button class="btn-agregar neon-link titlewhite" type="submit" aria-label="Agregar nuevo producto">
-                             Agregar nuevo producto
-                         </button>
-                     </form>
-                 </div>
-                 {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            <div class="alert-container">
-                                {% for category, message in messages %}
-                                    <div class="modern-alert alert-{{ category }}">
-                                        <span>{{ message }}</span>
-                                        <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
+            {% endif %}
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr class="titlewhiteN">
+                            <th>Tipo</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Descripción</th>
+                            <th>Precio (€)</th>
+                            <th>Cantidad Disponible</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                            <tr>
+                                <td>{{ producto.tipo_producto }}</td>
+                                <td>{{ producto.marca }}</td>
+                                <td>{{ producto.modelo }}</td>
+                                <td>{{ producto.descripcion }}</td>
+                                <td>{{ producto.precio }}</td>
+                                <td>{{ producto.cantidad }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <form action="{{ url_for('proveedores.editar_producto', id=producto.id) }}" method="get">
+                                            <button class="btn-neon-g btn-sm btn-outline-light titlewhite" aria-label="Editar {{ producto.nombre }}">Editar</button>
+                                        </form>
+                                        <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}" method="POST">
+                                            {{ csrf_token() }}
+                                            <button class="btn-neon-r btn-sm btn-outline-light titlewhite" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');" aria-label="Eliminar {{ producto.nombre }}">
+                                                Eliminar
+                                            </button>
+                                        </form>
                                     </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                 {% endwith %}
-                 <script>
-                     document.addEventListener("DOMContentLoaded", function () {
-                        setTimeout(() => {
-                           document.querySelectorAll(".modern-alert").forEach(alert => {
-                               alert.classList.add("hide");
-                               setTimeout(() => alert.remove(), 500);
-                          });
-                       }, 5000); // Se oculta en 5 segundos
-                    });
-                 </script>
-             </div>
-         </div>
-     </main>
-</body>
-</html>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

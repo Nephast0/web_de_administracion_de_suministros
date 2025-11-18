@@ -1,198 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Cesta</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
-    <!-- boton back-->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
+{% extends "base.html" %}
+{% block title %}Cesta{% endblock %}
+{% block page_styles %}
+<style>
+    .table-container { max-width: 100%; }
+    table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+    main.container { max-width: 100%; padding-left: 0; padding-right: 0; }
+    th, td { padding: 10px; font-size: 14px; text-align: center; }
+    th { white-space: nowrap; }
+    thead th { position: sticky; top: 0; z-index: 10; text-align: center; }
+    td:nth-child(2) { word-wrap: break-word; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    td input { width: 40px; }
+    .material-symbols-outlined { font-size: 34px; background-color: transparent; color: white; }
+    .btn-neon { background: transparent; color: red; border: 1px solid white; padding: 5px 10px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
+    .btn-neon:hover { background: transparent; color: black; box-shadow: 0 0 10px red; }
+</style>
+{% endblock %}
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-
-    <style>
-        .table-container {
-            max-width: 100%;
-        }
-        table {
-            width: 100%;
-            table-layout: fixed; /* Distribuir mejor las columnas */
-            border-collapse: collapse;
-        }
-
-        main.container {
-            max-width: 100%; /* Amplía el contenedor principal */
-            padding-left: 0; /* Elimina los padding de Bootstrap */
-            padding-right: 0;
-        }
-        th, td {
-            padding: 10px; /* Reducir padding */
-            font-size: 14px; /* Reducir el tamaño de fuente */
-            text-align: center; /* Centrar texto */
-        }
-
-        th {
-            white-space: nowrap; /* Evitar que los títulos de columna ocupen varias líneas */
-        }
-        thead th {
-            position: sticky; /* Mantiene la cabecera fija */
-            top: 0; /* Se fija en la parte superior */
-            z-index: 10; /* Asegura que esté por encima de otros elementos */
-            text-align: center;
-        }
-        td:nth-child(2) { /* Descripción */
-            word-wrap: break-word; /* Ajustar el texto para que no expanda la tabla */
-            overflow: hidden;
-            text-overflow: ellipsis; /* Mostrar "..." si el texto es muy largo */
-            max-width: 200px; /* Ajusta esto según el diseño */
-        }
-
-        td input {
-            width: 40px; /* Reducir tamaño del input de cantidad */
-        }
-        .material-symbols-outlined {
-            font-size: 34px;
-            background-color: transparent;
-            color: white;
-        }
-        /* Botones personalizados */
-        .btn-neon {
-            background: transparent;
-            color: red;
-            border: 1px solid white;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        /* Efecto neón en botones */
-        .btn-neon:hover {
-            background: transparent;
-            color: black;
-            box-shadow: 0 0 10px red;
-        }
-    </style>
-</head>
-<body>
-    <main class="container p-5">
-        <form action="/menu-cliente" method="post" style="position: absolute; top: 40px; left: 70px;">
-            <button type="submit" class="material-symbols-outlined" style="font-size: 34px; background-color: transparent; color: white;">
-                arrow_back
-            </button>
-        </form>
-        <div class="row">
-            <div class="col-md-10 mx-auto">
-                <h1 class="text-center titlewhiteN">Cesta</h1>
-                <div class="row">
-                    <div class="col-md-10 mx-auto">
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr class="titlewhiteN">
-                                        <th>Modelo</th>
-                                        <th>Descripción</th>
-                                        <th>Cantidad</th>
-                                        <th>Precio Total (€)</th>
-                                        <th>Opciones</th>
+{% block content %}
+<main class="container p-5 position-relative">
+    <form action="/menu-cliente" method="post" style="position: absolute; top: 40px; left: 70px;">
+        {{ csrf_token() }}
+        <button type="submit" class="material-symbols-outlined" aria-label="Volver al menú del cliente">arrow_back</button>
+    </form>
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <h1 class="text-center titlewhiteN">Cesta</h1>
+            <div class="row">
+                <div class="col-md-10 mx-auto">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr class="titlewhiteN">
+                                    <th>Modelo</th>
+                                    <th>Descripción</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Total (€)</th>
+                                    <th>Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cesta_items %}
+                                    {% set precio_total_producto = item.producto.precio * item.cantidad %}
+                                    <tr>
+                                        <td>{{ item.producto.modelo }}</td>
+                                        <td>{{ item.producto.descripcion }}</td>
+                                        <td>
+                                            <form action="{{ url_for('inventario.actualizar_cesta', item_id=item.id) }}" method="post" style="display: inline;">
+                                                {{ csrf_token() }}
+                                                <input style="text-center titlewhite fondo" type="number" name="cantidad" value="{{ item.cantidad }}" min="1" data-precio="{{ item.producto.precio }}" class="cantidad" />
+                                            </form>
+                                        </td>
+                                        <td class="precio-total">{{ precio_total_producto }}</td>
+                                        <td>
+                                            <form action="{{ url_for('inventario.eliminar_de_la_cesta', item_id=item.id) }}" method="post" style="display: inline;">
+                                                {{ csrf_token() }}
+                                                <button class="btn btn-sm btn-neon btn-outline-light titlewhite" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');" aria-label="Eliminar {{ item.producto.modelo }}">
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in cesta_items %}
-                                        {% set precio_total_producto = item.producto.precio * item.cantidad %}
-                                        <tr>
-                                            <td>{{ item.producto.modelo }}</td>
-                                            <td>{{ item.producto.descripcion }}</td>
-                                            <td>
-                                                <form action="{{ url_for('actualizar_cesta', item_id=item.id) }}" method="post" style="display: inline;">
-                                                    <input style="text-center titlewhite fondo" type="number" name="cantidad" value="{{ item.cantidad }}" min="1" data-precio="{{ item.producto.precio }}" class="cantidad" />
-                                                </form>
-                                            </td>
-                                            <td class="precio-total">{{ precio_total_producto }}</td>
-                                            <td>
-                                                <form action="{{ url_for('eliminar_de_la_cesta', item_id=item.id) }}" method="post" style="display: inline;">
-                                                    <button class="btn btn-sm btn-neon btn-outline-light titlewhite" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');" aria-label="Eliminar {{ item.producto.modelo }}">
-                                                        Eliminar
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- Mostrar total de la compra -->
-                        <div class="text-center">
-                            <h2 class="titlewhite">Total: €<span id="total">{{ total }}</span></h2>
-                            <form action="{{ url_for('confirmacion_de_compra') }}" method="post">
-                                <button type="submit" class="btn-block neon-link titlewhite fondo">
-                                    Realizar compra
-                                </button>
-                            </form>
-                        </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="titlewhite">Total: €<span id="total">{{ total }}</span></h2>
+                        <form action="{{ url_for('inventario.confirmacion_de_compra') }}" method="post">
+                            {{ csrf_token() }}
+                            <button type="submit" class="btn-block neon-link titlewhite fondo">
+                                Realizar compra
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="alert-container">
-                {% for category, message in messages %}
-                    <div class="modern-alert alert-{{ category }}">
-                        <span>{{ message }}</span>
-                        <button class="close-alert" onclick="this.parentElement.style.display='none';">
-                            ✕
-                        </button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-    <!-- Scripts -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-                        setTimeout(() => {
-                           document.querySelectorAll(".modern-alert").forEach(alert => {
-                               alert.classList.add("hide");
-                               setTimeout(() => alert.remove(), 500);
-                });
-            }, 5000); // Se oculta en 5 segundos
-        });
-    </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/EPvB4V1Q5E5rBf8e0l3n9/p5VfXJ3aa5f5AwI5" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-4kG8V8pJ5Lk8imsZ4wZp4b5x4E5F5J4A3AUQj6q5sL8l3n9/p5VfXJ3aa5f5AwI5" crossorigin="anonymous"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const cantidadInputs = document.querySelectorAll('.cantidad');
-            const totalElement = document.getElementById('total');
+    </div>
+</main>
+{% endblock %}
 
-            function updateTotal() {
-                let total = 0;
-                cantidadInputs.forEach(input => {
-                    const cantidad = parseInt(input.value, 10);
-                    const precio = parseFloat(input.getAttribute('data-precio'));
-                    const precioTotalElement = input.closest('tr').querySelector('.precio-total');
-                    const precioTotal = cantidad * precio;
-                    precioTotalElement.textContent = precioTotal.toFixed(2);
-                    total += precioTotal;
-                });
-                totalElement.textContent = total.toFixed(2);
-            }
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cantidadInputs = document.querySelectorAll('.cantidad');
+        const totalElement = document.getElementById('total');
 
+        function updateTotal() {
+            let total = 0;
             cantidadInputs.forEach(input => {
-                input.addEventListener('change', function() {
-                    // Submit the form automatically when the input value changes
-                    this.closest('form').submit();
-                });
+                const cantidad = parseInt(input.value, 10);
+                const precio = parseFloat(input.getAttribute('data-precio'));
+                const precioTotalElement = input.closest('tr').querySelector('.precio-total');
+                const precioTotal = cantidad * precio;
+                precioTotalElement.textContent = precioTotal.toFixed(2);
+                total += precioTotal;
             });
+            totalElement.textContent = total.toFixed(2);
+        }
 
-            // Initial update to ensure the total is correct on page load
-            updateTotal();
+        cantidadInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                this.closest('form').submit();
+            });
         });
-    </script>
-</body>
-</html>
+
+        updateTotal();
+    });
+</script>
+{% endblock %}
