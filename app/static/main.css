@@ -1,7 +1,22 @@
+:root {
+    --bg-1: #0c0c0c;
+    --bg-2: #1b1b1b;
+    --card: rgba(32, 32, 34, 0.9);
+    --text: #e7edf3;
+    --muted: #b6becb;
+    --accent: #8ef0ff;
+    --accent-2: #6d9cf6;
+    --stroke: rgba(142, 240, 255, 0.25);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
 body {
-    background: #000000;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #434343, #000000);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #434343, #000000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    color: var(--text);
+    background: radial-gradient(circle at 20% 20%, rgba(77, 208, 225, 0.08), transparent 25%),
+                radial-gradient(circle at 80% 0%, rgba(99, 102, 241, 0.12), transparent 30%),
+                linear-gradient(135deg, #111 0%, #1b1b1b 45%, #0c0c0c 100%);
+    background-size: cover;
+    background-attachment: fixed;
 }
 
 .title-container {
@@ -14,7 +29,28 @@ body {
 }
 
 table {
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.35);
+    background: #17181c;
+}
+
+input, select, textarea, .form-control {
+    background: #151517;
+    border: 1px solid var(--stroke);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus, .form-control:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(142, 240, 255, 0.18);
+    background: #131314;
+    outline: none;
+}
+
+label {
+    color: var(--muted);
 }
 
 /* Estilo para navegadores basados en WebKit (Chrome, Edge, Safari) */
@@ -44,13 +80,13 @@ tr {
 }
 
 th, td {
-    font-family: 'Grenze', monospace; /* O usa Google Fonts */
+    font-family: 'Grenze', serif; /* O usa Google Fonts */
     letter-spacing: 1px;
-    color: #FFFFFF;
+    color: var(--text);
 }
 
 th, td {
-    border-radius: 3px;
+    border-radius: 6px;
 }
 
 .material-symbols-outlined-p {
@@ -63,8 +99,8 @@ th, td {
 
 tr:hover {
     transition: background-color 0.3s ease, transform 0.2s ease;
-    background-color: rgba(255, 255, 255, 0.2);
-    transform: scale(1.01); /* Pequeño zoom */
+    background-color: rgba(142, 240, 255, 0.06);
+    transform: scale(1.005); /* Zoom ligero */
 }
 
 .titletransp {
@@ -102,12 +138,8 @@ tr:hover {
     overflow-y: auto;
     overflow-x: hidden;
     width: 80%;
-    border: 1px solid #ccc;
+    border: 1px solid var(--stroke);
     text-align: center; /* Centra el contenido de la tabla si es necesario */
-}
-
-.btn:hover {
-    background-color: #ccc;
 }
 
 .custom-search-input {
@@ -130,38 +162,35 @@ tr:hover {
   font-family: "Grenze", serif;
   font-weight: 900;
   font-style: italic;
-  background: -webkit-linear-gradient(#eee, #333);
+  background: -webkit-linear-gradient(#c8f1ff, #7cc4f3);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: white;
+  -webkit-text-fill-color: transparent;
 }
 .titlewhiteN {
     font-family: "Grenze", serif;
     font-weight: 800;
     font-style: italic;
     /* Aplica un degradado de color */
-    background: -webkit-linear-gradient(#eee, #333);
+    background: -webkit-linear-gradient(#c8f1ff, #7cc4f3);
     -webkit-background-clip: text;
     /* Mantiene el texto blanco pero permite el brillo */
-    -webkit-text-fill-color: white;
+    -webkit-text-fill-color: transparent;
     /* Agrega un efecto de neón con resplandor */
     text-shadow:
-        0 0 5px rgba(255, 255, 255, 0.8),  /* Brillo suave alrededor */
-        0 0 10px rgba(255, 255, 255, 0.6), /* Capa intermedia de brillo */
-        0 0 20px rgba(255, 255, 255, 0.4); /* Efecto de neón más extendido */
+        0 0 6px rgba(142, 240, 255, 0.45),  /* Brillo suave alrededor */
+        0 0 10px rgba(109, 156, 246, 0.4);  /* Efecto de neón más extendido */
 }
 .titlegrey {
   font-family: "Grenze", serif;
   font-weight: 300;
   font-style: italic;
-  background: -webkit-linear-gradient(#eee, #333);
+  background: -webkit-linear-gradient(#c8f1ff, #7cc4f3);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: grey;
+  -webkit-text-fill-color: transparent;
 }
 
 .fondo{
-  background: #232526;  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, #414345, #232526);  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right, #414345, #232526); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(135deg, #131416, #1c1f24);
 }
 
 .mx-2 {
@@ -170,13 +199,39 @@ tr:hover {
 }
 .btn {
     background-color: transparent;
-    border: 2px solid white;
+    border: 2px solid var(--stroke);
+    color: var(--text);
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 .btn:hover {
-    background-color: #ccc;
-    color: black;
+    border-color: var(--accent);
+    box-shadow: 0 8px 22px rgba(142, 240, 255, 0.2);
+    color: var(--text);
+    transform: translateY(-1px);
+}
+
+.btn-primary,
+.btn-outline-light {
+    border-color: var(--stroke);
+    color: var(--text);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #0b0c0f;
+    border: none;
+    box-shadow: 0 10px 28px rgba(109, 156, 246, 0.35);
+}
+
+.btn-outline-danger {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.btn-outline-danger:hover {
+    background: rgba(255, 107, 107, 0.1);
 }
 
 .container-menu {
@@ -200,24 +255,14 @@ tr:hover {
 
 .neon-link {
     padding: 10px 10px;
-    transition: 0.5s;
+    transition: 0.3s;
     background-color: transparent;
-    color: white;
+    color: var(--accent);
 }
 
 .neon-link:hover {
-    background-color: white;
-    color: black;
-}
-
-.neon-link {
-    transition: all 0.5s ease-in-out; /* Suaviza la transición */
-    position: relative;
-}
-
-.neon-link:hover {
-    color: #0ff; /* Cambia el color del texto */
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff; /* Efecto de neón */
+    color: var(--text); /* Cambia el color del texto */
+    text-shadow: 0 0 8px rgba(142, 240, 255, 0.4); /* Efecto de neón */
 }
 
 .alert-container {
@@ -230,17 +275,16 @@ tr:hover {
 
 .modern-alert {
     padding: 15px;
-    border-radius: 8px;
+    border-radius: 12px;
     font-weight: bold;
     color:white !important;
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff;
-    animation: flicker 1.5s infinite alternate;
+    text-shadow: none;
     margin-bottom: 10px;
     position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
 }
 
 /* 🔹 Agregada animación de parpadeo sutil */
@@ -255,22 +299,10 @@ tr:hover {
     }
 }
 
-.alert-success {
-    background: linear-gradient(45deg, #28a745, #218838);
-}
-
-.alert-danger {
-    background: linear-gradient(45deg, #dc3545, #c82333);
-}
-
-.alert-warning {
-    background: linear-gradient(45deg, #ffc107, #e0a800);
-    color: black;
-}
-
-.alert-info {
-    background: linear-gradient(45deg, #2a7480, #138496);
-}
+.alert-success { background: linear-gradient(135deg, #5be7a9, #2f9d69); }
+.alert-danger  { background: linear-gradient(135deg, #ff6b6b, #c0392b); }
+.alert-warning { background: linear-gradient(135deg, #f7c948, #c99a0b); color: #161616; }
+.alert-info    { background: linear-gradient(135deg, #8ef0ff, #6d9cf6); color: #0c0c0c; }
 
 .close-alert {
     background: transparent;
@@ -278,6 +310,97 @@ tr:hover {
     color: white;
     font-size: 16px;
     cursor: pointer;
+}
+
+/* Menú admin */
+.menu-body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+}
+
+.menu-hero {
+    width: min(900px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    text-align: center;
+}
+
+.menu-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0 8px;
+}
+
+.icon-btn {
+    background: transparent;
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    color: var(--text);
+    padding: 8px 10px;
+    font-size: 30px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.icon-btn:hover {
+    border-color: var(--accent);
+    box-shadow: 0 10px 26px rgba(142, 240, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.menu-card {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: 18px;
+    padding: 48px 40px;
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(6px);
+    width: 100%;
+}
+
+.menu-title h1,
+.menu-title h2 {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.menu-title h1 {
+    font-size: clamp(32px, 5vw, 44px);
+    margin-bottom: 8px;
+}
+
+.menu-title h2 {
+    font-size: clamp(26px, 4vw, 36px);
+}
+
+.menu-links {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.menu-links a {
+    font-size: clamp(18px, 2.8vw, 24px);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 @keyframes fadeIn {
