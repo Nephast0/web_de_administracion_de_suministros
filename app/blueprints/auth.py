@@ -8,6 +8,7 @@ from flask import (
     Blueprint,
     current_app as app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -62,7 +63,7 @@ def registro():
                 usuario=form.usuario.data,
                 direccion=form.direccion.data,
                 contrasenya=form.contrasenya.data,
-                rol=form.rol.data,
+                rol="cliente",
             )
 
             app.logger.info("Nuevo usuario creado: %s", nuevo_usuario.usuario)
@@ -189,29 +190,37 @@ def eliminar_usuario(usuario_id):
 @login_required
 @role_required("admin")
 def cambiar_rol(usuario_id):
-    # Recuperamos el usuario con la sesión activa (SQLAlchemy 2.x) en lugar de Query.get.
-    usuario = db.session.get(Usuario, usuario_id)
+    """Permite actualizar el rol desde la vista admin.
 
-    if not usuario:
-        flash("Usuario no encontrado.", "danger")
+    Regresa JSON cuando la petición se hace vía fetch (request.is_json) para
+    evitar errores de parseo en el frontend; mantiene el flujo legacy de
+    redirección/flash cuando llega un formulario tradicional.
+    """
+
+    def _responder(success: bool, message: str, category: str = "info", status: int = 200):
+        if request.is_json:
+            return jsonify({"success": success, "message": message}), status
+        flash(message, category)
         return redirect(url_for('auth.actividades'))
 
-    nuevo_rol = request.json.get("rol")
+    usuario = db.session.get(Usuario, usuario_id)
+    if not usuario:
+        return _responder(False, "Usuario no encontrado.", "danger", 404)
+
+    payload = request.get_json(silent=True) or {}
+    nuevo_rol = payload.get("rol") if request.is_json else request.form.get("rol")
 
     if usuario.id == current_user.id:
-        flash("No puedes cambiar tu propio rol.", "warning")
-        return redirect(url_for('auth.actividades'))
+        return _responder(False, "No puedes cambiar tu propio rol.", "warning", 400)
 
-    if nuevo_rol not in ["admin", "cliente"]:
-        flash("Rol inválido.", "danger")
-        return redirect(url_for('auth.actividades'))
+    if nuevo_rol not in {"admin", "cliente"}:
+        return _responder(False, "Rol inválido.", "danger", 400)
 
     try:
         usuario.rol = nuevo_rol
         db.session.commit()
-        flash("Rol cambiado correctamente.", "success")
     except Exception as exc:  # pragma: no cover - logs y feedback de usuario
         db.session.rollback()
-        flash(f"Error al actualizar el rol: {str(exc)}", "danger")
+        return _responder(False, f"Error al actualizar el rol: {exc}", "danger", 500)
 
-    return redirect(url_for('auth.actividades'))
+    return _responder(True, "Rol cambiado correctamente.", "success")

@@ -5,13 +5,18 @@ en cuanto a seguridad y consistencia de datos.
 """
 
 import secrets
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask_login import UserMixin
 from sqlalchemy import Column, String, Float
 
 from .db import db
 from .extensions import bcrypt
+
+
+def utcnow():
+    """Retorna instantes timezone-aware para evitar warnings de SQLAlchemy."""
+    return datetime.now(timezone.utc)
 
 
 class Usuario(UserMixin, db.Model):
@@ -26,7 +31,7 @@ class Usuario(UserMixin, db.Model):
     direccion = Column(String(150), nullable=False)
     contrasenya_hash = Column(String(128), nullable=False)
     rol = Column(String(20), nullable=False)
-    fecha_registro = Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    fecha_registro = Column(db.DateTime, nullable=False, default=utcnow)
 
     def hash_contrasenya(self, contrasenya: str) -> None:
         """Genera un hash usando flask-bcrypt configurado en la app."""
@@ -46,7 +51,7 @@ class Usuario(UserMixin, db.Model):
         self.hash_contrasenya(contrasenya)
         self.rol = rol
         # Fecha por defecto calculada en Python para mantener trazabilidad.
-        self.fecha_registro = fecha_registro or datetime.utcnow()
+        self.fecha_registro = fecha_registro or utcnow()
 
     def __str__(self):
         return f"Usuario {self.usuario} creado con éxito."
@@ -66,7 +71,7 @@ class Producto(db.Model):
     precio = db.Column(db.Float, nullable=False)
     marca = db.Column(db.String(100), nullable=True)
     num_referencia = db.Column(db.String(80), nullable=False)
-    fecha = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    fecha = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     # Enlazamos explícitamente la tabla pivote para evitar warnings de relaciones solapadas.
     proveedor_links = db.relationship("ProveedorTipoProducto", back_populates="producto", cascade="all, delete-orphan")
@@ -81,7 +86,7 @@ class Producto(db.Model):
         self.precio = precio
         self.marca = marca
         self.num_referencia = num_referencia
-        self.fecha = fecha or datetime.utcnow()
+        self.fecha = fecha or utcnow()
 
     def __str__(self):
         return f"{self.modelo} se ha agregado correctamente."
@@ -99,7 +104,7 @@ class Proveedor(db.Model):
     tasa_de_descuento = Column(Float, nullable=True)
     iva = Column(Float, nullable=False)
     tipo_producto = db.Column(db.String(500), nullable=False)
-    fecha = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    fecha = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     # Se usan back_populates simétricos para eliminar el warning de overlaps.
     productos = db.relationship(
@@ -117,7 +122,7 @@ class Proveedor(db.Model):
         self.tasa_de_descuento = tasa_de_descuento
         self.iva = iva
         self.tipo_producto = tipo_producto
-        self.fecha = fecha or datetime.utcnow()
+        self.fecha = fecha or utcnow()
 
     def __str__(self):
         return f"Proveedor {self.nombre} agregado correctamente."
@@ -162,7 +167,7 @@ class Compra(db.Model):
     precio_unitario = db.Column(db.Float, nullable=False)
     total = db.Column(db.Float, nullable=False)
     estado = db.Column(db.String(20), nullable=False, default="Pendiente")
-    fecha = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    fecha = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     producto = db.relationship("Producto", backref=db.backref("compras", lazy=True))
     proveedor = db.relationship("Proveedor", backref=db.backref("compras", lazy=True))
@@ -176,7 +181,7 @@ class Compra(db.Model):
         self.proveedor_id = proveedor_id
         self.total = total
         self.estado = estado
-        self.fecha = fecha or datetime.utcnow()
+        self.fecha = fecha or utcnow()
 
 
 class ActividadUsuario(db.Model):
@@ -185,7 +190,7 @@ class ActividadUsuario(db.Model):
     usuario_id = db.Column(db.String(8), db.ForeignKey("usuario.id"), nullable=False)
     accion = db.Column(db.String(200), nullable=False)
     modulo = db.Column(db.String(100), nullable=False)
-    fecha = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    fecha = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     usuario = db.relationship("Usuario", backref="actividades")
 

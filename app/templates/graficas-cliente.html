@@ -25,11 +25,133 @@
         <h1 class="ms-3 titlewhiteN mb-0">Tus métricas</h1>
     </div>
 
-    <div class="card p-4">
-        <p class="mb-0 titlewhite">
-            Las gráficas personalizadas para clientes están en construcción. Esta vista ya usa el layout
-            unificado y mantiene CSRF activo para futuras integraciones sin romper la navegación.
-        </p>
+    <div class="text-center mb-4">
+        <label for="intervaloCliente" class="form-label titlewhiteN">Intervalo para tu historial de compras</label>
+        <select id="intervaloCliente" class="form-select w-50 mx-auto fondo titlewhite">
+            <option value="dia">Diario</option>
+            <option value="semana">Semanal</option>
+            <option value="mes" selected>Mensual</option>
+            <option value="trimestre">Trimestral</option>
+            <option value="anio">Anual</option>
+        </select>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card p-4 h-100">
+                <h3 class="card-title titlewhiteN">Gasto en el tiempo</h3>
+                <canvas id="comprasEnTiempo"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card p-4 h-100">
+                <h3 class="card-title titlewhiteN">Tus productos preferidos</h3>
+                <canvas id="productosFavoritos"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card p-4 h-100">
+                <h3 class="card-title titlewhiteN">Estado de tus pedidos</h3>
+                <canvas id="estadoPedidos"></canvas>
+            </div>
+        </div>
     </div>
 </main>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Plantilla ligera: cada chart se alimenta de los nuevos endpoints cliente.
+    async function fetchJSON(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Error HTTP ${response.status}`);
+        }
+        return response.json();
+    }
+
+    function baseChartConfig(labels, data, label, type = 'bar') {
+        return {
+            type,
+            data: {
+                labels,
+                datasets: [{
+                    label,
+                    data,
+                    backgroundColor: 'rgba(142, 240, 255, 0.3)',
+                    borderColor: '#8ef0ff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: type === 'line' ? {
+                    y: {
+                        beginAtZero: true
+                    }
+                } : {}
+            }
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const intervalo = document.getElementById('intervaloCliente');
+        const comprasCtx = document.getElementById('comprasEnTiempo');
+        const favoritosCtx = document.getElementById('productosFavoritos');
+        const estadosCtx = document.getElementById('estadoPedidos');
+        let comprasChart;
+        let favoritosChart;
+        let estadosChart;
+
+        async function renderCompras() {
+            const data = await fetchJSON(`/data/cliente/compras_tiempo?interval=${intervalo.value}`);
+            if (comprasChart) comprasChart.destroy();
+            comprasChart = new Chart(
+                comprasCtx,
+                baseChartConfig(
+                    data.periodos,
+                    data.totales,
+                    `Gasto por ${data.period_label}`,
+                    'line'
+                )
+            );
+        }
+
+        async function renderFavoritos() {
+            const data = await fetchJSON('/data/cliente/productos_favoritos');
+            if (favoritosChart) favoritosChart.destroy();
+            favoritosChart = new Chart(
+                favoritosCtx,
+                baseChartConfig(
+                    data.productos,
+                    data.cantidades,
+                    'Unidades compradas'
+                )
+            );
+        }
+
+        async function renderEstados() {
+            const data = await fetchJSON('/data/cliente/estados_pedido');
+            if (estadosChart) estadosChart.destroy();
+            estadosChart = new Chart(
+                estadosCtx,
+                baseChartConfig(
+                    data.estados,
+                    data.totales,
+                    'Pedidos por estado',
+                    'doughnut'
+                )
+            );
+        }
+
+        intervalo.addEventListener('change', renderCompras);
+        renderCompras();
+        renderFavoritos();
+        renderEstados();
+    });
+</script>
 {% endblock %}

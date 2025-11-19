@@ -1,9 +1,10 @@
 """Blueprint de reportes y endpoints de datos agregados."""
 
+import os
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from flask import Blueprint, jsonify, render_template, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 from sqlalchemy import func
 
 from ..db import db
@@ -12,6 +13,51 @@ from .helpers import _period_key_and_label, role_required
 
 
 reportes_bp = Blueprint("reportes", __name__)
+_VALID_INTERVALS = {"dia", "semana", "mes", "trimestre", "anio"}
+_CACHE = {}
+_CACHE_TTL = timedelta(seconds=int(os.getenv("REPORT_CACHE_TTL", "60")))
+
+
+def _make_cache_key(prefix: str, **params) -> str:
+    """Genera una clave estable para almacenar respuestas JSON en memoria."""
+
+    serialized = "|".join(f"{key}:{params[key]}" for key in sorted(params))
+    return f"{prefix}|{serialized}"
+
+
+def _cache_get(key: str):
+    entry = _CACHE.get(key)
+    if not entry:
+        return None
+    if entry["expires"] < datetime.now(timezone.utc):
+        _CACHE.pop(key, None)
+        return None
+    return entry["data"]
+
+
+def _cache_set(key: str, data):
+    _CACHE[key] = {
+        "data": data,
+        "expires": datetime.now(timezone.utc) + _CACHE_TTL,
+    }
+
+
+def _cached_json(key: str, builder):
+    payload = _cache_get(key)
+    if payload is not None:
+        return jsonify(payload)
+    payload = builder()
+    _cache_set(key, payload)
+    return jsonify(payload)
+
+
+def _get_intervalo(default="mes"):
+    """Normaliza el parámetro ?interval= y lo valida contra la lista permitida."""
+
+    intervalo = (request.args.get("interval", default) or default).lower()
+    if intervalo not in _VALID_INTERVALS:
+        return None
+    return intervalo
 
 
 @reportes_bp.route('/graficas', methods=["GET"])
@@ -25,123 +71,153 @@ def graficas():
 @login_required
 @role_required("admin")
 def data_distribucion_productos():
-    productos = (
-        db.session.query(Producto.tipo_producto, func.count(Producto.id))
-        .group_by(Producto.tipo_producto)
-        .order_by(Producto.tipo_producto)
-        .all()
-    )
-    tipos = [producto.tipo_producto for producto in productos]
-    cantidades = [producto[1] for producto in productos]
-    return jsonify({'tipos': tipos, 'cantidades': cantidades})
+    def _builder():
+        productos = (
+            db.session.query(Producto.tipo_producto, func.count(Producto.id))
+            .group_by(Producto.tipo_producto)
+            .order_by(Producto.tipo_producto)
+            .all()
+        )
+        return {
+            'tipos': [producto.tipo_producto for producto in productos],
+            'cantidades': [producto[1] for producto in productos],
+        }
+
+    return _cached_json("distribucion_productos", _builder)
 
 
 @reportes_bp.route('/data/ventas_totales')
 @login_required
 @role_required("admin")
 def data_ventas_totales():
-    intervalo = request.args.get('interval', 'mes')
-    ventas_totales = defaultdict(float)
-    orden = {}
-    etiqueta_periodo = None
-    for compra in Compra.query.all():
-        clave, label, etiqueta_periodo = _period_key_and_label(compra.fecha, intervalo)
-        ventas_totales[label] += float(compra.total or 0)
-        orden[label] = clave
+    intervalo = _get_intervalo()
+    if intervalo is None:
+        return jsonify({'error': 'Intervalo no válido'}), 400
+    cache_key = _make_cache_key("ventas_totales", intervalo=intervalo)
 
-    if etiqueta_periodo is None:
-        _, _, etiqueta_periodo = _period_key_and_label(datetime.utcnow(), intervalo)
+    def _builder():
+        ventas_totales = defaultdict(float)
+        orden = {}
+        etiqueta_periodo = None
+        for compra in Compra.query.all():
+            clave, label, etiqueta_periodo = _period_key_and_label(compra.fecha, intervalo)
+            ventas_totales[label] += float(compra.total or 0)
+            orden[label] = clave
 
-    periodos = [label for label, _ in sorted(orden.items(), key=lambda item: item[1])]
-    totales = [ventas_totales[label] for label in periodos]
+        if etiqueta_periodo is None:
+            _, _, etiqueta_periodo = _period_key_and_label(datetime.now(timezone.utc), intervalo)
 
-    return jsonify({'periodos': periodos, 'totales': totales, 'period_label': etiqueta_periodo})
+        periodos = [label for label, _ in sorted(orden.items(), key=lambda item: item[1])]
+        totales = [ventas_totales[label] for label in periodos]
+        return {'periodos': periodos, 'totales': totales, 'period_label': etiqueta_periodo}
+
+    return _cached_json(cache_key, _builder)
 
 
 @reportes_bp.route('/data/productos_mas_vendidos')
 @login_required
 @role_required("admin")
 def data_productos_mas_vendidos():
-    ventas = (
-        db.session.query(Producto.modelo, func.sum(Compra.cantidad).label('cantidad'))
-        .join(Producto, Producto.id == Compra.producto_id)
-        .group_by(Producto.id)
-        .order_by(func.sum(Compra.cantidad).desc())
-        .limit(10)
-        .all()
-    )
+    def _builder():
+        ventas = (
+            db.session.query(Producto.modelo, func.sum(Compra.cantidad).label('cantidad'))
+            .join(Producto, Producto.id == Compra.producto_id)
+            .group_by(Producto.id)
+            .order_by(func.sum(Compra.cantidad).desc())
+            .limit(10)
+            .all()
+        )
+        return {
+            'productos': [venta[0] for venta in ventas],
+            'cantidades': [venta[1] for venta in ventas],
+        }
 
-    productos = [venta[0] for venta in ventas]
-    cantidades = [venta[1] for venta in ventas]
-    return jsonify({'productos': productos, 'cantidades': cantidades})
+    return _cached_json("productos_mas_vendidos", _builder)
 
 
 @reportes_bp.route('/data/usuarios_registrados')
 @login_required
 @role_required("admin")
 def data_usuarios_registrados():
-    intervalo = request.args.get('interval', 'mes')
-    if intervalo not in {"dia", "semana", "mes", "trimestre", "anio"}:
+    intervalo = _get_intervalo()
+    if intervalo is None:
         return jsonify({'error': 'Intervalo no válido'}), 400
+    cache_key = _make_cache_key("usuarios_registrados", intervalo=intervalo)
 
-    totales = defaultdict(int)
-    orden = {}
-    for usuario in Usuario.query.order_by(Usuario.fecha_registro.asc()).all():
-        clave, label, _ = _period_key_and_label(usuario.fecha_registro, intervalo)
-        totales[label] += 1
-        orden[label] = clave
+    def _builder():
+        totales = defaultdict(int)
+        orden = {}
+        for usuario in Usuario.query.order_by(Usuario.fecha_registro.asc()).all():
+            clave, label, _ = _period_key_and_label(usuario.fecha_registro, intervalo)
+            totales[label] += 1
+            orden[label] = clave
 
-    periodos = [label for label, _ in sorted(orden.items(), key=lambda item: item[1])]
-    conteos = [totales[label] for label in periodos]
+        periodos = [label for label, _ in sorted(orden.items(), key=lambda item: item[1])]
+        conteos = [totales[label] for label in periodos]
+        return {'periodos': periodos, 'totales': conteos}
 
-    return jsonify({'periodos': periodos, 'totales': conteos})
+    return _cached_json(cache_key, _builder)
 
 
 @reportes_bp.route('/data/ingresos_por_usuario')
 @login_required
 @role_required("admin")
 def data_ingresos_por_usuario():
-    intervalo = request.args.get('interval', 'mes')
-    ingresos = defaultdict(float)
-    orden = {}
-    for compra, usuario in db.session.query(Compra, Usuario).join(Usuario, Usuario.id == Compra.usuario_id).all():
-        clave, periodo_label, _ = _period_key_and_label(compra.fecha, intervalo)
-        key = (usuario.usuario, periodo_label)
-        ingresos[key] += float(compra.total or 0)
-        orden[key] = (usuario.usuario, *clave)
+    intervalo = _get_intervalo()
+    if intervalo is None:
+        return jsonify({'error': 'Intervalo no válido'}), 400
+    cache_key = _make_cache_key("ingresos_por_usuario", intervalo=intervalo)
 
-    ordered_keys = [key for key, _ in sorted(orden.items(), key=lambda item: item[1])]
-    usuarios = [f"{usuario} ({periodo})" for (usuario, periodo) in ordered_keys]
-    totales = [ingresos[(usuario, periodo)] for (usuario, periodo) in ordered_keys]
+    def _builder():
+        ingresos = defaultdict(float)
+        orden = {}
+        for compra, usuario in db.session.query(Compra, Usuario).join(Usuario, Usuario.id == Compra.usuario_id).all():
+            clave, periodo_label, _ = _period_key_and_label(compra.fecha, intervalo)
+            key = (usuario.usuario, periodo_label)
+            ingresos[key] += float(compra.total or 0)
+            orden[key] = (usuario.usuario, *clave)
 
-    return jsonify({'usuarios': usuarios, 'ingresos': totales})
+        ordered_keys = [key for key, _ in sorted(orden.items(), key=lambda item: item[1])]
+        usuarios = [f"{usuario} ({periodo})" for (usuario, periodo) in ordered_keys]
+        totales = [ingresos[(usuario, periodo)] for (usuario, periodo) in ordered_keys]
+        return {'usuarios': usuarios, 'ingresos': totales}
+
+    return _cached_json(cache_key, _builder)
 
 
 @reportes_bp.route('/data/compras_por_categoria')
 @login_required
 @role_required("admin")
 def data_compras_por_categoria():
-    compras = db.session.query(
-        Producto.tipo_producto,
-        func.count(Compra.id).label('total')
-    ).join(Compra).group_by(Producto.tipo_producto).all()
-    categorias = [compra.tipo_producto for compra in compras]
-    totales = [compra.total for compra in compras]
-    return jsonify({'categorias': categorias, 'compras': totales})
+    def _builder():
+        compras = db.session.query(
+            Producto.tipo_producto,
+            func.count(Compra.id).label('total')
+        ).join(Compra).group_by(Producto.tipo_producto).all()
+        return {
+            'categorias': [compra.tipo_producto for compra in compras],
+            'compras': [compra.total for compra in compras],
+        }
+
+    return _cached_json("compras_por_categoria", _builder)
 
 
 @reportes_bp.route('/data/productos_menos_vendidos')
 @login_required
 @role_required("admin")
 def data_productos_menos_vendidos():
-    ventas = db.session.query(
-        Compra.producto_id,
-        func.sum(Compra.cantidad).label('cantidad')
-    ).group_by(Compra.producto_id).order_by(func.sum(Compra.cantidad).asc()).limit(10).all()
+    def _builder():
+        ventas = db.session.query(
+            Compra.producto_id,
+            func.sum(Compra.cantidad).label('cantidad')
+        ).group_by(Compra.producto_id).order_by(func.sum(Compra.cantidad).asc()).limit(10).all()
 
-    productos = [db.session.query(Producto).get(venta.producto_id).modelo for venta in ventas]
-    cantidades = [venta.cantidad for venta in ventas]
-    return jsonify({'productos': productos, 'cantidades': cantidades})
+        return {
+            'productos': [db.session.get(Producto, venta.producto_id).modelo for venta in ventas],
+            'cantidades': [venta.cantidad for venta in ventas],
+        }
+
+    return _cached_json("productos_menos_vendidos", _builder)
 
 
 @reportes_bp.route("/graficas_cliente", methods=["GET"])
@@ -149,3 +225,83 @@ def data_productos_menos_vendidos():
 @role_required("cliente")
 def graficas_cliente():
     return render_template("graficas-cliente.html")
+
+
+@reportes_bp.route("/data/cliente/compras_tiempo")
+@login_required
+@role_required("cliente")
+def data_cliente_compras_tiempo():
+    """Agrega los totales gastados por el cliente segn el intervalo solicitado."""
+
+    intervalo = _get_intervalo()
+    if intervalo is None:
+        return jsonify({'error': 'Intervalo no vlido'}), 400
+    cache_key = _make_cache_key("cliente_compras_tiempo", usuario=current_user.id, intervalo=intervalo)
+
+    def _builder():
+        totales = defaultdict(float)
+        orden = {}
+        etiqueta_periodo = None
+
+        compras = (
+            Compra.query.filter_by(usuario_id=current_user.id)
+            .order_by(Compra.fecha.asc())
+            .all()
+        )
+
+        for compra in compras:
+            clave, label, etiqueta_periodo = _period_key_and_label(compra.fecha, intervalo)
+            totales[label] += float(compra.total or 0)
+            orden[label] = clave
+
+        if etiqueta_periodo is None:
+            _, _, etiqueta_periodo = _period_key_and_label(datetime.now(timezone.utc), intervalo)
+
+        periodos = [label for label, _ in sorted(orden.items(), key=lambda item: item[1])]
+        montos = [totales[label] for label in periodos]
+        return {"periodos": periodos, "totales": montos, "period_label": etiqueta_periodo}
+
+    return _cached_json(cache_key, _builder)
+
+
+@reportes_bp.route("/data/cliente/productos_favoritos")
+@login_required
+@role_required("cliente")
+def data_cliente_productos_favoritos():
+    """Top de productos comprados por el cliente actual."""
+
+    cache_key = _make_cache_key("cliente_favoritos", usuario=current_user.id)
+
+    def _builder():
+        favoritos = (
+            db.session.query(Producto.modelo, func.sum(Compra.cantidad).label("cantidad"))
+            .join(Producto, Producto.id == Compra.producto_id)
+            .filter(Compra.usuario_id == current_user.id)
+            .group_by(Producto.id)
+            .order_by(func.sum(Compra.cantidad).desc())
+            .limit(5)
+            .all()
+        )
+        return {"productos": [modelo for modelo, _ in favoritos], "cantidades": [cantidad for _, cantidad in favoritos]}
+
+    return _cached_json(cache_key, _builder)
+
+
+@reportes_bp.route("/data/cliente/estados_pedido")
+@login_required
+@role_required("cliente")
+def data_cliente_estados_pedido():
+    """Distribucin de pedidos por estado para el cliente actual."""
+
+    cache_key = _make_cache_key("cliente_estados", usuario=current_user.id)
+
+    def _builder():
+        estados = (
+            db.session.query(Compra.estado, func.count(Compra.id).label("total"))
+            .filter(Compra.usuario_id == current_user.id)
+            .group_by(Compra.estado)
+            .all()
+        )
+        return {"estados": [estado for estado, _ in estados], "totales": [total for _, total in estados]}
+
+    return _cached_json(cache_key, _builder)

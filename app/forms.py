@@ -30,11 +30,6 @@ class Formulario_de_registro(FlaskForm):
         'Confirmar Contraseña',
         validators=[DataRequired(), EqualTo('contrasenya', message='Las contraseñas deben coincidir')]
     )
-    rol = SelectField(
-        "Rol",
-        choices=[("cliente", "Cliente"), ("admin", "Admin")],
-        validators=[DataRequired()]
-    )
     registrar = SubmitField("Registrar")
 
 class EditarPerfilForm(FlaskForm):

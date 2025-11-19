@@ -8,13 +8,21 @@ Este resumen refleja el estado lógico actual después de las últimas refactori
 - **Modelos y formularios alineados:** las tablas de `Usuario`, `Proveedor` y `Producto` aplican longitudes/unicidad coherentes y ahora usan relaciones explícitas sin warnings de overlaps; los formularios mantienen las mismas restricciones. 【F:app/models.py†L17-L170】【F:app/forms.py†L1-L128】
 - **Consultas compatibles con SQLAlchemy 2.x:** las rutas administrativas y de inventario usan `db.session.get`/`abort` en lugar de la API legacy `Query.get`, eliminando warnings y manteniendo trazabilidad de errores. 【F:app/blueprints/auth.py†L150-L193】【F:app/blueprints/inventario.py†L70-L169】【F:app/blueprints/proveedores.py†L185-L227】
 - **Flujos críticos y casos negativos cubiertos por tests:** las pruebas incluyen registro/login, compras, métricas, CRUD administrativo (edición/eliminación) y perfil de cliente con SQLite en memoria. 【F:tests/test_flows.py†L1-L410】
+- **Registro endurecido:** el formulario público de alta fuerza el rol 'cliente' y ya no expone la selección manual, evitando auto-asignaciones administrativas. ?F:app/templates/registro.html�L25-L52??F:app/blueprints/auth.py�L59-L87?
+- **Tests actualizados:** las pruebas de autenticación ahora validan el rol por defecto y la redirección de clientes tras el login. ?F:tests/test_flows.py?L34-L90?
+- **CSRF y permisos cubiertos:** flujos de edición/eliminación fallan sin token y usuarios sin rol son redirigidos; se añadieron pruebas dedicadas. ?F:tests/test_flows.py?L420-L520?
+- **Fechas con zona horaria:** los modelos y utilidades usan datetime.now(timezone.utc) para eliminar warnings y mantener consistencia. ?F:app/models.py?L17-L196??F:app/blueprints/helpers.py?L52-L78??F:app/blueprints/reportes.py?L1-L189?
+- **Gráficas de cliente completas:** se añadieron endpoints y el frontend de Chart.js con datos reales más pruebas dedicadas. ?F:app/blueprints/reportes.py?L108-L189??F:app/templates/graficas-cliente.html?L1-L123??F:tests/test_flows.py?L250-L330?
+- **Cache en reportes:** los endpoints analíticos usan un cache en memoria con TTL configurable para reducir consultas repetidas. ?F:app/blueprints/reportes.py?L1-L220?
+- **Alertas de inventario visibles para admins:** el panel de productos recalcula los artículos en umbral mínimo para mostrarlos como aviso. ?F:app/blueprints/inventario.py?L70-L110??F:app/templates/inventario_admin.html?L19-L42?
+
 
 ## Riesgos y deudas pendientes
-- **Plantillas aún heterogéneas:** la vista de gráficas de cliente sigue siendo un stub sin datos y requiere completar la lógica de métricas dedicadas.
-- **Cobertura pendiente en flujos de edición/eliminación:** los tests nuevos ejercitan CRUD feliz; falta validar errores de permisos/validaciones bajo CSRF real.
-- **Gráficas y métricas:** persiste el riesgo en funciones de gráficos ya identificadas previamente (sin cambios en esta iteración).
-
+- **Instrumentación de reportes:** el cache in-memory no tiene métricas ni invalidación automática tras escrituras; falta monitoreo en producción.
+- **Cobertura front-end:** las gráficas en Chart.js no cuentan con pruebas automatizadas de interfaz; un cambio en el JS podría pasar desapercibido.
+- **Umbrales de alertas configurables:** los avisos de inventario dependen de `cantidad_minima` fija y no se pueden ajustar por rol o categoría.
 ## Próximos pasos sugeridos
-1. Completar las métricas específicas para clientes y suplantar el stub actual de gráficas.
-2. Extender las pruebas a casos de error/permiso en ediciones y eliminaciones con CSRF activo.
-3. Revisar las vistas de gráficas rotas para completar la cobertura de reportes antes de nuevos despliegues.
+1. Instrumentar métricas/alertas sobre el cache y los tiempos de respuesta de los endpoints analíticos.
+2. Añadir pruebas end-to-end o snapshots JS para las gráficas administrativas y de cliente.
+3. Hacer configurables los umbrales/recipientes de las alertas de inventario.
+

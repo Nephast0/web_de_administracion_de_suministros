@@ -4,7 +4,7 @@ Se centralizan validaciones y decoradores que antes vivían en `routes.py`
 para que cada módulo use la misma lógica sin duplicarla.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
 
 from flask import current_app, flash, redirect, url_for
@@ -63,7 +63,7 @@ def _period_key_and_label(moment: datetime, intervalo: str):
     SQLite o Postgres y garantizamos ordenamiento estable en pruebas.
     """
 
-    safe_moment = moment or datetime.utcnow()
+    safe_moment = moment or datetime.now(timezone.utc)
     normalized = (intervalo or "mes").lower()
 
     if normalized == "dia":

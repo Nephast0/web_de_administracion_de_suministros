@@ -77,7 +77,14 @@ def productos():
         productos = Producto.query.order_by(Producto.cantidad.desc()).all()
     else:
         productos = Producto.query.all()
-    return render_template('inventario_admin.html', productos=productos, orden=orden)
+    # Alertamos al administrador cuando el producto alcanzó el umbral mínimo
+    alertas = [
+        producto for producto in productos
+        if producto.cantidad_minima is not None
+        and producto.cantidad is not None
+        and producto.cantidad <= producto.cantidad_minima
+    ]
+    return render_template('inventario_admin.html', productos=productos, orden=orden, alertas=alertas)
 
 
 @inventario_bp.route("/productos_cliente", methods=["GET", "POST"])
@@ -97,7 +104,17 @@ def agregar_a_la_cesta(producto_id):
     producto = db.session.get(Producto, producto_id)
     if not producto:
         abort(404, description="Producto no encontrado")
-    cantidad = int(request.form.get('cantidad', 1))
+
+    raw_cantidad = request.form.get('cantidad', 1)
+    try:
+        cantidad = int(raw_cantidad)
+    except (TypeError, ValueError):
+        flash('Cantidad inválida.', 'warning')
+        return redirect(url_for('inventario.productos_cliente'))
+
+    if cantidad < 1:
+        flash('La cantidad debe ser al menos 1.', 'warning')
+        return redirect(url_for('inventario.productos_cliente'))
 
     item_en_cesta = CestaDeCompra.query.filter_by(usuario_id=current_user.id, producto_id=producto.id).first()
 

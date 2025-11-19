@@ -9,80 +9,125 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 48px 20px;
+        padding: 32px 16px;
     }
 
     .menu-hero {
-        width: min(1200px, 100%);
+        width: min(900px, 100%);
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 40px;
+        gap: 28px;
         position: relative;
         text-align: center;
-        margin: 0 auto;
-        padding-top: 16px;
     }
 
-    .menu-actions-abs {
-        position: absolute;
-        top: 12px;
-        z-index: 5;
-    }
-    .menu-actions-left { left: 12px; }
-    .menu-actions-right { right: 12px; }
-
-    .menu-title {
-        margin-top: 12px;
-    }
-    .menu-title h1 { margin-bottom: 6px; }
-
-    .menu-links {
-        margin-top: 0;
+    .menu-actions {
+        width: 100%;
         display: flex;
         justify-content: space-between;
-        gap: 20px;
+        align-items: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0 8px;
+    }
+
+    .icon-btn {
+        background: transparent;
+        border: 1px solid var(--stroke);
+        border-radius: 12px;
+        color: var(--text);
+        padding: 8px 10px;
+        font-size: 30px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    }
+
+    .icon-btn:hover {
+        border-color: var(--accent);
+        box-shadow: 0 10px 26px rgba(142, 240, 255, 0.25);
+        transform: translateY(-1px);
+    }
+
+    .menu-card {
+        background: var(--card);
+        border: 1px solid var(--stroke);
+        border-radius: 18px;
+        padding: 48px 40px;
+        box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(6px);
         width: 100%;
     }
-    .menu-links .cta {
-        width: 100%;
-        min-width: 0;
-        text-align: center;
-        padding: 14px 16px;
-        font-size: 16px;
+
+    .menu-title h1,
+    .menu-title h2 {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .menu-title h1 {
+        font-size: clamp(32px, 5vw, 44px);
+        margin-bottom: 8px;
+    }
+
+    .menu-title h2 {
+        font-size: clamp(26px, 4vw, 36px);
+    }
+
+    .menu-links {
+        margin-top: 32px;
+        display: flex;
+        justify-content: center;
+        gap: 32px;
+        flex-wrap: wrap;
+    }
+
+    .menu-links a {
+        font-size: clamp(18px, 2.8vw, 24px);
+        text-transform: uppercase;
+        letter-spacing: 2px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="menu-hero">
-    <div class="menu-actions-abs menu-actions-left">
-        <form action="{{ url_for('auth.logout') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="cta cta-inline" aria-label="Cerrar sesión">Logout</button>
-        </form>
-    </div>
-    <div class="menu-actions-abs menu-actions-right">
-        <form action="/actividades" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="cta cta-inline" aria-label="Panel de actividades">Actividades</button>
-        </form>
-    </div>
-
-    <div class="menu-title brand">
-        <h1 class="titlewhiteN mb-2">Suministros Informáticos</h1>
-        <h2 class="titlewhiteN">CNCV</h2>
-    </div>
-    <div class="menu-links">
-        <form action="/proveedores" method="get" class="link-form flex-fill">
-            <button type="submit" class="cta">Proveedores</button>
-        </form>
-        <form action="/productos" method="get" class="link-form flex-fill">
-            <button type="submit" class="cta">Inventario</button>
-        </form>
-        <form action="/graficas" method="get" class="link-form flex-fill">
-            <button type="submit" class="cta">Gráficos</button>
-        </form>
+<main>
+    <div class="menu-hero">
+        <div class="menu-actions-abs menu-actions-left">
+            <form action="{{ url_for('auth.logout') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="icon-btn" aria-label="Cerrar sesión">logout</button>
+            </form>
+        </div>
+        <div class="menu-actions-abs menu-actions-right">
+            <form action="/actividades" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="icon-btn" aria-label="Panel de actividades">shield_person</button>
+            </form>
+        </div>
+        <div class="menu-card">
+            <div class="menu-title">
+                <h1 class="titlewhiteN mb-2">Suministros Informáticos</h1>
+                <h2 class="titlewhiteN">CNCV</h2>
+            </div>
+            <div class="menu-links">
+                <form action="/proveedores" method="get" class="link-form">
+                    <button type="submit" class="cta">Proveedores</button>
+                </form>
+                <form action="/productos" method="get" class="link-form">
+                    <button type="submit" class="cta">Inventario</button>
+                </form>
+                <form action="/graficas" method="get" class="link-form">
+                    <button type="submit" class="cta">Gráficos</button>
+                </form>
+            </div>
+        </div>
     </div>
 </main>
 {% endblock %}
