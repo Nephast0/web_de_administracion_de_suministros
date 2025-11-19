@@ -15,6 +15,7 @@ Este resumen refleja el estado lógico actual después de las últimas refactori
 - **Gráficas de cliente completas:** se añadieron endpoints y el frontend de Chart.js con datos reales más pruebas dedicadas. ?F:app/blueprints/reportes.py?L108-L189??F:app/templates/graficas-cliente.html?L1-L123??F:tests/test_flows.py?L250-L330?
 - **Cache en reportes:** los endpoints analíticos usan un cache en memoria con TTL configurable para reducir consultas repetidas. ?F:app/blueprints/reportes.py?L1-L220?
 - **Alertas de inventario visibles para admins:** el panel de productos recalcula los artículos en umbral mínimo para mostrarlos como aviso. ?F:app/blueprints/inventario.py?L70-L110??F:app/templates/inventario_admin.html?L19-L42?
+- **Pruebas de integración de reportes:** la suite ahora valida respuestas de los endpoints de métricas, incluyendo intervalos inválidos y datos de cliente. ?F:tests/test_flows.py?L240-L520?
 
 
 ## Riesgos y deudas pendientes
@@ -23,6 +24,6 @@ Este resumen refleja el estado lógico actual después de las últimas refactori
 - **Umbrales de alertas configurables:** los avisos de inventario dependen de `cantidad_minima` fija y no se pueden ajustar por rol o categoría.
 ## Próximos pasos sugeridos
 1. Instrumentar métricas/alertas sobre el cache y los tiempos de respuesta de los endpoints analíticos.
-2. Añadir pruebas end-to-end o snapshots JS para las gráficas administrativas y de cliente.
+2. Añadir pruebas end-to-end (o snapshots JS) para las gráficas tanto de admins como de clientes.
 3. Hacer configurables los umbrales/recipientes de las alertas de inventario.
 

@@ -1,5 +1,6 @@
 """Blueprint de reportes y endpoints de datos agregados."""
 
+import logging
 import os
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
@@ -13,8 +14,10 @@ from .helpers import _period_key_and_label, role_required
 
 
 reportes_bp = Blueprint("reportes", __name__)
+_logger = logging.getLogger(__name__)
 _VALID_INTERVALS = {"dia", "semana", "mes", "trimestre", "anio"}
-_CACHE = {}
+_CACHE: dict[str, dict] = {}
+_CACHE_STATS = {"hits": 0, "misses": 0}
 _CACHE_TTL = timedelta(seconds=int(os.getenv("REPORT_CACHE_TTL", "60")))
 
 
@@ -28,10 +31,13 @@ def _make_cache_key(prefix: str, **params) -> str:
 def _cache_get(key: str):
     entry = _CACHE.get(key)
     if not entry:
+        _CACHE_STATS["misses"] += 1
         return None
     if entry["expires"] < datetime.now(timezone.utc):
         _CACHE.pop(key, None)
+        _CACHE_STATS["misses"] += 1
         return None
+    _CACHE_STATS["hits"] += 1
     return entry["data"]
 
 
@@ -45,10 +51,26 @@ def _cache_set(key: str, data):
 def _cached_json(key: str, builder):
     payload = _cache_get(key)
     if payload is not None:
+        _logger.info("cache-hit endpoint=%s hits=%s misses=%s", key, _CACHE_STATS["hits"], _CACHE_STATS["misses"])
         return jsonify(payload)
     payload = builder()
     _cache_set(key, payload)
+    _logger.info("cache-miss endpoint=%s hits=%s misses=%s", key, _CACHE_STATS["hits"], _CACHE_STATS["misses"])
     return jsonify(payload)
+
+
+@reportes_bp.route("/data/cache_stats")
+@login_required
+@role_required("admin")
+def cache_stats():
+    """Expone métricas simples de cache para monitoreo manual."""
+
+    return jsonify({
+        "entries": len(_CACHE),
+        "hits": _CACHE_STATS["hits"],
+        "misses": _CACHE_STATS["misses"],
+        "ttl_seconds": _CACHE_TTL.total_seconds(),
+    })
 
 
 def _get_intervalo(default="mes"):
