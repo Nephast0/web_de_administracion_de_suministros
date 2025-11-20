@@ -640,6 +640,23 @@ class ReportesCacheTest(BaseTestCase):
             self.cache_file.unlink()
         self.cache_file.parent.mkdir(parents=True, exist_ok=True)
         self.app.config["REPORT_CACHE_FILE"] = str(self.cache_file)
+        self.cache_history_file = Path(self.app.instance_path) / "cache_history_test.json"
+        if self.cache_history_file.exists():
+            self.cache_history_file.unlink()
+        self.cache_history_file.parent.mkdir(parents=True, exist_ok=True)
+        self.app.config["REPORT_CACHE_HISTORY_FILE"] = str(self.cache_history_file)
+        self.cache_archive_dir = Path(self.app.instance_path) / "cache_history_archive_test"
+        if self.cache_archive_dir.exists():
+            for file in self.cache_archive_dir.glob("*"):
+                file.unlink()
+            self.cache_archive_dir.rmdir()
+        self.app.config["REPORT_CACHE_HISTORY_ARCHIVE_DIR"] = str(self.cache_archive_dir)
+        self.app.config["REPORT_CACHE_HISTORY_MAX_BYTES"] = 1024
+        with self.app.app_context():
+            from app.blueprints import reportes
+
+            assert str(reportes._get_cache_history_file()) == str(self.cache_history_file)
+            assert str(reportes._get_cache_history_archive_dir()) == str(self.cache_archive_dir)
 
     def _login_admin(self):
         with self.client.session_transaction() as session:
@@ -649,6 +666,12 @@ class ReportesCacheTest(BaseTestCase):
     def tearDown(self):
         if self.cache_file.exists():
             self.cache_file.unlink()
+        if self.cache_history_file.exists():
+            self.cache_history_file.unlink()
+        if self.cache_archive_dir.exists():
+            for file in self.cache_archive_dir.glob("*"):
+                file.unlink()
+            self.cache_archive_dir.rmdir()
         super().tearDown()
 
     def test_cache_stats_requiere_autenticacion(self):
@@ -690,6 +713,41 @@ class ReportesCacheTest(BaseTestCase):
         types = [evt["type"] for evt in events]
         self.assertIn("miss", types)
         self.assertIn("hit", types)
+
+    def test_chart_export_descarga_archivo(self):
+        self._login_admin()
+        self.client.get("/data/distribucion_productos")
+        resp = self.client.get("/data/chart_export/distribucion_productos")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.mimetype, "text/csv")
+        self.assertIn("tipo_producto", resp.get_data(as_text=True))
+
+    def test_historial_rotado_generar_archivo(self):
+        self._login_admin()
+        self.app.config["REPORT_CACHE_HISTORY_MAX_BYTES"] = 1
+        for _ in range(5):
+            self.client.get("/data/distribucion_productos")
+        self.client.post("/data/cache_ttl", json={"ttl_seconds": 90})
+        with self.app.app_context():
+            from app.blueprints import reportes
+
+            reportes._rotate_cache_history_if_needed()
+        self.assertTrue(self.cache_archive_dir.exists())
+        self.assertTrue(list(self.cache_archive_dir.glob("cache_history_*.json")))
+        resp = self.client.get("/data/cache_history/export?include_archives=1")
+        self.assertEqual(resp.status_code, 200)
+        data = json.loads(resp.get_data(as_text=True))
+        self.assertTrue(data["events"])
+
+    def test_cache_history_export_descarga_archivo(self):
+        self._login_admin()
+        self.client.get("/data/distribucion_productos")
+        resp = self.client.get("/data/cache_history/export")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.mimetype, "application/json")
+        payload = json.loads(resp.data.decode("utf-8"))
+        self.assertTrue(payload["events"])
+        self.assertTrue(self.cache_history_file.exists())
 
 
 class CsrfProtectionTest(unittest.TestCase):
