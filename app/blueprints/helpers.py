@@ -85,6 +85,20 @@ def _period_key_and_label(moment: datetime, intervalo: str):
     return key, f"{safe_moment.year:04d}-{safe_moment.month:02d}", "Mes"
 
 
+def _extract_productos(source):
+    """Normaliza valores recibidos desde WTForms o MultiDict."""
+
+    if hasattr(source, "getlist"):
+        return source.getlist("productos")
+
+    raw = source.get("productos")
+    if raw is None:
+        return []
+    if isinstance(raw, (list, tuple, set)):
+        return [str(item) for item in raw]
+    return [raw]
+
+
 def validar_datos_proveedor(form):
     """Valida campos mínimos y convierte valores numéricos de proveedores.
 
@@ -94,16 +108,17 @@ def validar_datos_proveedor(form):
 
     required_fields = ["nombre", "telefono", "direccion", "email", "cif", "tasa_de_descuento", "iva"]
     for field in required_fields:
-        if not form.get(field):
+        value = form.get(field)
+        if value is None or (isinstance(value, str) and not value.strip()):
             return False, f"El campo '{field}' es obligatorio."
 
     try:
         tasa_de_descuento = float(form.get("tasa_de_descuento"))
         iva = float(form.get("iva"))
-    except ValueError:
+    except (TypeError, ValueError):
         return False, "Los campos 'Tasa de descuento' e 'IVA' deben ser números válidos."
 
-    productos = form.getlist("productos")
+    productos = [item for item in _extract_productos(form) if item]
     productos_str = ", ".join(productos) if productos else "No especificado"
 
     datos = {

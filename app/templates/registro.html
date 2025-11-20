@@ -15,12 +15,9 @@
 
 {% block content %}
 <main class="registro-container">
-    <form action="{{ url_for('auth.login') }}" method="post" style="position: absolute; top: 20px; left: 20px;">
-        {{ form.csrf_token }}
-        <button type="submit" class="back-btn material-symbols-outlined">
-            arrow_back
-        </button>
-    </form>
+    <a href="{{ url_for('auth.login') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 20px; left: 20px;" aria-label="Volver al inicio de sesión">
+        arrow_back
+    </a>
     <h3 class="text-center titlewhiteN">Introduzca sus datos</h3>
     <form action="{{ url_for('auth.registro') }}" method="post">
         {{ form.hidden_tag() }}

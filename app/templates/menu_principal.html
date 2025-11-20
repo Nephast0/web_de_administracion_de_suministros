@@ -106,10 +106,7 @@
             </form>
         </div>
         <div class="menu-actions-abs menu-actions-right">
-            <form action="/actividades" method="post">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="icon-btn" aria-label="Panel de actividades">shield_person</button>
-            </form>
+            <a href="{{ url_for('auth.actividades') }}" class="icon-btn text-decoration-none" aria-label="Panel de actividades">shield_person</a>
         </div>
         <div class="menu-card">
             <div class="menu-title">
@@ -117,15 +114,9 @@
                 <h2 class="titlewhiteN">CNCV</h2>
             </div>
             <div class="menu-links">
-                <form action="/proveedores" method="get" class="link-form">
-                    <button type="submit" class="cta">Proveedores</button>
-                </form>
-                <form action="/productos" method="get" class="link-form">
-                    <button type="submit" class="cta">Inventario</button>
-                </form>
-                <form action="/graficas" method="get" class="link-form">
-                    <button type="submit" class="cta">Gráficos</button>
-                </form>
+                <a href="{{ url_for('proveedores.proveedores') }}" class="cta text-decoration-none">Proveedores</a>
+                <a href="{{ url_for('inventario.productos') }}" class="cta text-decoration-none">Inventario</a>
+                <a href="{{ url_for('reportes.graficas') }}" class="cta text-decoration-none">Gráficos</a>
             </div>
         </div>
     </div>

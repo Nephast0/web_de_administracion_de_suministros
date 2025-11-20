@@ -17,6 +17,8 @@ proveedores_bp = Blueprint("proveedores", __name__)
 
 
 @proveedores_bp.route('/tipos-producto/<proveedor_id>', methods=['GET'])
+@login_required
+@role_required("admin")
 def obtener_tipos_producto(proveedor_id):
     try:
         proveedor = Proveedor.query.filter_by(id=proveedor_id).first()
@@ -30,6 +32,8 @@ def obtener_tipos_producto(proveedor_id):
 
 
 @proveedores_bp.route('/proveedor/<proveedor_id>', methods=['GET'])
+@login_required
+@role_required("admin")
 def obtener_proveedor(proveedor_id):
     try:
         proveedor = Proveedor.query.filter_by(id=proveedor_id).first()
@@ -53,6 +57,8 @@ MARCAS = {
 
 
 @proveedores_bp.route('/get_marcas', methods=['GET'])
+@login_required
+@role_required("admin")
 def get_marcas():
     tipo_producto = request.args.get('tipo_producto')
     app.logger.debug("Tipo de producto recibido: %s", tipo_producto)
@@ -125,8 +131,42 @@ MARCAS_Y_MODELOS = {
     },
 }
 
+PROVEEDOR_PRODUCTOS = [
+    "Ordenador",
+    "Tarjeta Gráfica",
+    "Procesador",
+    "Fuente",
+    "Disco Duro",
+    "RAM",
+]
+
+
+def _split_tipo_producto(value: str) -> list[str]:
+    if not value or value.strip().lower() == "no especificado":
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def _render_proveedor_template(template, form, proveedor=None):
+    return render_template(template, form=form, proveedor=proveedor)
+
+
+def _hydrate_proveedor_form(form):
+    form.productos.choices = [(opcion, opcion) for opcion in PROVEEDOR_PRODUCTOS]
+    return form
+
+
+def _flash_form_errors(form):
+    for field_name, errors in form.errors.items():
+        label = getattr(getattr(form, field_name, None), "label", None)
+        friendly_name = label.text if label is not None else field_name
+        for error in errors:
+            flash(f"Error en {friendly_name}: {error}", "warning")
+
 
 @proveedores_bp.route("/get_modelos", methods=["GET"])
+@login_required
+@role_required("admin")
 def get_modelos():
     tipo_producto = request.args.get("tipo_producto")
     marca = request.args.get("marca")
@@ -263,14 +303,14 @@ def proveedores():
 def agregar_proveedor():
     app.logger.debug("Payload recibido para proveedor: %s", request.form)
 
-    form = ProveedorForm()
+    form = _hydrate_proveedor_form(ProveedorForm())
 
-    if request.method == 'POST' and request.form:
-        valido, datos_o_error = validar_datos_proveedor(request.form)
+    if form.validate_on_submit():
+        valido, datos_o_error = validar_datos_proveedor(form.data)
 
         if not valido:
             flash(datos_o_error, 'danger')
-            return render_template('agregar-proveedor.html', form=form)
+            return _render_proveedor_template('agregar-proveedor.html', form)
 
         try:
             nuevo_proveedor = Proveedor(**datos_o_error)
@@ -290,8 +330,10 @@ def agregar_proveedor():
             db.session.rollback()
             app.logger.error("Error al guardar proveedor: %s", exc)
             flash(f'Error al guardar el proveedor: {exc}', 'danger')
+    elif request.method == 'POST':
+        _flash_form_errors(form)
 
-    return render_template('agregar-proveedor.html', form=form)
+    return _render_proveedor_template('agregar-proveedor.html', form)
 
 
 @proveedores_bp.route('/editar_proveedor/<string:proveedor_id>', methods=['GET', 'POST'])
@@ -302,11 +344,15 @@ def editar_proveedor(proveedor_id):
     if not proveedor:
         abort(404, description="Proveedor no encontrado")
 
-    if request.method == 'POST':
-        valido, datos_o_error = validar_datos_proveedor(request.form)
+    form = _hydrate_proveedor_form(ProveedorForm(obj=proveedor))
+    if request.method == 'GET':
+        form.productos.data = _split_tipo_producto(proveedor.tipo_producto)
+
+    if form.validate_on_submit():
+        valido, datos_o_error = validar_datos_proveedor(form.data)
         if not valido:
             flash(datos_o_error, 'danger')
-            return render_template('editar_proveedor.html', form=ProveedorForm(), proveedor=proveedor)
+            return _render_proveedor_template('editar_proveedor.html', form, proveedor)
 
         try:
             proveedor.nombre = datos_o_error['nombre']
@@ -332,18 +378,10 @@ def editar_proveedor(proveedor_id):
             db.session.rollback()
             app.logger.error("Error al actualizar proveedor: %s", exc)
             flash(f'Error al actualizar el proveedor: {exc}', 'error')
+    elif request.method == 'POST':
+        _flash_form_errors(form)
 
-    form = ProveedorForm(
-        nombre=proveedor.nombre,
-        telefono=proveedor.telefono,
-        direccion=proveedor.direccion,
-        email=proveedor.email,
-        cif=proveedor.cif,
-        tasa_de_descuento=proveedor.tasa_de_descuento if proveedor.tasa_de_descuento is not None else 0,
-        iva=proveedor.iva if proveedor.iva is not None else 0,
-        productos=proveedor.tipo_producto.split(", ")
-    )
-    return render_template('editar_proveedor.html', form=form, proveedor=proveedor)
+    return _render_proveedor_template('editar_proveedor.html', form, proveedor)
 
 
 @proveedores_bp.route("/eliminar_proveedor/<string:id>", methods=["POST"])

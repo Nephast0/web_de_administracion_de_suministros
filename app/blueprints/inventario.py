@@ -92,7 +92,13 @@ def productos():
 @role_required("cliente")
 def productos_cliente():
     productos = Producto.query.all()
-    alertas = [producto for producto in productos if producto.cantidad <= producto.cantidad_minima]
+    alertas = [
+        producto
+        for producto in productos
+        if producto.cantidad_minima is not None
+        and producto.cantidad is not None
+        and producto.cantidad <= producto.cantidad_minima
+    ]
     return render_template("productos-cliente.html", productos=productos, alertas=alertas)
 
 
@@ -136,7 +142,7 @@ def agregar_a_la_cesta(producto_id):
 def cesta():
     items = CestaDeCompra.query.filter_by(usuario_id=current_user.id).all()
     total = sum(item.producto.precio * item.cantidad for item in items)
-    return render_template('cesta.html', items=items, total=total)
+    return render_template('cesta.html', items=items, cesta_items=items, total=total)
 
 
 @inventario_bp.route('/actualizar_cesta/<item_id>', methods=['POST'])

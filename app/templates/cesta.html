@@ -18,10 +18,9 @@
 
 {% block content %}
 <main class="container p-5 position-relative">
-    <form action="/menu-cliente" method="post" style="position: absolute; top: 40px; left: 70px;">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="back-btn material-symbols-outlined" aria-label="Volver al menú del cliente">arrow_back</button>
-    </form>
+    <a href="{{ url_for('inventario.menu_cliente') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver al menú del cliente">
+        arrow_back
+    </a>
     <div class="row">
         <div class="col-md-10 mx-auto">
             <h1 class="text-center titlewhiteN">Cesta</h1>
@@ -34,7 +33,7 @@
                                     <th>Modelo</th>
                                     <th>Descripción</th>
                                     <th>Cantidad</th>
-                                    <th>Precio Total (€)</th>
+                                    <th>Precio Total</th>
                                     <th>Opciones</th>
                                 </tr>
                             </thead>
@@ -50,7 +49,12 @@
                                                 <input style="text-center titlewhite fondo" type="number" name="cantidad" value="{{ item.cantidad }}" min="1" data-precio="{{ item.producto.precio }}" class="cantidad" />
                                             </form>
                                         </td>
-                                        <td class="precio-total">{{ precio_total_producto }}</td>
+                                        <td
+                                            class="precio-total"
+                                            data-symbol="{{ currency_symbol }}"
+                                            data-locale="{{ currency_locale }}"
+                                            data-code="{{ currency_code }}"
+                                        >{{ precio_total_producto | currency }}</td>
                                         <td>
                                             <form action="{{ url_for('inventario.eliminar_de_la_cesta', item_id=item.id) }}" method="post" style="display: inline;">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -65,7 +69,7 @@
                         </table>
                     </div>
                         <div class="text-center">
-                        <h2 class="titlewhite">Total: €<span id="total">{{ total }}</span></h2>
+                        <h2 class="titlewhite">Total: <span id="total" data-symbol="{{ currency_symbol }}" data-locale="{{ currency_locale }}" data-code="{{ currency_code }}">{{ total | currency }}</span></h2>
                         <form action="{{ url_for('inventario.confirmacion_de_compra') }}" method="post">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn-block neon-link titlewhite fondo">
@@ -85,6 +89,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         const cantidadInputs = document.querySelectorAll('.cantidad');
         const totalElement = document.getElementById('total');
+        const currencyLocale = totalElement.dataset.locale || navigator.language || 'es-ES';
+        const currencyCode = totalElement.dataset.code || 'EUR';
+        const currencyFormatter = new Intl.NumberFormat(currencyLocale, {
+            style: 'currency',
+            currency: currencyCode
+        });
 
         function updateTotal() {
             let total = 0;
@@ -93,10 +103,10 @@
                 const precio = parseFloat(input.getAttribute('data-precio'));
                 const precioTotalElement = input.closest('tr').querySelector('.precio-total');
                 const precioTotal = cantidad * precio;
-                precioTotalElement.textContent = precioTotal.toFixed(2);
+                precioTotalElement.textContent = currencyFormatter.format(precioTotal);
                 total += precioTotal;
             });
-            totalElement.textContent = total.toFixed(2);
+            totalElement.textContent = currencyFormatter.format(total);
         }
 
         cantidadInputs.forEach(input => {

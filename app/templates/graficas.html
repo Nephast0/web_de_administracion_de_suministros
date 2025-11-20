@@ -99,6 +99,32 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title titlewhiteN">Estado de la caché</h3>
+                    <dl class="row text-white small">
+                        <dt class="col-6">Entradas</dt>
+                        <dd class="col-6 mb-1" id="cacheEntries">0</dd>
+                        <dt class="col-6">Hits</dt>
+                        <dd class="col-6 mb-1" id="cacheHits">0</dd>
+                        <dt class="col-6">Misses</dt>
+                        <dd class="col-6 mb-1" id="cacheMisses">0</dd>
+                        <dt class="col-6">TTL actual (s)</dt>
+                        <dd class="col-6 mb-1" id="cacheTtl">0</dd>
+                    </dl>
+                    <form id="ttlForm" class="d-flex flex-wrap gap-2" autocomplete="off">
+                        <label class="form-label titlewhiteN w-100" for="ttlInput">Actualizar TTL (segundos)</label>
+                        <input type="number" min="5" step="5" id="ttlInput" class="form-control fondo titlewhite flex-grow-1" required>
+                        <button class="btn btn-primary neon-link titlewhite fondo" type="submit">Aplicar</button>
+                    </form>
+                    <small class="text-muted d-block mt-2">Cambiar el TTL limpia la caché en memoria.</small>
+                    <div id="ttlFeedback" class="small mt-2 d-none"></div>
+                    <h4 class="titlewhiteN mt-4">Histórico</h4>
+                    <ul id="cacheHistory" class="list-group list-group-flush bg-transparent"></ul>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 {% endblock %}
@@ -115,7 +141,7 @@
         return response.json();
     }
 
-    async function createChart(ctx, url, type, dataKey, labelKey, chartLabel) {
+    async function createChart(ctx, url, type, dataKey, labelKey, chartLabel, formatAsCurrency = false) {
         try {
             const data = await fetchChartData(url);
             const chartData = {
@@ -129,17 +155,33 @@
                 }]
             };
 
+            const options = {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    tooltip: {}
+                }
+            };
+
+            if (formatAsCurrency) {
+                options.scales.y.ticks = options.scales.y.ticks || {};
+                options.scales.y.ticks.callback = (value) => currencyFormatter.format(value);
+                options.plugins.tooltip.callbacks = {
+                    label: (context) => {
+                        const label = context.dataset.label || '';
+                        return `${label}: ${currencyFormatter.format(context.parsed.y)}`;
+                    }
+                };
+            }
+
             return new Chart(ctx, {
                 type: type,
                 data: chartData,
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                options
             });
         } catch (error) {
             console.error('Error al obtener los datos:', error);
@@ -148,18 +190,131 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         const intervaloTiempo = document.getElementById('intervaloTiempo');
+        const cacheEntries = document.getElementById('cacheEntries');
+        const cacheHits = document.getElementById('cacheHits');
+        const cacheMisses = document.getElementById('cacheMisses');
+        const cacheTtl = document.getElementById('cacheTtl');
+        const ttlInput = document.getElementById('ttlInput');
+        const ttlForm = document.getElementById('ttlForm');
+        const ttlFeedback = document.getElementById('ttlFeedback');
+        const cacheHistory = document.getElementById('cacheHistory');
+        const currencySymbol = {{ (currency_symbol or '€')|tojson }};
+        const currencyLocale = {{ (currency_locale or 'es-ES')|tojson }};
+        const currencyCode = {{ (currency_code or 'EUR')|tojson }};
+        const csrfToken = {{ csrf_token()|tojson }};
+        const currencyFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
+            style: 'currency',
+            currency: currencyCode || 'EUR'
+        });
 
         function updateCharts() {
             const interval = intervaloTiempo.value;
             createChart(document.getElementById('distribucionProductos'), `/data/distribucion_productos?interval=${interval}`, 'bar', 'cantidades', 'tipos', 'Cantidad');
-            createChart(document.getElementById('ventasTotales'), `/data/ventas_totales?interval=${interval}`, 'line', 'totales', 'periodos', 'Ventas Totales (€)');
+            createChart(
+                document.getElementById('ventasTotales'),
+                `/data/ventas_totales?interval=${interval}`,
+                'line',
+                'totales',
+                'periodos',
+                `Ventas Totales (${currencySymbol})`,
+                true
+            );
             createChart(document.getElementById('productosMasVendidos'), `/data/productos_mas_vendidos?interval=${interval}`, 'bar', 'cantidades', 'productos', 'Cantidad Vendida');
             createChart(document.getElementById('usuariosRegistrados'), `/data/usuarios_registrados?interval=${interval}`, 'line', 'totales', 'periodos', 'Usuarios Registrados');
-            createChart(document.getElementById('ingresosPorUsuario'), `/data/ingresos_por_usuario?interval=${interval}`, 'bar', 'ingresos', 'usuarios', 'Ingresos (€)');
+            createChart(
+                document.getElementById('ingresosPorUsuario'),
+                `/data/ingresos_por_usuario?interval=${interval}`,
+                'bar',
+                'ingresos',
+                'usuarios',
+                `Ingresos (${currencySymbol})`,
+                true
+            );
         }
+
+        async function refreshCacheStats() {
+            try {
+                const data = await fetchChartData('/data/cache_stats');
+                cacheEntries.textContent = data.entries;
+                cacheHits.textContent = data.hits;
+                cacheMisses.textContent = data.misses;
+                cacheTtl.textContent = data.ttl_seconds;
+                ttlInput.value = data.ttl_seconds;
+            } catch (error) {
+                console.error('Error al obtener las métricas de caché:', error);
+            }
+        }
+
+        async function refreshCacheHistory() {
+            try {
+                const data = await fetchChartData('/data/cache_history');
+                cacheHistory.innerHTML = '';
+                if (!data.events.length) {
+                    cacheHistory.innerHTML = '<li class="list-group-item bg-transparent text-muted">Sin eventos registrados.</li>';
+                    return;
+                }
+                data.events.forEach(event => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item bg-transparent titlewhite small';
+                    const date = new Date(event.timestamp);
+                    const readableDate = date.toLocaleString(currencyLocale || navigator.language || 'es-ES');
+                    let description = '';
+                    if (event.type === 'hit' || event.type === 'miss') {
+                        description = `Cache ${event.type} → ${event.key}`;
+                    } else if (event.type === 'ttl_update') {
+                        description = `TTL actualizado a ${event.ttl_seconds}s`;
+                    } else {
+                        description = event.type;
+                    }
+                    li.textContent = `${readableDate}: ${description}`;
+                    cacheHistory.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error al obtener el histórico de caché:', error);
+            }
+        }
+
+        ttlForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const ttlSeconds = parseInt(ttlInput.value, 10);
+            if (!Number.isFinite(ttlSeconds) || ttlSeconds < 5) {
+                ttlFeedback.textContent = 'El TTL debe ser mayor o igual a 5 segundos.';
+                ttlFeedback.classList.remove('d-none', 'text-success');
+                ttlFeedback.classList.add('text-warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/data/cache_ttl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ ttl_seconds: ttlSeconds })
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.error || 'No se pudo actualizar el TTL.');
+                }
+
+                ttlFeedback.textContent = payload.message || 'TTL actualizado correctamente.';
+                ttlFeedback.classList.remove('d-none', 'text-warning', 'text-danger');
+                ttlFeedback.classList.add('text-success');
+                await refreshCacheStats();
+                await refreshCacheHistory();
+            } catch (error) {
+                ttlFeedback.textContent = error.message;
+                ttlFeedback.classList.remove('d-none', 'text-success', 'text-warning');
+                ttlFeedback.classList.add('text-danger');
+            }
+        });
 
         intervaloTiempo.addEventListener('change', updateCharts);
         updateCharts();
+        refreshCacheStats();
+        refreshCacheHistory();
     });
 </script>
 {% endblock %}

@@ -1,10 +1,12 @@
 """Blueprint de reportes y endpoints de datos agregados."""
 
+import json
 import logging
 import os
-from collections import defaultdict
+from collections import defaultdict, deque
 from datetime import datetime, timezone, timedelta
-from flask import Blueprint, jsonify, render_template, request
+from pathlib import Path
+from flask import Blueprint, current_app, jsonify, render_template, request
 from flask_login import current_user, login_required
 from sqlalchemy import func
 
@@ -18,7 +20,10 @@ _logger = logging.getLogger(__name__)
 _VALID_INTERVALS = {"dia", "semana", "mes", "trimestre", "anio"}
 _CACHE: dict[str, dict] = {}
 _CACHE_STATS = {"hits": 0, "misses": 0}
-_CACHE_TTL = timedelta(seconds=int(os.getenv("REPORT_CACHE_TTL", "60")))
+_CACHE_HISTORY: deque[dict] = deque(maxlen=50)
+_DEFAULT_CACHE_TTL = int(os.getenv("REPORT_CACHE_TTL", "60"))
+_CACHE_TTL = timedelta(seconds=_DEFAULT_CACHE_TTL)
+_CACHE_FILE_FALLBACK = Path(__file__).resolve().parents[2] / "instance" / "report_cache.json"
 
 
 def _make_cache_key(prefix: str, **params) -> str:
@@ -28,16 +33,57 @@ def _make_cache_key(prefix: str, **params) -> str:
     return f"{prefix}|{serialized}"
 
 
+def _get_cache_file() -> Path:
+    override = current_app.config.get("REPORT_CACHE_FILE") or os.getenv("REPORT_CACHE_FILE")
+    if override:
+        return Path(override)
+    return _CACHE_FILE_FALLBACK
+
+
+def _load_cache_settings():
+    global _CACHE_TTL
+    path = _get_cache_file()
+    if not path.exists():
+        return
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        seconds = int(data.get("ttl_seconds", _DEFAULT_CACHE_TTL))
+        _CACHE_TTL = timedelta(seconds=seconds)
+        _logger.info("cache-config-loaded ttl=%s", seconds)
+    except (json.JSONDecodeError, OSError, ValueError) as exc:
+        _logger.warning("No se pudo cargar la configuración de caché: %s", exc)
+
+
+def _persist_cache_settings(seconds: int):
+    path = _get_cache_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"ttl_seconds": seconds, "updated_at": datetime.now(timezone.utc).isoformat()}
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def _record_cache_event(event_type: str, **extra):
+    _CACHE_HISTORY.appendleft(
+        {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "type": event_type,
+            **extra,
+        }
+    )
+
+
 def _cache_get(key: str):
     entry = _CACHE.get(key)
     if not entry:
         _CACHE_STATS["misses"] += 1
+        _record_cache_event("miss", key=key)
         return None
     if entry["expires"] < datetime.now(timezone.utc):
         _CACHE.pop(key, None)
         _CACHE_STATS["misses"] += 1
+        _record_cache_event("miss", key=f"{key} (expired)")
         return None
     _CACHE_STATS["hits"] += 1
+    _record_cache_event("hit", key=key)
     return entry["data"]
 
 
@@ -71,6 +117,54 @@ def cache_stats():
         "misses": _CACHE_STATS["misses"],
         "ttl_seconds": _CACHE_TTL.total_seconds(),
     })
+
+
+@reportes_bp.route("/data/cache_history")
+@login_required
+@role_required("admin")
+def cache_history():
+    """Devuelve los últimos eventos registrados en la caché."""
+
+    return jsonify({"events": list(_CACHE_HISTORY)})
+
+
+@reportes_bp.route("/data/cache_ttl", methods=["POST"])
+@login_required
+@role_required("admin")
+def update_cache_ttl():
+    """Permite ajustar dinámicamente el TTL de la caché desde la UI."""
+
+    global _CACHE_TTL
+
+    payload = request.get_json(silent=True) or request.form
+    raw_seconds = payload.get("ttl_seconds") or payload.get("ttl")
+    try:
+        seconds = int(raw_seconds)
+    except (TypeError, ValueError):
+        return jsonify({"error": "TTL inválido."}), 400
+
+    if seconds < 5:
+        return jsonify({"error": "El TTL debe ser de al menos 5 segundos."}), 400
+
+    _CACHE_TTL = timedelta(seconds=seconds)
+    _CACHE.clear()
+    _persist_cache_settings(seconds)
+    _record_cache_event("ttl_update", ttl_seconds=seconds)
+    current_app.config["REPORT_CACHE_TTL"] = seconds
+    _logger.info("cache-ttl-update ttl=%s", seconds)
+    return jsonify({
+        "message": "TTL actualizado correctamente.",
+        "ttl_seconds": seconds,
+    })
+
+
+@reportes_bp.record_once
+def _bootstrap_cache_config(state):
+    """Carga la configuración persistida apenas se registra el blueprint."""
+
+    app = state.app
+    with app.app_context():
+        _load_cache_settings()
 
 
 def _get_intervalo(default="mes"):

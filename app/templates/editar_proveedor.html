@@ -2,9 +2,9 @@
 {% block title %}Editar proveedor{% endblock %}
 {% block content %}
 <main class="container p-5 position-relative">
-    <form action="{{ url_for('proveedores.proveedores') }}" method="get" style="position: absolute; top: 40px; left: 70px;">
-        <button type="submit" class="back-btn material-symbols-outlined" aria-label="Volver a proveedores">arrow_back</button>
-    </form>
+    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a proveedores">
+        arrow_back
+    </a>
 
     <div class="row">
         <div class="col-md-8 offset-md-2">
@@ -38,6 +38,17 @@
                 <div class="form-group">
                     <label class="titlewhite" for="iva">IVA</label>
                     <input type="number" step="0.01" min="0" max="100" class="form-control fondo titlewhite" id="iva" name="iva" value="{{ form.iva.data or proveedor.iva }}" required>
+                </div>
+                <div class="form-group">
+                    <p class="titlewhite mb-2">{{ form.productos.label }}</p>
+                    {% for subfield in form.productos %}
+                        <div class="form-check">
+                            {{ subfield(class="form-check-input") }}
+                            <label class="form-check-label titlewhite" for="{{ subfield.id }}">
+                                {{ subfield.label.text }}
+                            </label>
+                        </div>
+                    {% endfor %}
                 </div>
                 <button class="btn-block neon-link titlewhite fondo" type="submit">Guardar cambios</button>
             </form>

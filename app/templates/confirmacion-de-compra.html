@@ -2,11 +2,9 @@
 {% block title %}Confirmar compra{% endblock %}
 {% block content %}
 <main class="container p-5">
-    <form action="/cesta" method="get" style="position: absolute; top: 40px; left: 70px;">
-        <button type="submit" class="back-btn material-symbols-outlined" aria-label="Volver a la cesta">
-            arrow_back
-        </button>
-    </form>
+    <a href="{{ url_for('inventario.cesta') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a la cesta">
+        arrow_back
+    </a>
 
     <div class="row">
         <div class="col-md-10 mx-auto">
@@ -26,14 +24,14 @@
                                 <tr>
                                     <td>{{ item.producto.modelo }}</td>
                                     <td>{{ item.cantidad }}</td>
-                                    <td>{{ item.producto.precio }}</td>
+                                    <td>{{ item.producto.precio | currency }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
 
                     <div class="text-center">
-                        <h2 class="titlewhite">Total: €{{ total }}</h2>
+                        <h2 class="titlewhite">Total: {{ total | currency }}</h2>
                     </div>
 
                     <div class="bg-dark p-4 rounded">

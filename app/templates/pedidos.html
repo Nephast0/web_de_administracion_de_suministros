@@ -28,8 +28,8 @@
                 <tr class="titlewhiteN">
                     <th>Producto</th>
                     <th>Cantidad</th>
-                    <th>Precio Unitario (€)</th>
-                    <th>Total (€)</th>
+                    <th>Precio Unitario</th>
+                    <th>Total</th>
                     <th>Estado</th>
                     <th>Fecha</th>
                     <th>Opciones</th>
@@ -40,8 +40,8 @@
                     <tr>
                         <td>{{ pedido.producto.modelo }}</td>
                         <td>{{ pedido.cantidad }}</td>
-                        <td>{{ pedido.precio_unitario }}</td>
-                <td>{{ pedido.total }}</td>
+                        <td>{{ pedido.precio_unitario | currency }}</td>
+                <td>{{ pedido.total | currency }}</td>
                 <td>{{ pedido.estado }}</td>
                 <td>{{ pedido.fecha.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 <td>

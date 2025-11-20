@@ -20,7 +20,7 @@
                     {% for category, message in messages %}
                         <div class="modern-alert alert-{{ category }} d-flex justify-content-between align-items-center">
                             <span>{{ message }}</span>
-                            <button class="close-alert" onclick="this.parentElement.style.display='none';" aria-label="Cerrar alerta">✕</button>
+                            <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';" aria-label="Cerrar alerta">&times;</button>
                         </div>
                     {% endfor %}
                 </div>

@@ -12,12 +12,9 @@
 
     {% block content %}
     <main class="container p-5">
-    <form action="/productos" method="get" style="position: absolute; top: 40px; left: 70px;">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="back-btn material-symbols-outlined">
-                arrow_back
-            </button>
-    </form>
+    <a href="{{ url_for('inventario.productos') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver al inventario">
+        arrow_back
+    </a>
     <div class="row">
         <div class="col-md-8 offset-md-2">
             <h2 class="text-center titlewhiteN mb-4">Introduzca los datos del producto</h2>

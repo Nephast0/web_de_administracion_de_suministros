@@ -16,10 +16,9 @@
 
 {% block content %}
 <main class="container my-4 position-relative">
-    <form action="{{ url_for('inventario.menu_principal') }}" method="post" style="position: absolute; top: 20px; left: 20px;">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="back-btn brand" aria-label="Volver al menú">arrow_back</button>
-    </form>
+    <a href="{{ url_for('inventario.menu_principal') }}" class="back-btn brand" style="position: absolute; top: 20px; left: 20px;" aria-label="Volver al menú">
+        arrow_back
+    </a>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="brand">Inventario</h1>
@@ -63,7 +62,7 @@
                         <td>{{ producto.modelo }}</td>
                         <td>{{ producto.tipo_producto }}</td>
                         <td>{{ producto.descripcion }}</td>
-                        <td>{{ producto.precio }}</td>
+                        <td>{{ producto.precio | currency }}</td>
                         <td>{{ producto.cantidad }}</td>
                         <td>{{ producto.cantidad_minima }}</td>
                         <td>{{ producto.num_referencia }}</td>

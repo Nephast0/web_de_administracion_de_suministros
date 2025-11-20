@@ -40,7 +40,7 @@
                     <th>Marca</th>
                     <th>Modelo</th>
                     <th>Descripción</th>
-                    <th>Precio (€)</th>
+                    <th>Precio</th>
                     <th>Cantidad disponible</th>
                     <th>Agregar a la cesta</th>
                 </tr>
@@ -52,7 +52,7 @@
                     <td>{{ producto.marca }}</td>
                     <td>{{ producto.modelo }}</td>
                     <td>{{ producto.descripcion }}</td>
-                    <td>{{ producto.precio }}</td>
+                    <td>{{ producto.precio | currency }}</td>
                     <td>{{ producto.cantidad }}</td>
                     <td>
                         <form class="d-flex gap-2 justify-content-center" action="{{ url_for('inventario.agregar_a_la_cesta', producto_id=producto.id) }}" method="post">

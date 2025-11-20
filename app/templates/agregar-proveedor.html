@@ -14,11 +14,9 @@
 
 {% block content %}
 <main class="container p-5 position-relative">
-    <form action="/proveedores" method="get" style="position: absolute; top: 40px; left: 70px;">
-        <button type="submit" class="back-btn material-symbols-outlined" aria-label="Volver a proveedores">
-            arrow_back
-        </button>
-    </form>
+    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a proveedores">
+        arrow_back
+    </a>
     <div class="row">
         <div class="col-md-8 offset-md-2">
             <h2 class="text-center titlewhiteN mb-4">Introduzca los datos del proveedor</h2>
@@ -41,30 +39,15 @@
                     <input autocomplete="off" id="cif" name="cif" class="form-control fondo titlewhite" placeholder="Ingrese el cif" required>
                 </div>
                 <div class="form-group">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="productos" value="Ordenador" id="Ordenador">
-                        <label class="form-check-label titlewhite" for="Ordenador">Ordenador</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="productos" value="Tarjeta Gráfica" id="Tarjeta Gráfica">
-                        <label class="form-check-label titlewhite" for="Tarjeta Gráfica">Tarjeta Gráfica</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="productos" value="Procesador" id="Procesador">
-                        <label class="form-check-label titlewhite" for="Procesador">Procesador</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="productos" value="Fuente" id="Fuente">
-                        <label class="form-check-label titlewhite" for="Fuente">Fuente</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="productos" value="Disco Duro" id="Disco Duro">
-                        <label class="form-check-label titlewhite" for="Disco Duro">Disco Duro</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="productos" value="RAM" id="RAM">
-                        <label class="form-check-label titlewhite" for="RAM">RAM</label>
-                    </div>
+                    <p class="titlewhite mb-2">{{ form.productos.label }}</p>
+                    {% for subfield in form.productos %}
+                        <div class="form-check">
+                            {{ subfield(class="form-check-input") }}
+                            <label class="form-check-label titlewhite" for="{{ subfield.id }}">
+                                {{ subfield.label.text }}
+                            </label>
+                        </div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     <input type="number" id="tasa_de_descuento" name="tasa_de_descuento" class="form-control fondo titlewhite" placeholder="Ingrese la tasa de descuento" min="0" max="100" step="0.01" required>

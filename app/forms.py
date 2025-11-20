@@ -2,8 +2,24 @@ from wtforms import PasswordField
 from wtforms.validators import EqualTo
 from wtforms.validators import Email, Regexp
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, IntegerField, FloatField, SelectField, SubmitField
+from wtforms import (
+    StringField,
+    TextAreaField,
+    IntegerField,
+    FloatField,
+    SelectField,
+    SelectMultipleField,
+    SubmitField,
+)
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
+from wtforms.widgets import CheckboxInput, ListWidget
+
+
+class MultiCheckboxField(SelectMultipleField):
+    """Render a SelectMultipleField as a list of checkboxes."""
+
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
 
 class Formulario_de_registro(FlaskForm):
     nombre= StringField(
@@ -173,6 +189,11 @@ class ProveedorForm(FlaskForm):
             DataRequired(message="El IVA es obligatorio."),
             NumberRange(min=0, max=100, message="El IVA debe estar entre 0 y 100.")
         ]
+    )
+    productos = MultiCheckboxField(
+        'Tipos de productos ofrecidos',
+        choices=[],
+        validators=[Optional()],
     )
 
 

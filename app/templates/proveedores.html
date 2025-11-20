@@ -1,199 +1,112 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>proveedores</title>
+{% extends "base.html" %}
+{% block title %}Proveedores{% endblock %}
+{% block page_styles %}
+<style>
+    .table-container {
+        max-width: 100%;
+    }
+    table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    th {
+        background-color: rgba(0, 0, 0, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    td {
+        background-color: #333;
+        color: white;
+        border-bottom: 1px solid #444;
+        word-wrap: break-word;
+    }
+    thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    td button {
+        z-index: 1;
+        position: relative;
+    }
+    .material-symbols-outlined {
+        font-size: 34px;
+        background-color: transparent;
+        color: white;
+    }
+    .cta-inline {
+        width: auto;
+        padding-inline: 18px;
+    }
+</style>
+{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'main.css')}}">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/lux/bootstrap.min.css" integrity="sha384-9+PGKSqjRdkeAU7Eu4nkJU8RFaH8ace8HGXnkiKMP9I9Te0GJ4/km3L1Z8tXigpG" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Grenze:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-
-     <style>
-        table {
-            width: 100%;
-            table-layout: fixed; /* Distribuir mejor las columnas */
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        th {
-            background-color: rgba(0, 0, 0, 0.8);
-            text-transform: uppercase;
-        }
-        td {
-            background-color: #333;
-            color: white;
-            border-bottom: 1px solid #444;
-        }
-        thead th {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            text-align: center;
-        }
-        td:nth-child(5) { /* Descripción */
-            word-wrap: break-word; /* Ajustar el texto para que no expanda la tabla */
-            overflow: hidden;
-            text-overflow: ellipsis; /* Mostrar "..." si el texto es muy largo */
-            max-width: 200px; /* Ajusta esto según el diseño */
-        }
-        tbody td button {
-            z-index: 1;
-            position: relative;
-        }
-        .table-container {
-            max-width: 100%;
-        }
-        main.container {
-            max-width: 100%;
-            padding-left: 0;
-            padding-right: 0;
-        }
-        .material-symbols-outlined {
-            font-size: 34px;
-            background-color: transparent;
-            color: white;
-        }
-         /* Botones personalizados */
-        .btn-neon-r {
-            background: transparent;
-            color: red;
-            border: 1px solid white;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        /* Efecto neón en botones */
-        .btn-neon-r:hover {
-            background: transparent;
-            color: black;
-            box-shadow: 0 0 5px red;
-        }
-
-        .btn-neon-g {
-            background: transparent;
-            color: green;
-            border: 1px solid white;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        /* Efecto neón en botones */
-        .btn-neon-g:hover {
-            background: transparent;
-            color: black;
-            box-shadow: 0 0 5px green;
-        }
-     </style>
-</head>
-<body>
-     <main class="container p-5">
-         <!-- Botón de volver -->
-         <form action="/menu_principal" method="post" class="position-absolute" style="position: absolute; top: 40px; left: 70px; z-index:100;">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit"  class="brand">
-                arrow_back
-            </button>
-        </form>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="brand text-center">
-                    <h1>Proveedores</h1>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr class="brand">
-                                <th>Fecha</th>
-                                <th>Nombre</th>
-                                <th>Telefono</th>
-                                <th>Direccion</th>
-                                <th>Email</th>
-                                <th>CIF</th>
-                                <th>Tasa de Descuento</th>
-                                <th>IVA</th>
-                                <th>Tipo De Productos</th>
-                                <th>Opciones</th>
+{% block content %}
+<main class="container p-5 position-relative">
+    <a href="{{ url_for('inventario.menu_principal') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver al menú principal">
+        arrow_back
+    </a>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="brand text-center mb-4">
+                <h1>Proveedores</h1>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr class="titlewhiteN">
+                            <th>Fecha</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Email</th>
+                            <th>CIF</th>
+                            <th>Tasa de Descuento</th>
+                            <th>IVA</th>
+                            <th>Tipo de Productos</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proveedor in proveedores %}
+                            <tr>
+                                <td>{{ proveedor.fecha.strftime('%Y-%m-%d') if proveedor.fecha else '-' }}</td>
+                                <td>{{ proveedor.nombre }}</td>
+                                <td>{{ proveedor.telefono }}</td>
+                                <td>{{ proveedor.direccion }}</td>
+                                <td>{{ proveedor.email }}</td>
+                                <td>{{ proveedor.cif }}</td>
+                                <td>{{ proveedor.tasa_de_descuento }}%</td>
+                                <td>{{ proveedor.iva }}%</td>
+                                <td>{{ proveedor.tipo_producto }}</td>
+                                <td class="d-flex flex-column gap-2">
+                                    <a class="cta cta-inline text-decoration-none" href="{{ url_for('proveedores.editar_proveedor', proveedor_id=proveedor.id) }}">
+                                        Editar
+                                    </a>
+                                    <form action="{{ url_for('proveedores.eliminar_proveedor', id=proveedor.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este proveedor?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn-danger-light w-100" type="submit">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {% for proveedor in proveedores %}
-                                <tr>
-                                    <td>{{ proveedor.fecha }}</td>
-                                    <td>{{ proveedor.nombre }}</td>
-                                    <td>{{ proveedor.telefono }}</td>
-                                    <td>{{ proveedor.direccion }}</td>
-                                    <td>{{ proveedor.email }}</td>
-                                    <td>{{ proveedor.cif }}</td>
-                                    <td>{{ proveedor.tasa_de_descuento }}</td>
-                                    <td>{{ proveedor.iva }}</td>
-                                    <td>{{ proveedor.tipo_producto }}</td>
-                                    <td>
-                                        <!-- Botón Editar -->
-                                        <a href="{{ url_for('proveedores.editar_proveedor', proveedor_id = proveedor.id) }}">
-                                            <button class="cta cta-inline">
-                                                editar
-                                            </button>
-                                        </a>
-                                                                                                             <!-- Botón Eliminar -->
-                                        <form action="{{ url_for('proveedores.eliminar_proveedor', id=proveedor.id) }}" method="POST" style="display: inline;">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <button class="btn-danger-light" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');">
-                                                eliminar
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center">
-                    <form action="/agregar-proveedor" method="post">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button class="cta cta-inline" type="submit">
-                                Agregar nuevo proveedor
-                            </button>
-                    </form>
-                </div>
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        <div class="alert-container">
-                            {% for category, message in messages %}
-                                <div class="modern-alert alert-{{ category }}">
-                                    <span>{{ message }}</span>
-                                    <button class="close-alert" onclick="this.parentElement.style.display='none';">✕</button>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                {% endwith %}
-                <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        setTimeout(() => {
-                            document.querySelectorAll(".modern-alert").forEach(alert => {
-                                alert.classList.add("hide");
-                                setTimeout(() => alert.remove(), 500);
-                            });
-                        }, 5000); // Se oculta en 5 segundos
-                    });
-                </script>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-4">
+                <a class="cta cta-inline text-decoration-none" href="{{ url_for('proveedores.agregar_proveedor') }}">
+                    Agregar nuevo proveedor
+                </a>
             </div>
         </div>
-     </main>
-</body>
-</html>
+    </div>
+</main>
+{% endblock %}

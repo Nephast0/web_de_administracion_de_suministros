@@ -4,13 +4,16 @@ Se usan fixtures ligeros en memoria para validar que las rutas críticas
 soportan validaciones y commits atómicos.
 """
 
+import json
 import os
 import sys
 import types
 import unittest
+from pathlib import Path
 
 from flask import url_for
 from datetime import datetime, timezone
+from werkzeug.datastructures import MultiDict
 
 # Entorno de pruebas sin acceso a dependencias externas: inyectamos un stub
 # mínimo de Flask-Migrate para que la factory pueda inicializarse sin fallar
@@ -234,6 +237,59 @@ class CompraFlowTest(BaseTestCase):
 
         with self.app.app_context():
             self.assertEqual(Compra.query.count(), 0)
+
+    def test_cesta_renderiza_con_alias_correcto(self):
+        with self.app.app_context():
+            cliente, _ = self._create_cliente_y_producto()
+            cliente_id = cliente.id
+
+        with self.client.session_transaction() as session:
+            session["_user_id"] = cliente_id
+            session["_fresh"] = True
+
+        resp = self.client.get("/cesta")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b"Cesta", resp.data)
+
+    def test_productos_cliente_soporta_cantidad_minima_null(self):
+        with self.app.app_context():
+            proveedor = Proveedor(
+                nombre="Proveedor Null",
+                telefono="123456789",
+                direccion="Direccion demo",
+                email="null@example.com",
+                cif="C1234567Z",
+                tasa_de_descuento=0,
+                iva=21.0,
+                tipo_producto="Procesador",
+            )
+            cliente = Usuario(
+                nombre="Cliente Null",
+                usuario="cliente_null",
+                direccion="Calle 123",
+                contrasenya="segura",
+                rol="cliente",
+            )
+            db.session.add_all([proveedor, cliente])
+            db.session.flush()
+            producto = Producto(
+                proveedor_id=proveedor.id,
+                tipo_producto="Procesador",
+                modelo="Modelo Null",
+                descripcion="",
+                cantidad=5,
+                cantidad_minima=None,
+                precio=15.0,
+                marca="Marca",
+                num_referencia="REF-NULL",
+            )
+            db.session.add(producto)
+            db.session.commit()
+
+        self.client.post("/login", data={"usuario": "cliente_null", "contrasenya": "segura"}, follow_redirects=True)
+        resp = self.client.get("/productos_cliente")
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b"Cat\xc3\xa1logo", resp.data)
 
 
 class ClienteGraficasTest(BaseTestCase):
@@ -466,6 +522,174 @@ class DataEndpointsTest(BaseTestCase):
         data = resp.get_json()
         self.assertEqual(data["periodos"], ["2024-T1", "2024-T2"])
         self.assertEqual(data["totales"], [5.0, 10.0])
+
+
+class ProveedorAjaxTest(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        with self.app.app_context():
+            admin = Usuario(
+                nombre="Admin Ajax",
+                usuario="admin_ajax",
+                direccion="Oficina",
+                contrasenya="segura",
+                rol="admin",
+            )
+            proveedor = Proveedor(
+                nombre="Proveedor Ajax",
+                telefono="999999999",
+                direccion="Dir Ajax",
+                email="prov_ajax@example.com",
+                cif="AJX123456",
+                tasa_de_descuento=5.0,
+                iva=21.0,
+                tipo_producto="Ordenador",
+            )
+            db.session.add_all([admin, proveedor])
+            db.session.commit()
+            self.admin_id = admin.id
+            self.proveedor_id = proveedor.id
+
+    def _login_admin(self):
+        with self.client.session_transaction() as session:
+            session["_user_id"] = self.admin_id
+            session["_fresh"] = True
+
+    def test_tipos_producto_requiere_autenticacion(self):
+        resp = self.client.get(f"/tipos-producto/{self.proveedor_id}", follow_redirects=False)
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/login", resp.headers.get("Location", ""))
+
+    def test_get_marcas_requiere_autenticacion(self):
+        resp = self.client.get("/get_marcas?tipo_producto=Procesador", follow_redirects=False)
+        self.assertEqual(resp.status_code, 302)
+
+    def test_admin_puede_consumir_endpoints_y_editar_productos(self):
+        self._login_admin()
+        resp_tipos = self.client.get(f"/tipos-producto/{self.proveedor_id}")
+        self.assertEqual(resp_tipos.status_code, 200)
+        self.assertIn("tipos_producto", resp_tipos.get_json())
+
+        resp_marcas = self.client.get("/get_marcas?tipo_producto=Procesador")
+        self.assertEqual(resp_marcas.status_code, 200)
+        self.assertTrue(resp_marcas.get_json())
+
+        payload = [
+            ("nombre", "Proveedor Ajax"),
+            ("telefono", "999999999"),
+            ("direccion", "Dir Ajax"),
+            ("email", "prov_ajax@example.com"),
+            ("cif", "AJX123456"),
+            ("tasa_de_descuento", "5"),
+            ("iva", "21"),
+            ("productos", "Ordenador"),
+            ("productos", "Procesador"),
+        ]
+        resp_edit = self.client.post(
+            f"/editar_proveedor/{self.proveedor_id}",
+            data=MultiDict(payload),
+            follow_redirects=False,
+        )
+        self.assertEqual(resp_edit.status_code, 302)
+
+        with self.app.app_context():
+            proveedor = db.session.get(Proveedor, self.proveedor_id)
+            self.assertEqual(proveedor.tipo_producto, "Ordenador, Procesador")
+
+    def test_editar_proveedor_rechaza_productos_fuera_de_catalogo(self):
+        self._login_admin()
+        payload = [
+            ("nombre", "Proveedor Ajax"),
+            ("telefono", "999999999"),
+            ("direccion", "Dir Ajax"),
+            ("email", "prov_ajax@example.com"),
+            ("cif", "AJX123456"),
+            ("tasa_de_descuento", "5"),
+            ("iva", "21"),
+            ("productos", "Ordenador"),
+            ("productos", "Invalido"),
+        ]
+        resp_edit = self.client.post(
+            f"/editar_proveedor/{self.proveedor_id}",
+            data=MultiDict(payload),
+            follow_redirects=False,
+        )
+        self.assertEqual(resp_edit.status_code, 200)
+
+        with self.app.app_context():
+            proveedor = db.session.get(Proveedor, self.proveedor_id)
+            self.assertEqual(proveedor.tipo_producto, "Ordenador")
+
+
+class ReportesCacheTest(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        with self.app.app_context():
+            admin = Usuario(
+                nombre="Admin Reportes",
+                usuario="admin_reportes",
+                direccion="Oficina",
+                contrasenya="segura",
+                rol="admin",
+            )
+            db.session.add(admin)
+            db.session.commit()
+            self.admin_id = admin.id
+        self.cache_file = Path(self.app.instance_path) / "report_cache_test.json"
+        if self.cache_file.exists():
+            self.cache_file.unlink()
+        self.cache_file.parent.mkdir(parents=True, exist_ok=True)
+        self.app.config["REPORT_CACHE_FILE"] = str(self.cache_file)
+
+    def _login_admin(self):
+        with self.client.session_transaction() as session:
+            session["_user_id"] = self.admin_id
+            session["_fresh"] = True
+
+    def tearDown(self):
+        if self.cache_file.exists():
+            self.cache_file.unlink()
+        super().tearDown()
+
+    def test_cache_stats_requiere_autenticacion(self):
+        resp = self.client.get("/data/cache_stats", follow_redirects=False)
+        self.assertEqual(resp.status_code, 302)
+
+    def test_admin_puede_actualizar_ttl(self):
+        self._login_admin()
+        resp = self.client.post("/data/cache_ttl", json={"ttl_seconds": 90})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.get_json()["ttl_seconds"], 90)
+        self.assertTrue(self.cache_file.exists())
+        data = json.loads(self.cache_file.read_text(encoding="utf-8"))
+        self.assertEqual(data["ttl_seconds"], 90)
+
+        stats = self.client.get("/data/cache_stats")
+        self.assertEqual(stats.get_json()["ttl_seconds"], 90)
+        history = self.client.get("/data/cache_history")
+        events = history.get_json()["events"]
+        self.assertTrue(any(evt["type"] == "ttl_update" for evt in events))
+
+    def test_rechaza_ttl_invalidos(self):
+        self._login_admin()
+        resp = self.client.post("/data/cache_ttl", json={"ttl_seconds": 2})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("error", resp.get_json())
+
+    def test_cache_history_registra_hits_y_misses(self):
+        self._login_admin()
+        # Primer consumo genera miss.
+        miss_resp = self.client.get("/data/distribucion_productos")
+        self.assertEqual(miss_resp.status_code, 200)
+        # Segundo consumo debería ser hit gracias a la caché.
+        hit_resp = self.client.get("/data/distribucion_productos")
+        self.assertEqual(hit_resp.status_code, 200)
+
+        history = self.client.get("/data/cache_history")
+        events = history.get_json()["events"]
+        types = [evt["type"] for evt in events]
+        self.assertIn("miss", types)
+        self.assertIn("hit", types)
 
 
 class CsrfProtectionTest(unittest.TestCase):

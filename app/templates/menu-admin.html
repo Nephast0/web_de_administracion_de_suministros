@@ -175,9 +175,9 @@
                             <td>{{ compra.id }}</td>
                             <td>{{ compra.producto_id }}</td>
                             <td>{{ compra.cantidad }}</td>
-                            <td>{{ compra.precio_unitario }}</td>
+                            <td>{{ compra.precio_unitario | currency }}</td>
                             <td>{{ compra.proveedor_id }}</td>
-                            <td>{{ compra.total }}</td>
+                            <td>{{ compra.total | currency }}</td>
                             <td>{{ compra.estado }}</td>
                             <td>{{ compra.fecha }}</td>
                         </tr>
