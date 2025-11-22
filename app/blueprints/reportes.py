@@ -4,16 +4,16 @@ import csv
 import json
 import logging
 import os
-from collections import defaultdict, deque
+from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from io import StringIO
 from pathlib import Path
 from flask import Blueprint, Response, abort, current_app, jsonify, render_template, request
 from flask_login import current_user, login_required
-from sqlalchemy import func
+from sqlalchemy import func, case
 
 from ..db import db
-from ..models import Compra, Producto, Usuario
+from ..models import Compra, Producto, Usuario, CacheEvent, Cuenta, Apunte, Asiento
 from .helpers import _period_key_and_label, role_required
 
 
@@ -22,19 +22,14 @@ _logger = logging.getLogger(__name__)
 _VALID_INTERVALS = {"dia", "semana", "mes", "trimestre", "anio"}
 _CACHE: dict[str, dict] = {}
 _CACHE_STATS = {"hits": 0, "misses": 0}
-_CACHE_HISTORY: deque[dict] = deque(maxlen=200)
 _DEFAULT_CACHE_TTL = int(os.getenv("REPORT_CACHE_TTL", "60"))
 _CACHE_TTL = timedelta(seconds=_DEFAULT_CACHE_TTL)
 _INSTANCE_DIR = Path(__file__).resolve().parents[2] / "instance"
 _CACHE_FILE_FALLBACK = _INSTANCE_DIR / "report_cache.json"
-_CACHE_HISTORY_FILE_FALLBACK = _INSTANCE_DIR / "cache_history.json"
-_CACHE_HISTORY_MAX_BYTES = int(os.getenv("REPORT_CACHE_HISTORY_MAX_BYTES", "524288"))
-_CACHE_HISTORY_ARCHIVE_DIR = _INSTANCE_DIR / "cache_history_archive"
 
 
 def _make_cache_key(prefix: str, **params) -> str:
     """Genera una clave estable para almacenar respuestas JSON en memoria."""
-
     serialized = "|".join(f"{key}:{params[key]}" for key in sorted(params))
     return f"{prefix}|{serialized}"
 
@@ -48,28 +43,6 @@ def _get_cache_file() -> Path:
     if override:
         return Path(override)
     return _CACHE_FILE_FALLBACK
-
-
-def _get_cache_history_file() -> Path:
-    try:
-        override = current_app.config.get("REPORT_CACHE_HISTORY_FILE")
-    except RuntimeError:
-        override = None
-    override = override or os.getenv("REPORT_CACHE_HISTORY_FILE")
-    if override:
-        return Path(override)
-    return _CACHE_HISTORY_FILE_FALLBACK
-
-
-def _get_cache_history_archive_dir() -> Path:
-    try:
-        override = current_app.config.get("REPORT_CACHE_HISTORY_ARCHIVE_DIR")
-    except RuntimeError:
-        override = None
-    override = override or os.getenv("REPORT_CACHE_HISTORY_ARCHIVE_DIR")
-    if override:
-        return Path(override)
-    return _CACHE_HISTORY_ARCHIVE_DIR
 
 
 def _load_cache_settings():
@@ -93,95 +66,15 @@ def _persist_cache_settings(seconds: int):
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def _load_cache_history():
-    path = _get_cache_history_file()
-    if not path.exists():
-        return
-    try:
-        events = json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError) as exc:
-        _logger.warning("No se pudo cargar el historial de caché: %s", exc)
-        return
-    _CACHE_HISTORY.clear()
-    for event in events[-_CACHE_HISTORY.maxlen:]:
-        _CACHE_HISTORY.append(event)
-
-
-def _persist_cache_history():
-    path = _get_cache_history_file()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(list(_CACHE_HISTORY), ensure_ascii=False, indent=2)
-    path.write_text(payload, encoding="utf-8")
-    _rotate_cache_history_if_needed()
-
-
-def _rotate_cache_history_if_needed():
-    path = _get_cache_history_file()
-    try:
-        max_bytes = int(current_app.config.get("REPORT_CACHE_HISTORY_MAX_BYTES", _CACHE_HISTORY_MAX_BYTES))
-    except (RuntimeError, TypeError, ValueError):
-        max_bytes = _CACHE_HISTORY_MAX_BYTES
-    if not path.exists() or path.stat().st_size <= max_bytes:
-        return
-    archive_dir = _get_cache_history_archive_dir()
-    archive_dir.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-    archive_path = archive_dir / f"cache_history_{timestamp}.json"
-    path.replace(archive_path)
-    # Reescribimos el archivo principal con los eventos actuales en memoria.
-    path.write_text(json.dumps(list(_CACHE_HISTORY), ensure_ascii=False, indent=2), encoding="utf-8")
-
-
-def _collect_history_events(include_archives: bool = False):
-    events = []
-    path = _get_cache_history_file()
-    if path.exists():
-        try:
-            events.extend(json.loads(path.read_text(encoding="utf-8")))
-        except (json.JSONDecodeError, OSError):
-            _logger.warning("No se pudo leer el historial base, se usará sólo la memoria.")
-    archive_dir = _get_cache_history_archive_dir()
-    if include_archives and archive_dir.exists():
-        archive_files = sorted(archive_dir.glob("cache_history_*.json"))
-        for file_path in archive_files:
-            try:
-                events.extend(json.loads(file_path.read_text(encoding="utf-8")))
-            except (json.JSONDecodeError, OSError):
-                _logger.warning("No se pudo leer el archivo de historial %s", file_path)
-    return events or list(_CACHE_HISTORY)
-
-
-def _load_cache_history():
-    path = _get_cache_history_file()
-    if not path.exists():
-        return
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        _logger.warning("No se pudo leer el historial persistido de caché.")
-        return
-    _CACHE_HISTORY.clear()
-    for event in reversed(data[-_CACHE_HISTORY.maxlen:]):
-        _CACHE_HISTORY.appendleft(event)
-
-
-def _persist_cache_history():
-    path = _get_cache_history_file()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(list(_CACHE_HISTORY), indent=2), encoding="utf-8")
-
-
 def _record_cache_event(event_type: str, **extra):
-    event = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "type": event_type,
-        **extra,
-    }
-    _CACHE_HISTORY.appendleft(event)
     try:
-        _persist_cache_history()
-    except OSError as exc:
-        _logger.warning("No se pudo persistir el histórico de caché: %s", exc)
+        details = json.dumps(extra, ensure_ascii=False)
+        event = CacheEvent(event_type=event_type, details=details)
+        db.session.add(event)
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        _logger.warning("No se pudo persistir el evento de caché: %s", exc)
 
 
 def _cache_get(key: str):
@@ -223,7 +116,6 @@ def _cached_json(key: str, builder):
 @role_required("admin")
 def cache_stats():
     """Expone métricas simples de cache para monitoreo manual."""
-
     return jsonify({
         "entries": len(_CACHE),
         "hits": _CACHE_STATS["hits"],
@@ -236,9 +128,14 @@ def cache_stats():
 @login_required
 @role_required("admin")
 def cache_history():
-    """Devuelve los últimos eventos registrados en la caché."""
-
-    return jsonify({"events": list(_CACHE_HISTORY)})
+    """Devuelve los últimos eventos registrados en la caché (desde DB)."""
+    events = CacheEvent.query.order_by(CacheEvent.timestamp.desc()).limit(200).all()
+    events_data = [{
+        "timestamp": e.timestamp.isoformat(),
+        "type": e.event_type,
+        "details": json.loads(e.details) if e.details else {}
+    } for e in events]
+    return jsonify({"events": events_data})
 
 
 @reportes_bp.route("/data/cache_history/export")
@@ -246,10 +143,14 @@ def cache_history():
 @role_required("admin")
 def cache_history_export():
     """Permite descargar el historial persistente en un archivo JSON."""
-
-    include_archives = request.args.get("include_archives", "0").lower() in {"1", "true", "yes", "y"}
-    events = _collect_history_events(include_archives)
-    payload = json.dumps({"events": events}, ensure_ascii=False, indent=2)
+    events = CacheEvent.query.order_by(CacheEvent.timestamp.asc()).all()
+    events_data = [{
+        "timestamp": e.timestamp.isoformat(),
+        "type": e.event_type,
+        "details": json.loads(e.details) if e.details else {}
+    } for e in events]
+    
+    payload = json.dumps({"events": events_data}, ensure_ascii=False, indent=2)
     response = Response(payload, mimetype="application/json")
     response.headers["Content-Disposition"] = "attachment; filename=cache_history.json"
     return response
@@ -260,7 +161,6 @@ def cache_history_export():
 @role_required("admin")
 def chart_export(chart_name):
     """Genera un CSV con los datos de una gráfica."""
-
     chart = _CHART_EXPORTERS.get(chart_name)
     if not chart:
         abort(404)
@@ -286,15 +186,52 @@ def chart_export(chart_name):
     response.headers["Content-Disposition"] = f"attachment; filename={chart_name}.csv"
     return response
 
+@reportes_bp.route("/data/chart_export_cliente/<string:chart_name>")
+@login_required
+@role_required("cliente")
+def chart_export_cliente(chart_name):
+    """Genera un CSV con los datos de una gráfica de cliente."""
+    exporters = {
+        "cliente_compras_tiempo": {
+            "builder": lambda: _dataset_cliente_compras_tiempo_builder(_get_intervalo()),
+            "headers": ("periodo", "total"),
+            "rows": lambda data: zip(data["periodos"], data["totales"])
+        },
+        "cliente_productos_favoritos": {
+            "builder": lambda: _dataset_cliente_productos_favoritos_builder(),
+            "headers": ("producto", "cantidad"),
+            "rows": lambda data: zip(data["productos"], data["cantidades"])
+        },
+        "cliente_estados_pedido": {
+            "builder": lambda: _dataset_cliente_estados_pedido_builder(),
+            "headers": ("estado", "total"),
+            "rows": lambda data: zip(data["estados"], data["totales"])
+        }
+    }
+    
+    chart = exporters.get(chart_name)
+    if not chart:
+        abort(404)
+        
+    dataset = chart["builder"]()
+    rows = chart["rows"](dataset)
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(chart["headers"])
+    for row in rows:
+        writer.writerow(row)
+
+    response = Response(output.getvalue(), mimetype="text/csv")
+    response.headers["Content-Disposition"] = f"attachment; filename={chart_name}.csv"
+    return response
+
 
 @reportes_bp.route("/data/cache_ttl", methods=["POST"])
 @login_required
 @role_required("admin")
 def update_cache_ttl():
     """Permite ajustar dinámicamente el TTL de la caché desde la UI."""
-
     global _CACHE_TTL
-
     payload = request.get_json(silent=True) or request.form
     raw_seconds = payload.get("ttl_seconds") or payload.get("ttl")
     try:
@@ -320,16 +257,13 @@ def update_cache_ttl():
 @reportes_bp.record_once
 def _bootstrap_cache_config(state):
     """Carga la configuración persistida apenas se registra el blueprint."""
-
     app = state.app
     with app.app_context():
         _load_cache_settings()
-        _load_cache_history()
 
 
 def _get_intervalo(default="mes"):
     """Normaliza el parámetro ?interval= y lo valida contra la lista permitida."""
-
     intervalo = (request.args.get("interval", default) or default).lower()
     if intervalo not in _VALID_INTERVALS:
         return None
@@ -439,6 +373,104 @@ def _dataset_compras_por_categoria():
     return {"categorias": [compra.tipo_producto for compra in compras], "compras": [compra.total for compra in compras]}
 
 
+def _dataset_ingresos_gastos(intervalo: str):
+    """Calcula Ingresos (Grupo 7) vs Gastos (Grupo 6) en el tiempo."""
+    ingresos = defaultdict(float)
+    gastos = defaultdict(float)
+    orden = {}
+    etiqueta_periodo = None
+
+    # Consulta de apuntes de cuentas de grupo 6 y 7
+    apuntes = (
+        db.session.query(Apunte, Cuenta.codigo, Asiento.fecha)
+        .join(Cuenta, Apunte.cuenta_id == Cuenta.id)
+        .join(Asiento, Apunte.asiento_id == Asiento.id)
+        .filter(
+            (Cuenta.codigo.like('6%')) | (Cuenta.codigo.like('7%'))
+        )
+        .order_by(Asiento.fecha.asc())
+        .all()
+    )
+
+    for apunte, codigo, fecha in apuntes:
+        clave, label, etiqueta_periodo = _period_key_and_label(fecha, intervalo)
+        orden[label] = clave
+        
+        saldo = float(apunte.haber - apunte.debe)
+        
+        if codigo.startswith('7'): # Ingreso
+             # En contabilidad, ingresos (Haber) aumentan. Haber - Debe > 0
+             # Si es devolucion (Debe), resta.
+             ingresos[label] += saldo
+        elif codigo.startswith('6'): # Gasto
+             # Gastos (Debe) aumentan. Haber - Debe < 0.
+             # Queremos mostrar gastos como positivo en la gráfica comparativa, o negativo?
+             # Normalmente se comparan barras positivas.
+             # Gasto neto = Debe - Haber.
+             gastos[label] += float(apunte.debe - apunte.haber)
+
+    if etiqueta_periodo is None:
+        _, _, etiqueta_periodo = _period_key_and_label(datetime.now(timezone.utc), intervalo)
+
+    periodos = [label for label, _ in sorted(orden.items(), key=lambda item: item[1])]
+    data_ingresos = [ingresos[label] for label in periodos]
+    data_gastos = [gastos[label] for label in periodos]
+
+    return {
+        "periodos": periodos, 
+        "ingresos": data_ingresos, 
+        "gastos": data_gastos, 
+        "period_label": etiqueta_periodo
+    }
+
+
+# --- Builders para Cliente ---
+
+def _dataset_cliente_compras_tiempo_builder(intervalo):
+    totales = defaultdict(float)
+    orden = {}
+    etiqueta_periodo = None
+
+    compras = (
+        Compra.query.filter_by(usuario_id=current_user.id)
+        .order_by(Compra.fecha.asc())
+        .all()
+    )
+
+    for compra in compras:
+        clave, label, etiqueta_periodo = _period_key_and_label(compra.fecha, intervalo)
+        totales[label] += float(compra.total or 0)
+        orden[label] = clave
+
+    if etiqueta_periodo is None:
+        _, _, etiqueta_periodo = _period_key_and_label(datetime.now(timezone.utc), intervalo)
+
+    periodos = [label for label, _ in sorted(orden.items(), key=lambda item: item[1])]
+    montos = [totales[label] for label in periodos]
+    return {"periodos": periodos, "totales": montos, "period_label": etiqueta_periodo}
+
+def _dataset_cliente_productos_favoritos_builder():
+    favoritos = (
+        db.session.query(Producto.modelo, func.sum(Compra.cantidad).label("cantidad"))
+        .join(Producto, Producto.id == Compra.producto_id)
+        .filter(Compra.usuario_id == current_user.id)
+        .group_by(Producto.id)
+        .order_by(func.sum(Compra.cantidad).desc())
+        .limit(5)
+        .all()
+    )
+    return {"productos": [modelo for modelo, _ in favoritos], "cantidades": [cantidad for _, cantidad in favoritos]}
+
+def _dataset_cliente_estados_pedido_builder():
+    estados = (
+        db.session.query(Compra.estado, func.count(Compra.id).label("total"))
+        .filter(Compra.usuario_id == current_user.id)
+        .group_by(Compra.estado)
+        .all()
+    )
+    return {"estados": [estado for estado, _ in estados], "totales": [total for _, total in estados]}
+
+
 _CHART_EXPORTERS = {
     "distribucion_productos": {
         "requires_interval": False,
@@ -469,6 +501,12 @@ _CHART_EXPORTERS = {
         "builder": lambda params: _dataset_ingresos_por_usuario(params["interval"]),
         "headers": ("usuario_periodo", "ingresos"),
         "rows": lambda data: zip(data["usuarios"], data["ingresos"]),
+    },
+    "ingresos_gastos": {
+        "requires_interval": True,
+        "builder": lambda params: _dataset_ingresos_gastos(params["interval"]),
+        "headers": ("periodo", "ingresos", "gastos"),
+        "rows": lambda data: zip(data["periodos"], data["ingresos"], data["gastos"]),
     },
 }
 
@@ -544,6 +582,18 @@ def data_productos_menos_vendidos():
     return _cached_json("productos_menos_vendidos", _dataset_productos_menos_vendidos)
 
 
+@reportes_bp.route('/data/ingresos_gastos')
+@login_required
+@role_required("admin")
+def data_ingresos_gastos():
+    intervalo = _get_intervalo()
+    if intervalo is None:
+        return jsonify({'error': 'Intervalo no válido'}), 400
+    cache_key = _make_cache_key("ingresos_gastos", intervalo=intervalo)
+
+    return _cached_json(cache_key, lambda: _dataset_ingresos_gastos(intervalo))
+
+
 @reportes_bp.route("/graficas_cliente", methods=["GET"])
 @login_required
 @role_required("cliente")
@@ -556,36 +606,12 @@ def graficas_cliente():
 @role_required("cliente")
 def data_cliente_compras_tiempo():
     """Agrega los totales gastados por el cliente segn el intervalo solicitado."""
-
     intervalo = _get_intervalo()
     if intervalo is None:
         return jsonify({'error': 'Intervalo no vlido'}), 400
     cache_key = _make_cache_key("cliente_compras_tiempo", usuario=current_user.id, intervalo=intervalo)
 
-    def _builder():
-        totales = defaultdict(float)
-        orden = {}
-        etiqueta_periodo = None
-
-        compras = (
-            Compra.query.filter_by(usuario_id=current_user.id)
-            .order_by(Compra.fecha.asc())
-            .all()
-        )
-
-        for compra in compras:
-            clave, label, etiqueta_periodo = _period_key_and_label(compra.fecha, intervalo)
-            totales[label] += float(compra.total or 0)
-            orden[label] = clave
-
-        if etiqueta_periodo is None:
-            _, _, etiqueta_periodo = _period_key_and_label(datetime.now(timezone.utc), intervalo)
-
-        periodos = [label for label, _ in sorted(orden.items(), key=lambda item: item[1])]
-        montos = [totales[label] for label in periodos]
-        return {"periodos": periodos, "totales": montos, "period_label": etiqueta_periodo}
-
-    return _cached_json(cache_key, _builder)
+    return _cached_json(cache_key, lambda: _dataset_cliente_compras_tiempo_builder(intervalo))
 
 
 @reportes_bp.route("/data/cliente/productos_favoritos")
@@ -593,22 +619,8 @@ def data_cliente_compras_tiempo():
 @role_required("cliente")
 def data_cliente_productos_favoritos():
     """Top de productos comprados por el cliente actual."""
-
     cache_key = _make_cache_key("cliente_favoritos", usuario=current_user.id)
-
-    def _builder():
-        favoritos = (
-            db.session.query(Producto.modelo, func.sum(Compra.cantidad).label("cantidad"))
-            .join(Producto, Producto.id == Compra.producto_id)
-            .filter(Compra.usuario_id == current_user.id)
-            .group_by(Producto.id)
-            .order_by(func.sum(Compra.cantidad).desc())
-            .limit(5)
-            .all()
-        )
-        return {"productos": [modelo for modelo, _ in favoritos], "cantidades": [cantidad for _, cantidad in favoritos]}
-
-    return _cached_json(cache_key, _builder)
+    return _cached_json(cache_key, _dataset_cliente_productos_favoritos_builder)
 
 
 @reportes_bp.route("/data/cliente/estados_pedido")
@@ -616,16 +628,5 @@ def data_cliente_productos_favoritos():
 @role_required("cliente")
 def data_cliente_estados_pedido():
     """Distribucin de pedidos por estado para el cliente actual."""
-
     cache_key = _make_cache_key("cliente_estados", usuario=current_user.id)
-
-    def _builder():
-        estados = (
-            db.session.query(Compra.estado, func.count(Compra.id).label("total"))
-            .filter(Compra.usuario_id == current_user.id)
-            .group_by(Compra.estado)
-            .all()
-        )
-        return {"estados": [estado for estado, _ in estados], "totales": [total for _, total in estados]}
-
-    return _cached_json(cache_key, _builder)
+    return _cached_json(cache_key, _dataset_cliente_estados_pedido_builder)

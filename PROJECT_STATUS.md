@@ -30,8 +30,21 @@
         - Added "Reponer Stock" feature with cost tracking.
 - **Next Steps:**
     - **User Acceptance Testing (UAT):** Verify manual and automated entries.
-    - **Exporting:** Implement PDF/Excel exports for reports.
     - **Fiscal Year Closing:** Logic to reset temporary accounts.
+
+## 2025-11-22: Enhancements (Exports, Cache DB, Security)
+- **Status:** Completed
+- **Changes:**
+    - **Cache Persistence:** Migrated cache event logging from JSON files to `CacheEvent` database model.
+    - **Exports:**
+        - Added CSV exports for Client Charts (Purchases, Favorites, Status).
+        - Added CSV exports for Accounting Reports (Journal, Balance Sheet, P&L).
+        - Added "Ingresos vs Gastos" chart with export capability.
+    - **Security:**
+        - Added comprehensive activity logging (`registrar_actividad`) for user deletion and role changes.
+        - Reviewed form sanitization (WTForms usage confirmed).
+    - **Cleanup:** Removed duplicate content in `graficas.html` and `menu-cliente.html`.
+    - **Testing:** Created `verify_enhancements.py` to validate new features.
 
 ## Revisión 2025-11-19 (tarde)
 

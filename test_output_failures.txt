@@ -1,0 +1,41 @@
+FFFF
+======================================================================
+FAIL: test_cache_persistence (__main__.TestEnhancements.test_cache_persistence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\noev8\PycharmProjects\Project\pythonProject\verify_enhancements.py", line 96, in test_cache_persistence
+    self.assertIsNotNone(event)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_client_export (__main__.TestEnhancements.test_client_export)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\noev8\PycharmProjects\Project\pythonProject\verify_enhancements.py", line 103, in test_client_export
+    self.assertEqual(response.status_code, 200)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_ingresos_gastos_data (__main__.TestEnhancements.test_ingresos_gastos_data)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\noev8\PycharmProjects\Project\pythonProject\verify_enhancements.py", line 110, in test_ingresos_gastos_data
+    self.assertEqual(response.status_code, 200)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_ingresos_gastos_export (__main__.TestEnhancements.test_ingresos_gastos_export)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\noev8\PycharmProjects\Project\pythonProject\verify_enhancements.py", line 121, in test_ingresos_gastos_export
+    self.assertEqual(response.status_code, 200)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 302 != 200
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.262s
+
+FAILED (failures=4)

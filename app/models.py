@@ -247,3 +247,10 @@ class Apunte(db.Model):
         self.cuenta_id = cuenta_id
         self.debe = debe
         self.haber = haber
+
+
+class CacheEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    event_type = db.Column(db.String(50), nullable=False) # 'hit', 'miss', 'ttl_update'
+    details = db.Column(db.Text, nullable=True) # JSON string or text description

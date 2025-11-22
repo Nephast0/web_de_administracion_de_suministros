@@ -12,9 +12,14 @@
         <a href="{{ url_for('menu.menu_principal') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
-        <a href="{{ url_for('contabilidad.nuevo_asiento') }}" class="cta">
-            <i class="fas fa-plus"></i> Nuevo Asiento
-        </a>
+        <div class="d-flex gap-2">
+             <a href="{{ url_for('contabilidad.exportar_diario') }}" class="cta">
+                <i class="fas fa-file-csv"></i> Exportar CSV
+            </a>
+            <a href="{{ url_for('contabilidad.nuevo_asiento') }}" class="cta">
+                <i class="fas fa-plus"></i> Nuevo Asiento
+            </a>
+        </div>
     </div>
 
     <div class="table-responsive">

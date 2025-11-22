@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, make_response
 from flask_login import login_required, current_user
 from app.db import db
 from app.models import Asiento, Cuenta, Apunte
 from app.forms import AsientoManualForm
 from app.services.accounting_services import crear_asiento, inicializar_plan_cuentas, obtener_saldo_cuenta
+import csv
+import io
 
 contabilidad_bp = Blueprint('contabilidad', __name__, template_folder='templates')
 
@@ -98,3 +100,94 @@ def cuenta_resultados():
     datos = obtener_cuenta_resultados(fecha_inicio, fecha_fin)
     
     return render_template('contabilidad/cuenta_resultados.html', **datos)
+
+@contabilidad_bp.route('/contabilidad/diario/exportar')
+@login_required
+def exportar_diario():
+    if current_user.rol != 'admin':
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('menu.menu_principal'))
+    
+    asientos = Asiento.query.order_by(Asiento.fecha.desc()).all()
+    
+    si = io.StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['ID', 'Fecha', 'Descripción', 'Usuario', 'Cuenta', 'Debe', 'Haber'])
+    
+    for asiento in asientos:
+        for apunte in asiento.apuntes:
+            cw.writerow([
+                asiento.id,
+                asiento.fecha,
+                asiento.descripcion,
+                asiento.usuario.usuario if asiento.usuario else 'N/A',
+                f"{apunte.cuenta.codigo} - {apunte.cuenta.nombre}",
+                apunte.debe,
+                apunte.haber
+            ])
+            
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=diario.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
+
+@contabilidad_bp.route('/contabilidad/balance/exportar')
+@login_required
+def exportar_balance():
+    if current_user.rol != 'admin':
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('menu.menu_principal'))
+    
+    cuentas = Cuenta.query.order_by(Cuenta.codigo).all()
+    saldos = {c.id: obtener_saldo_cuenta(c.id) for c in cuentas}
+    
+    si = io.StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['Código', 'Cuenta', 'Tipo', 'Saldo'])
+    
+    for c in cuentas:
+        saldo = saldos[c.id]
+        if saldo != 0:
+            cw.writerow([c.codigo, c.nombre, c.tipo, saldo])
+            
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=balance.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
+
+@contabilidad_bp.route('/contabilidad/cuenta-resultados/exportar')
+@login_required
+def exportar_cuenta_resultados():
+    if current_user.rol != 'admin':
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('menu.menu_principal'))
+        
+    from app.services.accounting_services import obtener_cuenta_resultados
+    
+    fecha_inicio = request.args.get('fecha_inicio')
+    fecha_fin = request.args.get('fecha_fin')
+    
+    datos = obtener_cuenta_resultados(fecha_inicio, fecha_fin)
+    
+    si = io.StringIO()
+    cw = csv.writer(si)
+    
+    cw.writerow(['Concepto', 'Importe'])
+    cw.writerow(['INGRESOS', ''])
+    for c, saldo in datos['ingresos']:
+        cw.writerow([f"{c.codigo} - {c.nombre}", saldo])
+    cw.writerow(['Total Ingresos', datos['total_ingresos']])
+    
+    cw.writerow([])
+    cw.writerow(['GASTOS', ''])
+    for c, saldo in datos['gastos']:
+        cw.writerow([f"{c.codigo} - {c.nombre}", saldo])
+    cw.writerow(['Total Gastos', datos['total_gastos']])
+    
+    cw.writerow([])
+    cw.writerow(['RESULTADO NETO', datos['resultado_neto']])
+            
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=cuenta_resultados.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output

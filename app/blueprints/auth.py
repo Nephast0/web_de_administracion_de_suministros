@@ -178,12 +178,20 @@ def eliminar_usuario(usuario_id):
     try:
         db.session.delete(usuario)
         db.session.commit()
+
+        registrar_actividad(
+            usuario_id=current_user.id,
+            accion=f"Eliminó al usuario {usuario.usuario} (ID: {usuario.id})",
+            modulo="Gestión de Usuarios",
+        )
+
         flash("Usuario eliminado correctamente.", "success")
     except Exception as exc:  # pragma: no cover - logs y feedback de usuario
         db.session.rollback()
         flash(f"Error al eliminar el usuario: {str(exc)}", "danger")
 
     return redirect(url_for('auth.actividades'))
+
 
 
 @auth_bp.route('/cambiar_rol/<string:usuario_id>', methods=['POST'])
@@ -219,6 +227,12 @@ def cambiar_rol(usuario_id):
     try:
         usuario.rol = nuevo_rol
         db.session.commit()
+
+        registrar_actividad(
+            usuario_id=current_user.id,
+            accion=f"Cambió rol de {usuario.usuario} a {nuevo_rol}",
+            modulo="Gestión de Usuarios",
+        )
     except Exception as exc:  # pragma: no cover - logs y feedback de usuario
         db.session.rollback()
         return _responder(False, f"Error al actualizar el rol: {exc}", "danger", 500)
