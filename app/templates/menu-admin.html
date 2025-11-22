@@ -1,84 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Actividades y usuarios{% endblock %}
 
-{% block page_styles %}
-<style>
-    .admin-wrapper {
-        background: rgba(32, 32, 34, 0.9);
-        border: 1px solid var(--stroke);
-        border-radius: 16px;
-        padding: 24px 20px;
-        box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.04);
-        backdrop-filter: blur(2px);
-    }
-
-    .top-actions {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 16px;
-    }
-
-    .table-container table { width: 100%; border-collapse: collapse; }
-    .table-container th, .table-container td {
-        padding: 12px;
-        text-align: center;
-        border: 1px solid rgba(142, 240, 255, 0.15);
-    }
-    .table-container th {
-        background: rgba(17, 18, 22, 0.9);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #c8f1ff;
-    }
-    .table-container td {
-        background-color: #16181d;
-        color: #e7edf3;
-        border-bottom: 1px solid rgba(142, 240, 255, 0.08);
-    }
-    .table-container thead th { position: sticky; top: 0; z-index: 10; }
-
-    .btn-danger-light {
-        background: rgba(255, 107, 107, 0.12);
-        border: 1px solid #ff6b6b;
-        color: #ff9a9a;
-        border-radius: 10px;
-        padding: 8px 12px;
-        transition: transform 0.15s ease, box-shadow 0.2s ease;
-    }
-    .btn-danger-light:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 10px 24px rgba(255, 107, 107, 0.25);
-    }
-
-    .role-select {
-        min-width: 140px;
-        background: #0f1115;
-        border: 1px solid rgba(142, 240, 255, 0.25);
-        color: #e7edf3;
-        border-radius: 10px;
-        padding: 10px 12px;
-    }
-    .role-select:focus {
-        outline: none;
-        border-color: #8ef0ff;
-        box-shadow: 0 0 0 3px rgba(142, 240, 255, 0.18);
-        background: #0c0d10;
-    }
-
-    .cta-inline {
-        width: auto;
-        padding-inline: 14px;
-        min-width: 160px;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 <main class="container py-4">
-    <div class="admin-wrapper">
-        <div class="top-actions">
+    <div class="glass-container">
+        <div class="top-actions mb-4 d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2">
                 <form action="{{ url_for('inventario.menu_principal') }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -88,12 +14,12 @@
             <h1 class="titlewhiteN mb-0">Panel administrativo</h1>
         </div>
 
-        <section class="mb-4">
-            <h2 class="brand">Actividades del Sistema</h2>
-            <div class="table-container">
-                <table>
+        <section class="mb-5">
+            <h2 class="brand mb-3">Actividades del Sistema</h2>
+            <div class="table-responsive">
+                <table class="glass-table w-100">
                     <thead>
-                        <tr class="titlewhiteN">
+                        <tr>
                             <th>ID</th>
                             <th>Usuario</th>
                             <th>Acción</th>
@@ -116,12 +42,12 @@
             </div>
         </section>
 
-        <section class="mb-4">
-            <h2 class="titlewhiteN">Registro de Usuarios</h2>
-            <div class="table-container">
-                <table>
+        <section class="mb-5">
+            <h2 class="titlewhiteN mb-3">Registro de Usuarios</h2>
+            <div class="table-responsive">
+                <table class="glass-table w-100">
                     <thead>
-                        <tr class="titlewhiteN">
+                        <tr>
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Usuario</th>
@@ -137,14 +63,18 @@
                             <td>{{ usuario.nombre }}</td>
                             <td>{{ usuario.usuario }}</td>
                             <td>
-                                <select class="role-select" onchange="cambiarRol('{{ usuario.id }}', this.value)">
-                                    <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>Admin</option>
-                                    <option value="cliente" {% if usuario.rol == 'cliente' %}selected{% endif %}>Cliente</option>
+                                <select class="form-select bg-dark text-light border-secondary"
+                                    style="min-width: 120px;" onchange="cambiarRol('{{ usuario.id }}', this.value)">
+                                    <option value="admin" {% if usuario.rol=='admin' %}selected{% endif %}>Admin
+                                    </option>
+                                    <option value="cliente" {% if usuario.rol=='cliente' %}selected{% endif %}>Cliente
+                                    </option>
                                 </select>
                             </td>
                             <td>{{ usuario.fecha_registro }}</td>
                             <td>
-                                <button class="btn-danger-light" onclick="eliminarUsuario('{{ usuario.id }}')">Eliminar</button>
+                                <button class="btn-danger-light"
+                                    onclick="eliminarUsuario('{{ usuario.id }}')">Eliminar</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -154,11 +84,11 @@
         </section>
 
         <section>
-            <h2 class="titlewhiteN">Registro de Compras</h2>
-            <div class="table-container">
-                <table>
+            <h2 class="titlewhiteN mb-3">Registro de Compras</h2>
+            <div class="table-responsive">
+                <table class="glass-table w-100">
                     <thead>
-                        <tr class="titlewhiteN">
+                        <tr>
                             <th>Compra-ID</th>
                             <th>Producto-ID</th>
                             <th>Cantidad</th>
@@ -203,19 +133,19 @@
             },
             body: JSON.stringify({ rol: nuevoRol })
         })
-        .then(response => response.json())
-        .then(data => {
-            const params = new URLSearchParams();
-            if (data.success) {
-                params.set('flash_success', data.message);
-            } else {
-                params.set('flash_error', data.message || 'No se pudo cambiar el rol.');
-            }
-            window.location.href = `/actividades?${params.toString()}`;
-        })
-        .catch(error => {
-            alert(`Error al cambiar el rol: ${error}`);
-        });
+            .then(response => response.json())
+            .then(data => {
+                const params = new URLSearchParams();
+                if (data.success) {
+                    params.set('flash_success', data.message);
+                } else {
+                    params.set('flash_error', data.message || 'No se pudo cambiar el rol.');
+                }
+                window.location.href = `/actividades?${params.toString()}`;
+            })
+            .catch(error => {
+                alert(`Error al cambiar el rol: ${error}`);
+            });
     }
 
     function eliminarUsuario(usuarioId) {
@@ -228,14 +158,14 @@
                 'X-CSRFToken': csrfToken,
             }
         })
-        .then(response => {
-            if (response.ok) {
-                window.location.reload();
-            } else {
-                alert('No se pudo eliminar el usuario.');
-            }
-        })
-        .catch(error => alert(`Error al eliminar usuario: ${error}`));
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('No se pudo eliminar el usuario.');
+                }
+            })
+            .catch(error => alert(`Error al eliminar usuario: ${error}`));
     }
 </script>
 {% endblock %}

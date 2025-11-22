@@ -1,20 +1,135 @@
 {% extends "base.html" %}
 {% block title %}Agregar proveedor{% endblock %}
+
+{% block content %}
+<main class="container my-4 position-relative">
+    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn" style="position: absolute; top: 0; left: -60px;"
+        aria-label="Volver a proveedores">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+
+    <div class="glass-container" style="max-width: 800px; margin: 0 auto;">
+        <h2 class="text-center titlewhiteN mb-4">Introduzca los datos del proveedor</h2>
+
+        <form action="/agregar-proveedor" method="post">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <input autocomplete="off" type="text" id="nombre" name="nombre" class="form-control"
+                    placeholder="Ingrese el nombre" required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input autocomplete="off" type="tel" id="telefono" name="telefono" class="form-control"
+                            placeholder="Ingrese el teléfono" maxlength="20" pattern="[0-9]+" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="cif">CIF</label>
+                        <input autocomplete="off" id="cif" name="cif" class="form-control" placeholder="Ingrese el cif"
+                            required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="direccion">Dirección</label>
+                <input autocomplete="off" type="text" id="direccion" name="direccion" class="form-control"
+                    placeholder="Ingrese la dirección" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input autocomplete="off" type="email" id="email" name="email" class="form-control"
+                    placeholder="Ingrese el email ... @gmail" required>
+            </div>
+
+            <div class="form-group">
+                <label class="mb-2">{{ form.productos.label }}</label>
+                <div class="d-flex flex-wrap gap-3 p-3 border rounded border-secondary"
+                    style="background: rgba(0,0,0,0.2);">
+                    {% for subfield in form.productos %}
+                    <div class="form-check">
+                        {{ subfield(class="form-check-input") }}
+                        <label class="form-check-label" for="{{ subfield.id }}">
+                            {{ subfield.label.text }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="tasa_de_descuento">Tasa de Descuento (%)</label>
+                        <input type="number" id="tasa_de_descuento" name="tasa_de_descuento" class="form-control"
+                            placeholder="Ingrese la tasa de descuento" min="0" max="100" step="0.01" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="iva">IVA (%)</label>
+                        <input type="number" id="iva" name="iva" class="form-control" placeholder="Ingrese el IVA"
+                            min="0" max="100" step="0.01" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button class="cta" type="submit">
+                    Agregar proveedor
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}
+{% block title %}Agregar proveedor{% endblock %}
 {% block body_class %}app-body d-flex align-items-center justify-content-center{% endblock %}
 {% block page_styles %}
 <style>
     /* Reutilizamos estilos del layout base y reducimos duplicidad de tipografías. */
-    .container { max-width: 700px; margin-top: 40px; background-color: #333; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); }
-    .form-control { border-radius: 10px; padding: 8px; }
-    select { background-color: #333; color: white; border: 1px solid #777; }
-    select option { background-color: #222; color: white; }
-    select option:hover { background-color: #444; }
+    .container {
+        max-width: 700px;
+        margin-top: 40px;
+        background-color: #333;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 8px;
+    }
+
+    select {
+        background-color: #333;
+        color: white;
+        border: 1px solid #777;
+    }
+
+    select option {
+        background-color: #222;
+        color: white;
+    }
+
+    select option:hover {
+        background-color: #444;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="container p-5 position-relative">
-    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a proveedores">
+    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn material-symbols-outlined"
+        style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a proveedores">
         arrow_back
     </a>
     <div class="row">
@@ -24,38 +139,48 @@
                 {{ form.hidden_tag() }}
                 <!-- Mantener los campos cortos y documentar la intención para futuras ediciones. -->
                 <div class="form-group">
-                    <input autocomplete="off" type="text" id="nombre" name="nombre" class="form-control fondo titlewhite" placeholder="Ingrese el nombre" required>
+                    <input autocomplete="off" type="text" id="nombre" name="nombre"
+                        class="form-control fondo titlewhite" placeholder="Ingrese el nombre" required>
                 </div>
                 <div class="form-group">
-                    <input autocomplete="off" type="tel" id="telefono" name="telefono" class="form-control fondo titlewhite" placeholder="Ingrese el teléfono" maxlength="20" pattern="[0-9]+" required>
+                    <input autocomplete="off" type="tel" id="telefono" name="telefono"
+                        class="form-control fondo titlewhite" placeholder="Ingrese el teléfono" maxlength="20"
+                        pattern="[0-9]+" required>
                 </div>
                 <div class="form-group">
-                    <input autocomplete="off" type="text" id="direccion" name="direccion" class="form-control fondo titlewhite" placeholder="Ingrese la dirección" required>
+                    <input autocomplete="off" type="text" id="direccion" name="direccion"
+                        class="form-control fondo titlewhite" placeholder="Ingrese la dirección" required>
                 </div>
                 <div class="form-group">
-                    <input autocomplete="off" type="email" id="email" name="email" class="form-control fondo titlewhite" placeholder="Ingrese el email ... @gmail" required>
+                    <input autocomplete="off" type="email" id="email" name="email" class="form-control fondo titlewhite"
+                        placeholder="Ingrese el email ... @gmail" required>
                 </div>
                 <div class="form-group">
-                    <input autocomplete="off" id="cif" name="cif" class="form-control fondo titlewhite" placeholder="Ingrese el cif" required>
+                    <input autocomplete="off" id="cif" name="cif" class="form-control fondo titlewhite"
+                        placeholder="Ingrese el cif" required>
                 </div>
                 <div class="form-group">
                     <p class="titlewhite mb-2">{{ form.productos.label }}</p>
                     {% for subfield in form.productos %}
-                        <div class="form-check">
-                            {{ subfield(class="form-check-input") }}
-                            <label class="form-check-label titlewhite" for="{{ subfield.id }}">
-                                {{ subfield.label.text }}
-                            </label>
-                        </div>
+                    <div class="form-check">
+                        {{ subfield(class="form-check-input") }}
+                        <label class="form-check-label titlewhite" for="{{ subfield.id }}">
+                            {{ subfield.label.text }}
+                        </label>
+                    </div>
                     {% endfor %}
                 </div>
                 <div class="form-group">
-                    <input type="number" id="tasa_de_descuento" name="tasa_de_descuento" class="form-control fondo titlewhite" placeholder="Ingrese la tasa de descuento" min="0" max="100" step="0.01" required>
+                    <input type="number" id="tasa_de_descuento" name="tasa_de_descuento"
+                        class="form-control fondo titlewhite" placeholder="Ingrese la tasa de descuento" min="0"
+                        max="100" step="0.01" required>
                 </div>
                 <div class="form-group">
-                    <input type="number" id="iva" name="iva" class="form-control fondo titlewhite" placeholder="Ingrese el IVA" min="0" max="100" step="0.01" required>
+                    <input type="number" id="iva" name="iva" class="form-control fondo titlewhite"
+                        placeholder="Ingrese el IVA" min="0" max="100" step="0.01" required>
                 </div>
-                <button class="btn-block neon-link titlewhite fondo" style="background-color: transparent; color: white;" type="submit">
+                <button class="btn-block neon-link titlewhite fondo"
+                    style="background-color: transparent; color: white;" type="submit">
                     Agregar proveedor
                 </button>
             </form>

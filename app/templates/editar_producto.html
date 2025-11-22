@@ -1,8 +1,78 @@
 {% extends "base.html" %}
 {% block title %}Editar producto{% endblock %}
+
+{% block content %}
+<main class="container my-4 position-relative">
+    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn" style="position: absolute; top: 0; left: -60px;"
+        aria-label="Volver a proveedores">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+
+    <div class="glass-container" style="max-width: 800px; margin: 0 auto;">
+        <h2 class="text-center titlewhiteN mb-4">Editar producto</h2>
+
+        <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="marca">Marca</label>
+                        <input type="text" class="form-control" id="marca" name="marca" value="{{ producto.marca }}"
+                            required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="modelo">Modelo</label>
+                        <input type="text" class="form-control" id="modelo" name="modelo" value="{{ producto.modelo }}"
+                            required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion">Descripción</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="3"
+                    required>{{ producto.descripcion }}</textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="precio">Precio</label>
+                        <input type="number" step="0.01" class="form-control" id="precio" name="precio"
+                            value="{{ producto.precio }}" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="cantidad">Cantidad</label>
+                        <input type="number" class="form-control" id="cantidad" name="cantidad"
+                            value="{{ producto.cantidad }}" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="cantidad_minima">Cantidad mínima</label>
+                        <input type="number" class="form-control" id="cantidad_minima" name="cantidad_minima"
+                            value="{{ producto.cantidad_minima }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button class="cta" type="submit">Actualizar</button>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}
+{% block title %}Editar producto{% endblock %}
 {% block content %}
 <main class="container p-5 position-relative">
-    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a proveedores">
+    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn material-symbols-outlined"
+        style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a proveedores">
         arrow_back
     </a>
 
@@ -13,27 +83,33 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label class="titlewhite" for="marca">Marca</label>
-                    <input type="text" class="form-control fondo titlewhite" id="marca" name="marca" value="{{ producto.marca }}" required>
+                    <input type="text" class="form-control fondo titlewhite" id="marca" name="marca"
+                        value="{{ producto.marca }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="modelo">Modelo</label>
-                    <input type="text" class="form-control fondo titlewhite" id="modelo" name="modelo" value="{{ producto.modelo }}" required>
+                    <input type="text" class="form-control fondo titlewhite" id="modelo" name="modelo"
+                        value="{{ producto.modelo }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="descripcion">Descripción</label>
-                    <textarea class="form-control fondo titlewhite" id="descripcion" name="descripcion" rows="3" required>{{ producto.descripcion }}</textarea>
+                    <textarea class="form-control fondo titlewhite" id="descripcion" name="descripcion" rows="3"
+                        required>{{ producto.descripcion }}</textarea>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="precio">Precio</label>
-                    <input type="number" step="0.01" class="form-control fondo titlewhite" id="precio" name="precio" value="{{ producto.precio }}" required>
+                    <input type="number" step="0.01" class="form-control fondo titlewhite" id="precio" name="precio"
+                        value="{{ producto.precio }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="cantidad">Cantidad</label>
-                    <input type="number" class="form-control fondo titlewhite" id="cantidad" name="cantidad" value="{{ producto.cantidad }}" required>
+                    <input type="number" class="form-control fondo titlewhite" id="cantidad" name="cantidad"
+                        value="{{ producto.cantidad }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="cantidad_minima">Cantidad mínima</label>
-                    <input type="number" class="form-control fondo titlewhite" id="cantidad_minima" name="cantidad_minima" value="{{ producto.cantidad_minima }}" required>
+                    <input type="number" class="form-control fondo titlewhite" id="cantidad_minima"
+                        name="cantidad_minima" value="{{ producto.cantidad_minima }}" required>
                 </div>
                 <button class="btn-block neon-link titlewhite fondo" type="submit">Actualizar</button>
             </form>

@@ -1,84 +1,71 @@
 {% extends "base.html" %}
 {% block title %}Cesta{% endblock %}
-{% block page_styles %}
-<style>
-    .table-container { max-width: 100%; }
-    table { width: 100%; table-layout: fixed; border-collapse: collapse; }
-    main.container { max-width: 100%; padding-left: 0; padding-right: 0; }
-    th, td { padding: 10px; font-size: 14px; text-align: center; }
-    th { white-space: nowrap; }
-    thead th { position: sticky; top: 0; z-index: 10; text-align: center; }
-    td:nth-child(2) { word-wrap: break-word; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-    td input { width: 40px; }
-    .material-symbols-outlined { font-size: 34px; background-color: transparent; color: white; }
-    .btn-neon { background: transparent; color: red; border: 1px solid white; padding: 5px 10px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-    .btn-neon:hover { background: transparent; color: black; box-shadow: 0 0 10px red; }
-</style>
-{% endblock %}
 
 {% block content %}
-<main class="container p-5 position-relative">
-    <a href="{{ url_for('inventario.menu_cliente') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver al menú del cliente">
-        arrow_back
-    </a>
-    <div class="row">
-        <div class="col-md-10 mx-auto">
-            <h1 class="text-center titlewhiteN">Cesta</h1>
-            <div class="row">
-                <div class="col-md-10 mx-auto">
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr class="titlewhiteN">
-                                    <th>Modelo</th>
-                                    <th>Descripción</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio Total</th>
-                                    <th>Opciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in cesta_items %}
-                                    {% set precio_total_producto = item.producto.precio * item.cantidad %}
-                                    <tr>
-                                        <td>{{ item.producto.modelo }}</td>
-                                        <td>{{ item.producto.descripcion }}</td>
-                                        <td>
-                                            <form action="{{ url_for('inventario.actualizar_cesta', item_id=item.id) }}" method="post" style="display: inline;">
-                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                <input style="text-center titlewhite fondo" type="number" name="cantidad" value="{{ item.cantidad }}" min="1" data-precio="{{ item.producto.precio }}" class="cantidad" />
-                                            </form>
-                                        </td>
-                                        <td
-                                            class="precio-total"
-                                            data-symbol="{{ currency_symbol }}"
-                                            data-locale="{{ currency_locale }}"
-                                            data-code="{{ currency_code }}"
-                                        >{{ precio_total_producto | currency }}</td>
-                                        <td>
-                                            <form action="{{ url_for('inventario.eliminar_de_la_cesta', item_id=item.id) }}" method="post" style="display: inline;">
-                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                <button class="btn-danger-light" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');" aria-label="Eliminar {{ item.producto.modelo }}">
-                                                    Eliminar
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                        <div class="text-center">
-                        <h2 class="titlewhite">Total: <span id="total" data-symbol="{{ currency_symbol }}" data-locale="{{ currency_locale }}" data-code="{{ currency_code }}">{{ total | currency }}</span></h2>
-                        <form action="{{ url_for('inventario.confirmacion_de_compra') }}" method="post">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="btn-block neon-link titlewhite fondo">
-                                Realizar compra
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+<main class="container py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a class="back-btn" href="{{ url_for('inventario.menu_cliente') }}" aria-label="Volver al menú del cliente">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <h1 class="ms-3 titlewhiteN mb-0">Cesta</h1>
+    </div>
+
+    <div class="glass-container">
+        <div class="table-responsive">
+            <table class="glass-table w-100 text-center">
+                <thead>
+                    <tr>
+                        <th>Modelo</th>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Precio Total</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cesta_items %}
+                    {% set precio_total_producto = item.producto.precio * item.cantidad %}
+                    <tr>
+                        <td>{{ item.producto.modelo }}</td>
+                        <td>{{ item.producto.descripcion }}</td>
+                        <td>
+                            <form action="{{ url_for('inventario.actualizar_cesta', item_id=item.id) }}" method="post"
+                                class="d-inline-block">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="number" name="cantidad" value="{{ item.cantidad }}" min="1"
+                                    data-precio="{{ item.producto.precio }}"
+                                    class="form-control cantidad d-inline-block text-center" style="width: 80px;" />
+                            </form>
+                        </td>
+                        <td class="precio-total" data-symbol="{{ currency_symbol }}" data-locale="{{ currency_locale }}"
+                            data-code="{{ currency_code }}">{{ precio_total_producto | currency }}</td>
+                        <td>
+                            <form action="{{ url_for('inventario.eliminar_de_la_cesta', item_id=item.id) }}"
+                                method="post" class="d-inline-block">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn-danger-light" type="submit"
+                                    onclick="return confirm('¿Estás seguro de eliminar este producto?');"
+                                    aria-label="Eliminar {{ item.producto.modelo }}">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mt-4">
+            <h2 class="titlewhite mb-3">Total: <span id="total" data-symbol="{{ currency_symbol }}"
+                    data-locale="{{ currency_locale }}" data-code="{{ currency_code }}">{{ total | currency }}</span>
+            </h2>
+            <form action="{{ url_for('inventario.confirmacion_de_compra') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="cta cta-inline">
+                    Realizar compra
+                </button>
+            </form>
         </div>
     </div>
 </main>
@@ -86,7 +73,7 @@
 
 {% block page_scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const cantidadInputs = document.querySelectorAll('.cantidad');
         const totalElement = document.getElementById('total');
         const currencyLocale = totalElement.dataset.locale || navigator.language || 'es-ES';
@@ -110,7 +97,188 @@
         }
 
         cantidadInputs.forEach(input => {
-            input.addEventListener('change', function() {
+            input.addEventListener('change', function () {
+                this.closest('form').submit();
+            });
+        });
+
+        updateTotal();
+    });
+</script>
+{% endblock %}
+
+{% block page_styles %}
+<style>
+    .table-container {
+        max-width: 100%;
+    }
+
+    table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+
+    main.container {
+        max-width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    th,
+    td {
+        padding: 10px;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        text-align: center;
+    }
+
+    td:nth-child(2) {
+        word-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    td input {
+        width: 40px;
+    }
+
+    .material-symbols-outlined {
+        font-size: 34px;
+        background-color: transparent;
+        color: white;
+    }
+
+    .btn-neon {
+        background: transparent;
+        color: red;
+        border: 1px solid white;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+
+    .btn-neon:hover {
+        background: transparent;
+        color: black;
+        box-shadow: 0 0 10px red;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="container p-5 position-relative">
+    <a href="{{ url_for('inventario.menu_cliente') }}" class="back-btn material-symbols-outlined"
+        style="position: absolute; top: 40px; left: 70px;" aria-label="Volver al menú del cliente">
+        arrow_back
+    </a>
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <h1 class="text-center titlewhiteN">Cesta</h1>
+            <div class="row">
+                <div class="col-md-10 mx-auto">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr class="titlewhiteN">
+                                    <th>Modelo</th>
+                                    <th>Descripción</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Total</th>
+                                    <th>Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cesta_items %}
+                                {% set precio_total_producto = item.producto.precio * item.cantidad %}
+                                <tr>
+                                    <td>{{ item.producto.modelo }}</td>
+                                    <td>{{ item.producto.descripcion }}</td>
+                                    <td>
+                                        <form action="{{ url_for('inventario.actualizar_cesta', item_id=item.id) }}"
+                                            method="post" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input style="text-center titlewhite fondo" type="number" name="cantidad"
+                                                value="{{ item.cantidad }}" min="1"
+                                                data-precio="{{ item.producto.precio }}" class="cantidad" />
+                                        </form>
+                                    </td>
+                                    <td class="precio-total" data-symbol="{{ currency_symbol }}"
+                                        data-locale="{{ currency_locale }}" data-code="{{ currency_code }}">{{
+                                        precio_total_producto | currency }}</td>
+                                    <td>
+                                        <form action="{{ url_for('inventario.eliminar_de_la_cesta', item_id=item.id) }}"
+                                            method="post" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button class="btn-danger-light" type="submit"
+                                                onclick="return confirm('¿Estás seguro de eliminar este producto?');"
+                                                aria-label="Eliminar {{ item.producto.modelo }}">
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="titlewhite">Total: <span id="total" data-symbol="{{ currency_symbol }}"
+                                data-locale="{{ currency_locale }}" data-code="{{ currency_code }}">{{ total | currency
+                                }}</span></h2>
+                        <form action="{{ url_for('inventario.confirmacion_de_compra') }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-block neon-link titlewhite fondo">
+                                Realizar compra
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const cantidadInputs = document.querySelectorAll('.cantidad');
+        const totalElement = document.getElementById('total');
+        const currencyLocale = totalElement.dataset.locale || navigator.language || 'es-ES';
+        const currencyCode = totalElement.dataset.code || 'EUR';
+        const currencyFormatter = new Intl.NumberFormat(currencyLocale, {
+            style: 'currency',
+            currency: currencyCode
+        });
+
+        function updateTotal() {
+            let total = 0;
+            cantidadInputs.forEach(input => {
+                const cantidad = parseInt(input.value, 10);
+                const precio = parseFloat(input.getAttribute('data-precio'));
+                const precioTotalElement = input.closest('tr').querySelector('.precio-total');
+                const precioTotal = cantidad * precio;
+                precioTotalElement.textContent = currencyFormatter.format(precioTotal);
+                total += precioTotal;
+            });
+            totalElement.textContent = currencyFormatter.format(total);
+        }
+
+        cantidadInputs.forEach(input => {
+            input.addEventListener('change', function () {
                 this.closest('form').submit();
             });
         });

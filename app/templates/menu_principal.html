@@ -2,6 +2,36 @@
 {% block title %}Menú Admin{% endblock %}
 {% block body_class %}menu-body{% endblock %}
 
+{% block content %}
+<main>
+    <div class="menu-hero">
+        <div class="menu-actions-abs menu-actions-left">
+            <form action="{{ url_for('auth.logout') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="icon-btn" aria-label="Cerrar sesión">logout</button>
+            </form>
+        </div>
+        <div class="menu-actions-abs menu-actions-right">
+            <a href="{{ url_for('auth.actividades') }}" class="icon-btn text-decoration-none"
+                aria-label="Panel de actividades">shield_person</a>
+        </div>
+        <div class="glass-container">
+            <div class="menu-title">
+                <h1 class="titlewhiteN mb-2">Suministros Informáticos</h1>
+                <h2 class="titlewhiteN">CNCV</h2>
+            </div>
+            <div class="menu-links">
+                <a href="{{ url_for('proveedores.proveedores') }}" class="cta text-decoration-none">Proveedores</a>
+                <a href="{{ url_for('inventario.productos') }}" class="cta text-decoration-none">Inventario</a>
+                <a href="{{ url_for('reportes.graficas') }}" class="cta text-decoration-none">Gráficos</a>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+{% block title %}Menú Admin{% endblock %}
+{% block body_class %}menu-body{% endblock %}
+
 {% block page_styles %}
 <style>
     .menu-body {
@@ -106,7 +136,8 @@
             </form>
         </div>
         <div class="menu-actions-abs menu-actions-right">
-            <a href="{{ url_for('auth.actividades') }}" class="icon-btn text-decoration-none" aria-label="Panel de actividades">shield_person</a>
+            <a href="{{ url_for('auth.actividades') }}" class="icon-btn text-decoration-none"
+                aria-label="Panel de actividades">shield_person</a>
         </div>
         <div class="menu-card">
             <div class="menu-title">

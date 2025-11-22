@@ -1,8 +1,99 @@
 {% extends "base.html" %}
 {% block title %}Editar proveedor{% endblock %}
+
+{% block content %}
+<main class="container my-4 position-relative">
+    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn" style="position: absolute; top: 0; left: -60px;"
+        aria-label="Volver a proveedores">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+
+    <div class="glass-container" style="max-width: 800px; margin: 0 auto;">
+        <h2 class="text-center titlewhiteN mb-4">Editar proveedor</h2>
+
+        <form method="post">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="nombre"
+                    value="{{ form.nombre.data or proveedor.nombre }}" required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono"
+                            value="{{ form.telefono.data or proveedor.telefono }}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="cif">CIF</label>
+                        <input type="text" class="form-control" id="cif" name="cif"
+                            value="{{ form.cif.data or proveedor.cif }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="direccion">Dirección</label>
+                <input type="text" class="form-control" id="direccion" name="direccion"
+                    value="{{ form.direccion.data or proveedor.direccion }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email"
+                    value="{{ form.email.data or proveedor.email }}" required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="tasa_de_descuento">Tasa de descuento (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" class="form-control" id="tasa_de_descuento"
+                            name="tasa_de_descuento"
+                            value="{{ form.tasa_de_descuento.data or proveedor.tasa_de_descuento }}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="iva">IVA (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" class="form-control" id="iva" name="iva"
+                            value="{{ form.iva.data or proveedor.iva }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="mb-2">{{ form.productos.label }}</label>
+                <div class="d-flex flex-wrap gap-3 p-3 border rounded border-secondary"
+                    style="background: rgba(0,0,0,0.2);">
+                    {% for subfield in form.productos %}
+                    <div class="form-check">
+                        {{ subfield(class="form-check-input") }}
+                        <label class="form-check-label" for="{{ subfield.id }}">
+                            {{ subfield.label.text }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button class="cta" type="submit">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}
+{% block title %}Editar proveedor{% endblock %}
 {% block content %}
 <main class="container p-5 position-relative">
-    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a proveedores">
+    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn material-symbols-outlined"
+        style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a proveedores">
         arrow_back
     </a>
 
@@ -13,41 +104,49 @@
                 {{ form.hidden_tag() }}
                 <div class="form-group">
                     <label class="titlewhite" for="nombre">Nombre</label>
-                    <input type="text" class="form-control fondo titlewhite" id="nombre" name="nombre" value="{{ form.nombre.data or proveedor.nombre }}" required>
+                    <input type="text" class="form-control fondo titlewhite" id="nombre" name="nombre"
+                        value="{{ form.nombre.data or proveedor.nombre }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="telefono">Teléfono</label>
-                    <input type="tel" class="form-control fondo titlewhite" id="telefono" name="telefono" value="{{ form.telefono.data or proveedor.telefono }}" required>
+                    <input type="tel" class="form-control fondo titlewhite" id="telefono" name="telefono"
+                        value="{{ form.telefono.data or proveedor.telefono }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="direccion">Dirección</label>
-                    <input type="text" class="form-control fondo titlewhite" id="direccion" name="direccion" value="{{ form.direccion.data or proveedor.direccion }}" required>
+                    <input type="text" class="form-control fondo titlewhite" id="direccion" name="direccion"
+                        value="{{ form.direccion.data or proveedor.direccion }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="email">Email</label>
-                    <input type="email" class="form-control fondo titlewhite" id="email" name="email" value="{{ form.email.data or proveedor.email }}" required>
+                    <input type="email" class="form-control fondo titlewhite" id="email" name="email"
+                        value="{{ form.email.data or proveedor.email }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="cif">CIF</label>
-                    <input type="text" class="form-control fondo titlewhite" id="cif" name="cif" value="{{ form.cif.data or proveedor.cif }}" required>
+                    <input type="text" class="form-control fondo titlewhite" id="cif" name="cif"
+                        value="{{ form.cif.data or proveedor.cif }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="tasa_de_descuento">Tasa de descuento</label>
-                    <input type="number" step="0.01" min="0" max="100" class="form-control fondo titlewhite" id="tasa_de_descuento" name="tasa_de_descuento" value="{{ form.tasa_de_descuento.data or proveedor.tasa_de_descuento }}" required>
+                    <input type="number" step="0.01" min="0" max="100" class="form-control fondo titlewhite"
+                        id="tasa_de_descuento" name="tasa_de_descuento"
+                        value="{{ form.tasa_de_descuento.data or proveedor.tasa_de_descuento }}" required>
                 </div>
                 <div class="form-group">
                     <label class="titlewhite" for="iva">IVA</label>
-                    <input type="number" step="0.01" min="0" max="100" class="form-control fondo titlewhite" id="iva" name="iva" value="{{ form.iva.data or proveedor.iva }}" required>
+                    <input type="number" step="0.01" min="0" max="100" class="form-control fondo titlewhite" id="iva"
+                        name="iva" value="{{ form.iva.data or proveedor.iva }}" required>
                 </div>
                 <div class="form-group">
                     <p class="titlewhite mb-2">{{ form.productos.label }}</p>
                     {% for subfield in form.productos %}
-                        <div class="form-check">
-                            {{ subfield(class="form-check-input") }}
-                            <label class="form-check-label titlewhite" for="{{ subfield.id }}">
-                                {{ subfield.label.text }}
-                            </label>
-                        </div>
+                    <div class="form-check">
+                        {{ subfield(class="form-check-input") }}
+                        <label class="form-check-label titlewhite" for="{{ subfield.id }}">
+                            {{ subfield.label.text }}
+                        </label>
+                    </div>
                     {% endfor %}
                 </div>
                 <button class="btn-block neon-link titlewhite fondo" type="submit">Guardar cambios</button>

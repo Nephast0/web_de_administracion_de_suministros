@@ -1,5 +1,16 @@
 # Estado actualizado del proyecto
 
+## Revisión 2025-11-22 (madrugada)
+
+### Resumen de revisión
+- **Integridad del código:** Se ha verificado la estructura de directorios y la existencia de los blueprints principales (`auth`, `inventario`, `proveedores`, `reportes`), coincidiendo con la documentación.
+- **Pruebas:** Ejecución exitosa de la suite de pruebas (`python -m unittest discover tests`). Resultado: **30 pruebas OK**.
+- **Estado general:** El proyecto se encuentra estable y consistente con la última actualización.
+
+### Pendiente / Próximos pasos (confirmados)
+1. **Exportaciones Cliente:** Extender las exportaciones CSV/texto al panel de gráficas de clientes.
+2. **Persistencia de Caché:** Implementar persistencia en base de datos para el histórico de caché.
+
 ## Revisión 2025-11-19 (tarde)
 
 ### Cambios realizados

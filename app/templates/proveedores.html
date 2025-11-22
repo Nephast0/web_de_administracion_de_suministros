@@ -2,110 +2,80 @@
 {% block title %}Proveedores{% endblock %}
 {% block page_styles %}
 <style>
-    .table-container {
-        max-width: 100%;
-    }
-    table {
-        width: 100%;
-        table-layout: fixed;
-        border-collapse: collapse;
-    }
-    th, td {
-        padding: 10px;
-        text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    th {
-        background-color: rgba(0, 0, 0, 0.8);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    td {
-        background-color: #333;
-        color: white;
-        border-bottom: 1px solid #444;
-        word-wrap: break-word;
-    }
-    thead th {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-    td button {
-        z-index: 1;
-        position: relative;
-    }
-    .material-symbols-outlined {
-        font-size: 34px;
-        background-color: transparent;
-        color: white;
-    }
-    .cta-inline {
-        width: auto;
-        padding-inline: 18px;
+    .glass-table td:nth-child(4) {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="container p-5 position-relative">
-    <a href="{{ url_for('inventario.menu_principal') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver al menú principal">
-        arrow_back
+<main class="container my-4 position-relative">
+    <a href="{{ url_for('inventario.menu_principal') }}" class="back-btn"
+        style="position: absolute; top: 0; left: -60px;" aria-label="Volver al menú principal">
+        <span class="material-symbols-outlined">arrow_back</span>
     </a>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="brand text-center mb-4">
-                <h1>Proveedores</h1>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr class="titlewhiteN">
-                            <th>Fecha</th>
-                            <th>Nombre</th>
-                            <th>Teléfono</th>
-                            <th>Dirección</th>
-                            <th>Email</th>
-                            <th>CIF</th>
-                            <th>Tasa de Descuento</th>
-                            <th>IVA</th>
-                            <th>Tipo de Productos</th>
-                            <th>Opciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for proveedor in proveedores %}
-                            <tr>
-                                <td>{{ proveedor.fecha.strftime('%Y-%m-%d') if proveedor.fecha else '-' }}</td>
-                                <td>{{ proveedor.nombre }}</td>
-                                <td>{{ proveedor.telefono }}</td>
-                                <td>{{ proveedor.direccion }}</td>
-                                <td>{{ proveedor.email }}</td>
-                                <td>{{ proveedor.cif }}</td>
-                                <td>{{ proveedor.tasa_de_descuento }}%</td>
-                                <td>{{ proveedor.iva }}%</td>
-                                <td>{{ proveedor.tipo_producto }}</td>
-                                <td class="d-flex flex-column gap-2">
-                                    <a class="cta cta-inline text-decoration-none" href="{{ url_for('proveedores.editar_proveedor', proveedor_id=proveedor.id) }}">
-                                        Editar
-                                    </a>
-                                    <form action="{{ url_for('proveedores.eliminar_proveedor', id=proveedor.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este proveedor?');">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <button class="btn-danger-light w-100" type="submit">
-                                            Eliminar
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="text-center mt-4">
-                <a class="cta cta-inline text-decoration-none" href="{{ url_for('proveedores.agregar_proveedor') }}">
-                    Agregar nuevo proveedor
-                </a>
-            </div>
+
+    <div class="glass-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="titlewhiteN m-0">Proveedores</h1>
+            <a href="{{ url_for('proveedores.agregar_proveedor') }}" class="cta cta-inline text-decoration-none">Agregar
+                proveedor</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="glass-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Dirección</th>
+                        <th>Email</th>
+                        <th>CIF</th>
+                        <th>Desc.</th>
+                        <th>IVA</th>
+                        <th>Tipo</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proveedor in proveedores %}
+                    <tr>
+                        <td>{{ proveedor.fecha.strftime('%Y-%m-%d') if proveedor.fecha else '-' }}</td>
+                        <td>{{ proveedor.nombre }}</td>
+                        <td>{{ proveedor.telefono }}</td>
+                        <td title="{{ proveedor.direccion }}">{{ proveedor.direccion }}</td>
+                        <td>{{ proveedor.email }}</td>
+                        <td>{{ proveedor.cif }}</td>
+                        <td>{{ proveedor.tasa_de_descuento }}%</td>
+                        <td>{{ proveedor.iva }}%</td>
+                        <td>{{ proveedor.tipo_producto }}</td>
+                        <td>
+                            <div class="d-flex gap-2 flex-column flex-md-row">
+                                <a class="cta cta-inline text-decoration-none py-1 px-3 text-center"
+                                    style="font-size: 0.85rem;"
+                                    href="{{ url_for('proveedores.editar_proveedor', proveedor_id=proveedor.id) }}">
+                                    Editar
+                                </a>
+                                <form action="{{ url_for('proveedores.eliminar_proveedor', id=proveedor.id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('¿Estás seguro de eliminar este proveedor?');"
+                                    class="w-100">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn-danger-light w-100 py-1 px-3" style="font-size: 0.85rem;"
+                                        type="submit">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </main>

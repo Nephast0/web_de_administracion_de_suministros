@@ -2,82 +2,99 @@
 {% block title %}Inventario{% endblock %}
 {% block page_styles %}
 <style>
-    table { width: 100%; table-layout: fixed; border-collapse: collapse; }
-    th, td { padding: 10px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); }
-    th { background-color: rgba(0, 0, 0, 0.8); text-transform: uppercase; }
-    td { background-color: #333; color: white; border-bottom: 1px solid #444; }
-    thead th { position: sticky; top: 0; z-index: 10; text-align: center; }
-    td:nth-child(4) { word-wrap: break-word; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
-    td:nth-child(6) { white-space: nowrap; }
-    .btn-outline-warning { background: transparent; border-color: #ffc107; color: #ffc107; }
-    .btn-outline-warning:hover { background: #ffc107; color: black; }
+    /* Ajustes específicos para columnas largas */
+    .glass-table td:nth-child(4) {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .glass-table td:nth-child(6) {
+        white-space: nowrap;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="container my-4 position-relative">
-    <a href="{{ url_for('inventario.menu_principal') }}" class="back-btn brand" style="position: absolute; top: 20px; left: 20px;" aria-label="Volver al menú">
-        arrow_back
+    <a href="{{ url_for('inventario.menu_principal') }}" class="back-btn"
+        style="position: absolute; top: 0; left: -60px;" aria-label="Volver al menú">
+        <span class="material-symbols-outlined">arrow_back</span>
     </a>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="brand">Inventario</h1>
-        <a href="/agregar-producto" class="cta cta-inline text-decoration-none">Agregar producto</a>
-    </div>
+    <div class="glass-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="titlewhiteN m-0">Inventario</h1>
+            <a href="/agregar-producto" class="cta cta-inline text-decoration-none">Agregar producto</a>
+        </div>
 
-    <div class="mb-3">
-        <form method="get" class="d-flex gap-2">
-            <label class="me-2 titlewhite" for="orden">Ordenar por:</label>
-            <select name="orden" id="orden" class="form-control fondo titlewhite" onchange="this.form.submit()">
-                <option value="asc" {% if orden == 'asc' %}selected{% endif %}>Modelo A-Z</option>
-                <option value="desc" {% if orden == 'desc' %}selected{% endif %}>Modelo Z-A</option>
-                <option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio ascendente</option>
-                <option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio descendente</option>
-                <option value="cantidad_asc" {% if orden == 'cantidad_asc' %}selected{% endif %}>Cantidad ascendente</option>
-                <option value="cantidad_desc" {% if orden == 'cantidad_desc' %}selected{% endif %}>Cantidad descendente</option>
-            </select>
-        </form>
-    </div>
+        <div class="mb-4">
+            <form method="get" class="d-flex align-items-center gap-3">
+                <label class="m-0 text-muted" for="orden">Ordenar por:</label>
+                <select name="orden" id="orden" class="form-control" style="width: auto; min-width: 200px;"
+                    onchange="this.form.submit()">
+                    <option value="asc" {% if orden=='asc' %}selected{% endif %}>Modelo A-Z</option>
+                    <option value="desc" {% if orden=='desc' %}selected{% endif %}>Modelo Z-A</option>
+                    <option value="precio_asc" {% if orden=='precio_asc' %}selected{% endif %}>Precio ascendente
+                    </option>
+                    <option value="precio_desc" {% if orden=='precio_desc' %}selected{% endif %}>Precio descendente
+                    </option>
+                    <option value="cantidad_asc" {% if orden=='cantidad_asc' %}selected{% endif %}>Cantidad ascendente
+                    </option>
+                    <option value="cantidad_desc" {% if orden=='cantidad_desc' %}selected{% endif %}>Cantidad
+                        descendente</option>
+                </select>
+            </form>
+        </div>
 
-    <div class="table-responsive">
-        <table class="table table-dark table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Tipo</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Cantidad mínima</th>
-                    <th>Número de referencia</th>
-                    <th>Proveedor</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for producto in productos %}
+        <div class="table-responsive">
+            <table class="glass-table">
+                <thead>
+                    <tr>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Cant.</th>
+                        <th>Mín.</th>
+                        <th>Ref.</th>
+                        <th>Proveedor</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
                     <tr>
                         <td>{{ producto.marca }}</td>
                         <td>{{ producto.modelo }}</td>
                         <td>{{ producto.tipo_producto }}</td>
-                        <td>{{ producto.descripcion }}</td>
+                        <td title="{{ producto.descripcion }}">{{ producto.descripcion }}</td>
                         <td>{{ producto.precio | currency }}</td>
                         <td>{{ producto.cantidad }}</td>
                         <td>{{ producto.cantidad_minima }}</td>
                         <td>{{ producto.num_referencia }}</td>
                         <td>{{ producto.proveedor.nombre if producto.proveedor else 'N/A' }}</td>
                         <td class="text-nowrap">
-                            <a href="{{ url_for('proveedores.editar_producto', id=producto.id) }}" class="cta cta-inline text-decoration-none" aria-label="Editar {{ producto.modelo }}">Editar</a>
-                            <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}" method="post" class="d-inline">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button class="btn-danger-light" type="submit" onclick="return confirm('¿Eliminar {{ producto.modelo }}?');" aria-label="Eliminar {{ producto.modelo }}">Eliminar</button>
-                            </form>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('proveedores.editar_producto', id=producto.id) }}"
+                                    class="cta cta-inline text-decoration-none py-1 px-3" style="font-size: 0.85rem;"
+                                    aria-label="Editar {{ producto.modelo }}">Editar</a>
+                                <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}"
+                                    method="post" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn-danger-light py-1 px-3" style="font-size: 0.85rem;" type="submit"
+                                        onclick="return confirm('¿Eliminar {{ producto.modelo }}?');"
+                                        aria-label="Eliminar {{ producto.modelo }}">Eliminar</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </main>
 {% endblock %}

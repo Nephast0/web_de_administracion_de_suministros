@@ -1,10 +1,49 @@
 {% extends "base.html" %}
 {% block title %}Menú Cliente{% endblock %}
+{% block body_class %}menu-body{% endblock %}
+
+{% block content %}
+<main>
+    <div class="menu-hero">
+        <div class="menu-actions-abs menu-actions-left">
+            <a href="{{ url_for('auth.logout') }}" class="icon-btn text-decoration-none"
+                aria-label="Cerrar Sesión">logout</a>
+        </div>
+        <div class="menu-actions-abs menu-actions-right d-flex gap-2">
+            <a href="{{ url_for('inventario.cesta') }}" class="icon-btn text-decoration-none"
+                aria-label="Ir a la cesta">shopping_cart</a>
+            <a href="{{ url_for('inventario.perfil_cliente') }}" class="icon-btn text-decoration-none"
+                aria-label="Ir al perfil">person</a>
+            <a href="{{ url_for('inventario.pedidos') }}" class="icon-btn text-decoration-none"
+                aria-label="Ver pedidos">orders</a>
+        </div>
+
+        <div class="glass-container">
+            <div class="menu-title">
+                <h1 class="titlewhiteN mb-2">Suministros Informáticos</h1>
+                <h2 class="titlewhiteN">CNCV</h2>
+            </div>
+            <div class="menu-links">
+                <a href="{{ url_for('inventario.productos_cliente') }}" class="cta text-decoration-none">Productos</a>
+                <a href="{{ url_for('reportes.graficas_cliente') }}" class="cta text-decoration-none">Gráficos</a>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+{% block title %}Menú Cliente{% endblock %}
 {% block body_class %}app-body d-flex align-items-center justify-content-center{% endblock %}
 {% block page_styles %}
 <style>
-    .menu-actions a { font-size: 40px; background-color: transparent; color: white; }
-    .menu-actions .material-symbols-outlined { font-size: 34px; }
+    .menu-actions a {
+        font-size: 40px;
+        background-color: transparent;
+        color: white;
+    }
+
+    .menu-actions .material-symbols-outlined {
+        font-size: 34px;
+    }
 </style>
 {% endblock %}
 
@@ -12,12 +51,16 @@
 <main class="container p-4 text-center">
     <div class="d-flex justify-content-between mb-4">
         <div>
-            <a class="material-symbols-outlined" href="{{ url_for('auth.logout') }}" aria-label="Cerrar Sesión">logout</a>
+            <a class="material-symbols-outlined" href="{{ url_for('auth.logout') }}"
+                aria-label="Cerrar Sesión">logout</a>
         </div>
         <div class="d-flex gap-3">
-            <a class="material-symbols-outlined" href="{{ url_for('inventario.cesta') }}" aria-label="Ir a la cesta">shopping_cart</a>
-            <a class="material-symbols-outlined" href="{{ url_for('inventario.perfil_cliente') }}" aria-label="Ir al perfil">person</a>
-            <a class="material-symbols-outlined" href="{{ url_for('inventario.pedidos') }}" aria-label="Ver pedidos">orders</a>
+            <a class="material-symbols-outlined" href="{{ url_for('inventario.cesta') }}"
+                aria-label="Ir a la cesta">shopping_cart</a>
+            <a class="material-symbols-outlined" href="{{ url_for('inventario.perfil_cliente') }}"
+                aria-label="Ir al perfil">person</a>
+            <a class="material-symbols-outlined" href="{{ url_for('inventario.pedidos') }}"
+                aria-label="Ver pedidos">orders</a>
         </div>
     </div>
 
@@ -28,11 +71,13 @@
         </div>
         <div class="row d-flex justify-content-center align-items-center menu-actions">
             <div class="col-md-3 d-flex justify-content-center mb-3">
-                <a href="{{ url_for('inventario.productos_cliente') }}" class="neon-link titlewhite text-center">PRODUCTOS</a>
+                <a href="{{ url_for('inventario.productos_cliente') }}"
+                    class="neon-link titlewhite text-center">PRODUCTOS</a>
             </div>
             <div class="col-md-3"></div>
             <div class="col-md-3 d-flex justify-content-center mb-3">
-                <a href="{{ url_for('reportes.graficas_cliente') }}" class="neon-link titlewhite text-center">GRÁFICOS</a>
+                <a href="{{ url_for('reportes.graficas_cliente') }}"
+                    class="neon-link titlewhite text-center">GRÁFICOS</a>
             </div>
         </div>
     </div>

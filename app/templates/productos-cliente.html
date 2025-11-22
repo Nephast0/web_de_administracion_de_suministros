@@ -1,35 +1,139 @@
 {% extends "base.html" %}
 {% block title %}Productos{% endblock %}
+
+{% block content %}
+<main class="container py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a class="back-btn" href="{{ url_for('inventario.menu_cliente') }}" aria-label="Volver al menú del cliente">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <h1 class="ms-3 titlewhiteN mb-0">Catálogo</h1>
+    </div>
+
+    {% if alertas %}
+    <div class="alert alert-warning mb-4">
+        <h4 class="alert-heading">Productos que necesitan reposición:</h4>
+        <ul class="mb-0">
+            {% for producto in alertas %}
+            <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{
+                producto.cantidad }})</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="glass-container">
+        <div class="table-responsive">
+            <table class="glass-table w-100 text-center">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Cantidad disponible</th>
+                        <th>Agregar a la cesta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.tipo_producto }}</td>
+                        <td>{{ producto.marca }}</td>
+                        <td>{{ producto.modelo }}</td>
+                        <td>{{ producto.descripcion }}</td>
+                        <td>{{ producto.precio | currency }}</td>
+                        <td>{{ producto.cantidad }}</td>
+                        <td>
+                            <form class="d-flex gap-2 justify-content-center align-items-center"
+                                action="{{ url_for('inventario.agregar_a_la_cesta', producto_id=producto.id) }}"
+                                method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="number" name="cantidad" value="1" min="1" max="{{ producto.cantidad }}"
+                                    class="form-control text-center" style="width: 80px;"
+                                    aria-label="Cantidad para {{ producto.modelo }}">
+                                <button type="submit" class="cta cta-inline"
+                                    style="padding: 8px 16px; font-size: 0.9rem;">Añadir</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
 {% block page_styles %}
 <style>
-    table { width: 100%; table-layout: fixed; border-collapse: collapse; }
-    th, td { padding: 10px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); }
-    th { background-color: rgba(0, 0, 0, 0.8); text-transform: uppercase; }
-    td { background-color: #333; color: white; border-bottom: 1px solid #444; }
-    thead th { position: sticky; top: 0; z-index: 10; }
-    .material-symbols-outlined { font-size: 34px; background-color: transparent; color: white; }
-    .alerta-container { background-color: #ff9800; color: white; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+    table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    th {
+        background-color: rgba(0, 0, 0, 0.8);
+        text-transform: uppercase;
+    }
+
+    td {
+        background-color: #333;
+        color: white;
+        border-bottom: 1px solid #444;
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .material-symbols-outlined {
+        font-size: 34px;
+        background-color: transparent;
+        color: white;
+    }
+
+    .alerta-container {
+        background-color: #ff9800;
+        color: white;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="container py-5">
     <div class="d-flex align-items-center mb-4">
-        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_cliente') }}" aria-label="Volver al menú del cliente">
+        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_cliente') }}"
+            aria-label="Volver al menú del cliente">
             arrow_back
         </a>
         <h1 class="ms-3 titlewhiteN mb-0">Catálogo</h1>
     </div>
 
     {% if alertas %}
-        <div class="alerta-container">
-            <h2>Productos que necesitan reposición:</h2>
-            <ul>
-                {% for producto in alertas %}
-                    <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{ producto.cantidad }})</li>
-                {% endfor %}
-            </ul>
-        </div>
+    <div class="alerta-container">
+        <h2>Productos que necesitan reposición:</h2>
+        <ul>
+            {% for producto in alertas %}
+            <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{
+                producto.cantidad }})</li>
+            {% endfor %}
+        </ul>
+    </div>
     {% endif %}
 
     <div class="table-container">
@@ -55,9 +159,13 @@
                     <td>{{ producto.precio | currency }}</td>
                     <td>{{ producto.cantidad }}</td>
                     <td>
-                        <form class="d-flex gap-2 justify-content-center" action="{{ url_for('inventario.agregar_a_la_cesta', producto_id=producto.id) }}" method="post">
+                        <form class="d-flex gap-2 justify-content-center"
+                            action="{{ url_for('inventario.agregar_a_la_cesta', producto_id=producto.id) }}"
+                            method="post">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <input type="number" name="cantidad" value="1" min="1" max="{{ producto.cantidad }}" class="form-control w-auto fondo titlewhite" aria-label="Cantidad para {{ producto.modelo }}">
+                            <input type="number" name="cantidad" value="1" min="1" max="{{ producto.cantidad }}"
+                                class="form-control w-auto fondo titlewhite"
+                                aria-label="Cantidad para {{ producto.modelo }}">
                             <button type="submit" class="btn btn-sm btn-outline-light">Añadir</button>
                         </form>
                     </td>

@@ -1,5 +1,535 @@
 {% extends "base.html" %}
 {% block title %}Gráficas{% endblock %}
+
+{% block content %}
+<main class="container py-4">
+    <div class="d-flex align-items-center mb-3">
+        <a class="back-btn" href="{{ url_for('inventario.menu_principal') }}" aria-label="Volver al menú">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <h1 class="ms-3 titlewhiteN mb-0">Gráficas</h1>
+    </div>
+
+    <div class="text-center mb-4">
+        <label for="intervaloTiempo" class="form-label titlewhiteN">Seleccione el intervalo de tiempo:</label>
+        <select id="intervaloTiempo" class="form-select w-50 mx-auto bg-dark text-light border-secondary">
+            <option value="dia">Diario</option>
+            <option value="semana">Semanal</option>
+            <option value="mes" selected>Mensual</option>
+            <option value="trimestre">Trimestral</option>
+            <option value="anio">Anual</option>
+        </select>
+    </div>
+
+    <!-- Tarjetas de gráficas protegidas por rol admin -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="glass-card">
+                <h3 class="titlewhiteN mb-3">Distribución de Productos por Tipo</h3>
+                <canvas id="distribucionProductos" role="img" aria-labelledby="distribucionDescripcion"></canvas>
+                <p id="distribucionDescripcion" class="visually-hidden">Cantidad de productos disponibles por tipo en
+                    inventario.</p>
+                <p id="summary-distribucion_productos" class="text-muted small mt-2" aria-live="polite"></p>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <a id="summary-download-distribucion_productos" class="btn btn-outline-light btn-sm"
+                        data-chart="distribucion_productos" download="distribucion_productos_resumen.txt" href="#">
+                        Descargar resumen
+                    </a>
+                    <a id="export-distribucion_productos" class="btn btn-secondary btn-sm export-link"
+                        data-chart="distribucion_productos" download="distribucion_productos.csv" href="#">
+                        Descargar CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card">
+                <h3 class="titlewhiteN mb-3">Ventas Totales</h3>
+                <canvas id="ventasTotales" role="img" aria-labelledby="ventasDescripcion"></canvas>
+                <p id="ventasDescripcion" class="visually-hidden">Ventas totales agregadas según el intervalo
+                    seleccionado.</p>
+                <p id="summary-ventas_totales" class="text-muted small mt-2" aria-live="polite"></p>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <a id="summary-download-ventas_totales" class="btn btn-outline-light btn-sm"
+                        data-chart="ventas_totales" download="ventas_totales_resumen.txt" href="#">
+                        Descargar resumen
+                    </a>
+                    <a id="export-ventas_totales" class="btn btn-secondary btn-sm export-link"
+                        data-chart="ventas_totales" download="ventas_totales.csv" href="#">
+                        Descargar CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card">
+                <h3 class="titlewhiteN mb-3">Productos Más Vendidos</h3>
+                <canvas id="productosMasVendidos" role="img" aria-labelledby="masVendidosDescripcion"></canvas>
+                <p id="masVendidosDescripcion" class="visually-hidden">Listado de productos con mayor volumen de ventas.
+                </p>
+                <p id="summary-productos_mas_vendidos" class="text-muted small mt-2" aria-live="polite"></p>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <a id="summary-download-productos_mas_vendidos" class="btn btn-outline-light btn-sm"
+                        data-chart="productos_mas_vendidos" download="productos_mas_vendidos_resumen.txt" href="#">
+                        Descargar resumen
+                    </a>
+                    <a id="export-productos_mas_vendidos" class="btn btn-secondary btn-sm export-link"
+                        data-chart="productos_mas_vendidos" download="productos_mas_vendidos.csv" href="#">
+                        Descargar CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card">
+                <h3 class="titlewhiteN mb-3">Usuarios Registrados</h3>
+                <canvas id="usuariosRegistrados" role="img" aria-labelledby="usuariosDescripcion"></canvas>
+                <p id="usuariosDescripcion" class="visually-hidden">Usuarios registrados por periodo.</p>
+                <p id="summary-usuarios_registrados" class="text-muted small mt-2" aria-live="polite"></p>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <a id="summary-download-usuarios_registrados" class="btn btn-outline-light btn-sm"
+                        data-chart="usuarios_registrados" download="usuarios_registrados_resumen.txt" href="#">
+                        Descargar resumen
+                    </a>
+                    <a id="export-usuarios_registrados" class="btn btn-secondary btn-sm export-link"
+                        data-chart="usuarios_registrados" download="usuarios_registrados.csv" href="#">
+                        Descargar CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card">
+                <h3 class="titlewhiteN mb-3">Ingresos por Usuario</h3>
+                <canvas id="ingresosPorUsuario" role="img" aria-labelledby="ingresosDescripcion"></canvas>
+                <p id="ingresosDescripcion" class="visually-hidden">Ingresos generados por usuario.</p>
+                <p id="summary-ingresos_por_usuario" class="text-muted small mt-2" aria-live="polite"></p>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <a id="summary-download-ingresos_por_usuario" class="btn btn-outline-light btn-sm"
+                        data-chart="ingresos_por_usuario" download="ingresos_por_usuario_resumen.txt" href="#">
+                        Descargar resumen
+                    </a>
+                    <a id="export-ingresos_por_usuario" class="btn btn-secondary btn-sm export-link"
+                        data-chart="ingresos_por_usuario" download="ingresos_por_usuario.csv" href="#">
+                        Descargar CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card">
+                <h3 class="titlewhiteN mb-3">Estado de la caché</h3>
+                <dl class="row text-white small">
+                    <dt class="col-6">Entradas</dt>
+                    <dd class="col-6 mb-1" id="cacheEntries">0</dd>
+                    <dt class="col-6">Hits</dt>
+                    <dd class="col-6 mb-1" id="cacheHits">0</dd>
+                    <dt class="col-6">Misses</dt>
+                    <dd class="col-6 mb-1" id="cacheMisses">0</dd>
+                    <dt class="col-6">TTL actual (s)</dt>
+                    <dd class="col-6 mb-1" id="cacheTtl">0</dd>
+                </dl>
+                <form id="ttlForm" class="d-flex flex-wrap gap-2" autocomplete="off">
+                    <label class="form-label titlewhiteN w-100" for="ttlInput">Actualizar TTL (segundos)</label>
+                    <input type="number" min="5" step="5" id="ttlInput"
+                        class="form-control bg-dark text-light border-secondary flex-grow-1" required>
+                    <button class="cta cta-inline" type="submit">Aplicar</button>
+                </form>
+                <small class="text-muted d-block mt-2">Cambiar el TTL limpia la caché en memoria.</small>
+                <div id="ttlFeedback" class="small mt-2 d-none"></div>
+                <h4 class="titlewhiteN mt-4">Histórico</h4>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <label class="form-label titlewhiteN mb-0" for="historyFilter">Filtrar eventos:</label>
+                    <select id="historyFilter" class="form-select bg-dark text-light border-secondary w-auto">
+                        <option value="all">Todos</option>
+                        <option value="hit">Hits</option>
+                        <option value="miss">Misses</option>
+                        <option value="ttl_update">Actualizaciones de TTL</option>
+                    </select>
+                </div>
+                <ul id="cacheHistory" class="list-group list-group-flush bg-transparent"></ul>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <a id="cacheHistoryDownload" href="{{ url_for('reportes.cache_history_export') }}"
+                        class="btn btn-secondary btn-sm" download>
+                        Descargar historial actual
+                    </a>
+                    <a id="cacheHistoryDownloadAll"
+                        href="{{ url_for('reportes.cache_history_export', include_archives=1) }}"
+                        class="btn btn-outline-light btn-sm" download>
+                        Descargar historial completo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Reutilizamos la capa de presentación base y mantenemos las gráficas encapsuladas en este bloque.
+    async function fetchChartData(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Error en la solicitud: ${response.status}`);
+        }
+        return response.json();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const intervaloTiempo = document.getElementById('intervaloTiempo');
+        const cacheEntries = document.getElementById('cacheEntries');
+        const cacheHits = document.getElementById('cacheHits');
+        const cacheMisses = document.getElementById('cacheMisses');
+        const cacheTtl = document.getElementById('cacheTtl');
+        const ttlInput = document.getElementById('ttlInput');
+        const ttlForm = document.getElementById('ttlForm');
+        const ttlFeedback = document.getElementById('ttlFeedback');
+        const cacheHistoryList = document.getElementById('cacheHistory');
+        const historyFilter = document.getElementById('historyFilter');
+        const currencySymbol = {{ (currency_symbol or '€') | tojson }};
+    const currencyLocale = {{ (currency_locale or 'es-ES')| tojson }};
+    const currencyCode = {{ (currency_code or 'EUR')| tojson }};
+    const csrfToken = {{ csrf_token() | tojson }};
+    const summaryElements = {
+        distribucion_productos: document.getElementById('summary-distribucion_productos'),
+        ventas_totales: document.getElementById('summary-ventas_totales'),
+        productos_mas_vendidos: document.getElementById('summary-productos_mas_vendidos'),
+        usuarios_registrados: document.getElementById('summary-usuarios_registrados'),
+        ingresos_por_usuario: document.getElementById('summary-ingresos_por_usuario'),
+    };
+    const summaryDownloadLinks = {
+        distribucion_productos: document.getElementById('summary-download-distribucion_productos'),
+        ventas_totales: document.getElementById('summary-download-ventas_totales'),
+        productos_mas_vendidos: document.getElementById('summary-download-productos_mas_vendidos'),
+        usuarios_registrados: document.getElementById('summary-download-usuarios_registrados'),
+        ingresos_por_usuario: document.getElementById('summary-download-ingresos_por_usuario'),
+    };
+    const summaryDownloadUrls = {};
+    const exportLinks = document.querySelectorAll('.export-link');
+    let cacheHistoryEvents = [];
+    const currencyFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
+        style: 'currency',
+        currency: currencyCode || 'EUR'
+    });
+    const numberFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
+        maximumFractionDigits: 0
+    });
+    const chartConfigs = [
+        {
+            chartName: 'distribucion_productos',
+            ctx: document.getElementById('distribucionProductos'),
+            endpoint: '/data/distribucion_productos',
+            type: 'bar',
+            dataKey: 'cantidades',
+            labelKey: 'tipos',
+            chartLabel: 'Cantidad',
+            valueType: 'quantity',
+            suffix: ' uds',
+            requiresInterval: false,
+        },
+        {
+            chartName: 'ventas_totales',
+            ctx: document.getElementById('ventasTotales'),
+            endpoint: '/data/ventas_totales',
+            type: 'line',
+            dataKey: 'totales',
+            labelKey: 'periodos',
+            chartLabel: `Ventas Totales (${currencySymbol})`,
+            valueType: 'currency',
+            requiresInterval: true,
+        },
+        {
+            chartName: 'productos_mas_vendidos',
+            ctx: document.getElementById('productosMasVendidos'),
+            endpoint: '/data/productos_mas_vendidos',
+            type: 'bar',
+            dataKey: 'cantidades',
+            labelKey: 'productos',
+            chartLabel: 'Cantidad Vendida',
+            valueType: 'quantity',
+            suffix: ' uds',
+            requiresInterval: false,
+        },
+        {
+            chartName: 'usuarios_registrados',
+            ctx: document.getElementById('usuariosRegistrados'),
+            endpoint: '/data/usuarios_registrados',
+            type: 'line',
+            dataKey: 'totales',
+            labelKey: 'periodos',
+            chartLabel: 'Usuarios Registrados',
+            valueType: 'quantity',
+            requiresInterval: true,
+        },
+        {
+            chartName: 'ingresos_por_usuario',
+            ctx: document.getElementById('ingresosPorUsuario'),
+            endpoint: '/data/ingresos_por_usuario',
+            type: 'bar',
+            dataKey: 'ingresos',
+            labelKey: 'usuarios',
+            chartLabel: `Ingresos (${currencySymbol})`,
+            valueType: 'currency',
+            requiresInterval: true,
+        },
+    ];
+
+    const formatValue = (value, valueType, suffix = '') => {
+        if (valueType === 'currency') {
+            return currencyFormatter.format(value);
+        }
+        if (valueType === 'quantity') {
+            return `${numberFormatter.format(value)}${suffix}`;
+        }
+        return `${value}${suffix}`;
+    };
+
+    const summaryBuilders = {
+        distribucion_productos: (data) => {
+            if (!data.tipos.length) {
+                return 'No hay productos registrados.';
+            }
+            let maxIndex = 0;
+            data.cantidades.forEach((cantidad, idx) => {
+                if (cantidad > data.cantidades[maxIndex]) {
+                    maxIndex = idx;
+                }
+            });
+            return `Se registran ${data.tipos.length} tipos. El mayor es ${data.tipos[maxIndex]} con ${numberFormatter.format(data.cantidades[maxIndex])} uds.`;
+        },
+        ventas_totales: (data) => {
+            if (!data.periodos.length) {
+                return 'No hay ventas registradas.';
+            }
+            let maxIndex = 0;
+            data.totales.forEach((total, idx) => {
+                if (total > data.totales[maxIndex]) {
+                    maxIndex = idx;
+                }
+            });
+            return `Se registraron ${data.periodos.length} periodos. El máximo fue ${data.periodos[maxIndex]} con ${currencyFormatter.format(data.totales[maxIndex])}.`;
+        },
+        productos_mas_vendidos: (data) => {
+            if (!data.productos.length) {
+                return 'No hay productos vendidos.';
+            }
+            return `El producto más vendido es ${data.productos[0]} con ${numberFormatter.format(data.cantidades[0])} uds.`;
+        },
+        usuarios_registrados: (data) => {
+            const total = data.totales.reduce((acc, value) => acc + value, 0);
+            return total ? `Se registraron ${numberFormatter.format(total)} usuarios en total.` : 'No hay nuevos registros en este intervalo.';
+        },
+        ingresos_por_usuario: (data) => {
+            if (!data.usuarios.length) {
+                return 'No hay ingresos registrados.';
+            }
+            let maxIndex = 0;
+            data.ingresos.forEach((total, idx) => {
+                if (total > data.ingresos[maxIndex]) {
+                    maxIndex = idx;
+                }
+            });
+            return `El mayor ingreso provino de ${data.usuarios[maxIndex]} con ${currencyFormatter.format(data.ingresos[maxIndex])}.`;
+        },
+    };
+
+    const summaryDownloadUrlsCleanup = (chartName) => {
+        if (summaryDownloadUrls[chartName]) {
+            URL.revokeObjectURL(summaryDownloadUrls[chartName]);
+        }
+    };
+
+    const updateSummary = (chartName, data) => {
+        const summaryEl = summaryElements[chartName];
+        if (!summaryEl) {
+            return;
+        }
+        const builder = summaryBuilders[chartName];
+        const summaryText = builder ? builder(data) : 'Sin datos disponibles.';
+        summaryEl.textContent = summaryText;
+        const downloadLink = summaryDownloadLinks[chartName];
+        if (downloadLink) {
+            summaryDownloadUrlsCleanup(chartName);
+            const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            summaryDownloadUrls[chartName] = url;
+            downloadLink.href = url;
+        }
+    };
+
+    const updateExportLinks = (interval) => {
+        exportLinks.forEach((link) => {
+            const chart = link.dataset.chart;
+            let href = `/data/chart_export/${chart}`;
+            if (interval) {
+                href += `?interval=${encodeURIComponent(interval)}`;
+            }
+            link.href = href;
+        });
+    };
+
+    const renderCacheHistory = () => {
+        cacheHistoryList.innerHTML = '';
+        const selectedType = historyFilter.value;
+        const filtered = cacheHistoryEvents.filter((event) => selectedType === 'all' || event.type === selectedType);
+        if (!filtered.length) {
+            const emptyItem = document.createElement('li');
+            emptyItem.className = 'list-group-item bg-transparent text-muted';
+            emptyItem.textContent = 'Sin eventos registrados.';
+            cacheHistoryList.appendChild(emptyItem);
+            return;
+        }
+        filtered.forEach((event) => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item bg-transparent titlewhite small';
+            const date = new Date(event.timestamp);
+            const readableDate = date.toLocaleString(currencyLocale || navigator.language || 'es-ES');
+            let description = '';
+            if (event.type === 'hit' || event.type === 'miss') {
+                description = `Cache ${event.type} → ${event.key}`;
+            } else if (event.type === 'ttl_update') {
+                description = `TTL actualizado a ${event.ttl_seconds}s`;
+            } else {
+                description = event.type;
+            }
+            li.textContent = `${readableDate}: ${description}`;
+            cacheHistoryList.appendChild(li);
+        });
+    };
+
+    const chartUrl = (config, interval) => {
+        if (config.requiresInterval) {
+            return `${config.endpoint}?interval=${interval}`;
+        }
+        return config.endpoint;
+    };
+
+    const createChartForConfig = async (config, interval) => {
+        try {
+            const url = chartUrl(config, interval);
+            const data = await fetchChartData(url);
+            const chartData = {
+                labels: data[config.labelKey],
+                datasets: [{
+                    label: config.chartLabel,
+                    data: data[config.dataKey],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2
+                }]
+            };
+
+            const options = {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    tooltip: {}
+                }
+            };
+
+            if (config.valueType) {
+                options.scales.y.ticks = options.scales.y.ticks || {};
+                options.scales.y.ticks.callback = (value) => formatValue(value, config.valueType, config.suffix);
+                options.plugins.tooltip.callbacks = {
+                    label: (context) => {
+                        const label = context.dataset.label || '';
+                        return `${label}: ${formatValue(context.parsed.y, config.valueType, config.suffix)}`;
+                    }
+                };
+            }
+
+            new Chart(config.ctx, {
+                type: config.type,
+                data: chartData,
+                options
+            });
+            updateSummary(config.chartName, data);
+        } catch (error) {
+            console.error('Error al obtener los datos:', error);
+        }
+    };
+
+    const updateCharts = () => {
+        const interval = intervaloTiempo.value;
+        chartConfigs.forEach((cfg) => createChartForConfig(cfg, interval));
+        updateExportLinks(interval);
+    };
+
+    async function refreshCacheStats() {
+        try {
+            const data = await fetchChartData('/data/cache_stats');
+            cacheEntries.textContent = data.entries;
+            cacheHits.textContent = data.hits;
+            cacheMisses.textContent = data.misses;
+            cacheTtl.textContent = data.ttl_seconds;
+            ttlInput.value = data.ttl_seconds;
+        } catch (error) {
+            console.error('Error al obtener las métricas de caché:', error);
+        }
+    }
+
+    async function refreshCacheHistory() {
+        try {
+            const data = await fetchChartData('/data/cache_history');
+            cacheHistoryEvents = data.events;
+            renderCacheHistory();
+        } catch (error) {
+            console.error('Error al obtener el histórico de caché:', error);
+        }
+    }
+
+    ttlForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const ttlSeconds = parseInt(ttlInput.value, 10);
+        if (!Number.isFinite(ttlSeconds) || ttlSeconds < 5) {
+            ttlFeedback.textContent = 'El TTL debe ser mayor o igual a 5 segundos.';
+            ttlFeedback.classList.remove('d-none', 'text-success');
+            ttlFeedback.classList.add('text-warning');
+            return;
+        }
+
+        try {
+            const response = await fetch('/data/cache_ttl', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ ttl_seconds: ttlSeconds })
+            });
+
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'No se pudo actualizar el TTL.');
+            }
+
+            ttlFeedback.textContent = payload.message || 'TTL actualizado correctamente.';
+            ttlFeedback.classList.remove('d-none', 'text-warning', 'text-danger');
+            ttlFeedback.classList.add('text-success');
+            await refreshCacheStats();
+            await refreshCacheHistory();
+        } catch (error) {
+            ttlFeedback.textContent = error.message;
+            ttlFeedback.classList.remove('d-none', 'text-success', 'text-warning');
+            ttlFeedback.classList.add('text-danger');
+        }
+    });
+
+    historyFilter.addEventListener('change', renderCacheHistory);
+    intervaloTiempo.addEventListener('change', updateCharts);
+    updateCharts();
+    refreshCacheStats();
+    refreshCacheHistory();
+    });
+</script>
+{% endblock %}
+{% block title %}Gráficas{% endblock %}
 {% block page_styles %}
 <style>
     /* Migrado a base.html para compartir cabecera y estilos comunes. */
@@ -8,32 +538,39 @@
         color: white;
         font-family: 'Grenze', serif;
     }
+
     .card {
         background-color: #444;
         border: none;
         border-radius: 10px;
         margin-bottom: 20px;
     }
+
     .material-symbols-outlined {
         font-size: 34px;
         color: white;
     }
+
     canvas {
         width: 100% !important;
         height: auto !important;
     }
+
     select {
         background-color: #333;
         color: white;
         border: 1px solid #777;
     }
+
     select option {
         background-color: #222;
         color: white;
     }
+
     select option:hover {
         background-color: #444;
     }
+
     .visually-hidden {
         position: absolute;
         width: 1px;
@@ -51,7 +588,8 @@
 {% block content %}
 <main class="container py-4">
     <div class="d-flex align-items-center mb-3">
-        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_principal') }}" aria-label="Volver al menú">
+        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_principal') }}"
+            aria-label="Volver al menú">
             arrow_back
         </a>
         <h1 class="ms-3 titlewhiteN mb-0">Gráficas</h1>
@@ -75,13 +613,18 @@
                 <div class="card-body">
                     <h3 class="card-title titlewhiteN">Distribución de Productos por Tipo</h3>
                     <canvas id="distribucionProductos" role="img" aria-labelledby="distribucionDescripcion"></canvas>
-                    <p id="distribucionDescripcion" class="visually-hidden">Cantidad de productos disponibles por tipo en inventario.</p>
-                    <p id="summary-distribucion_productos" class="chart-summary text-muted small mt-2" aria-live="polite"></p>
+                    <p id="distribucionDescripcion" class="visually-hidden">Cantidad de productos disponibles por tipo
+                        en inventario.</p>
+                    <p id="summary-distribucion_productos" class="chart-summary text-muted small mt-2"
+                        aria-live="polite"></p>
                     <div class="d-flex flex-wrap gap-2 mt-2">
-                        <a id="summary-download-distribucion_productos" class="btn btn-outline-light btn-sm summary-download" data-chart="distribucion_productos" download="distribucion_productos_resumen.txt" href="#">
+                        <a id="summary-download-distribucion_productos"
+                            class="btn btn-outline-light btn-sm summary-download" data-chart="distribucion_productos"
+                            download="distribucion_productos_resumen.txt" href="#">
                             Descargar resumen
                         </a>
-                        <a id="export-distribucion_productos" class="btn btn-secondary btn-sm export-link" data-chart="distribucion_productos" download="distribucion_productos.csv" href="#">
+                        <a id="export-distribucion_productos" class="btn btn-secondary btn-sm export-link"
+                            data-chart="distribucion_productos" download="distribucion_productos.csv" href="#">
                             Descargar CSV
                         </a>
                     </div>
@@ -93,13 +636,16 @@
                 <div class="card-body">
                     <h3 class="card-title titlewhiteN">Ventas Totales</h3>
                     <canvas id="ventasTotales" role="img" aria-labelledby="ventasDescripcion"></canvas>
-                    <p id="ventasDescripcion" class="visually-hidden">Ventas totales agregadas según el intervalo seleccionado.</p>
+                    <p id="ventasDescripcion" class="visually-hidden">Ventas totales agregadas según el intervalo
+                        seleccionado.</p>
                     <p id="summary-ventas_totales" class="chart-summary text-muted small mt-2" aria-live="polite"></p>
                     <div class="d-flex flex-wrap gap-2 mt-2">
-                        <a id="summary-download-ventas_totales" class="btn btn-outline-light btn-sm summary-download" data-chart="ventas_totales" download="ventas_totales_resumen.txt" href="#">
+                        <a id="summary-download-ventas_totales" class="btn btn-outline-light btn-sm summary-download"
+                            data-chart="ventas_totales" download="ventas_totales_resumen.txt" href="#">
                             Descargar resumen
                         </a>
-                        <a id="export-ventas_totales" class="btn btn-secondary btn-sm export-link" data-chart="ventas_totales" download="ventas_totales.csv" href="#">
+                        <a id="export-ventas_totales" class="btn btn-secondary btn-sm export-link"
+                            data-chart="ventas_totales" download="ventas_totales.csv" href="#">
                             Descargar CSV
                         </a>
                     </div>
@@ -111,13 +657,18 @@
                 <div class="card-body">
                     <h3 class="card-title titlewhiteN">Productos Más Vendidos</h3>
                     <canvas id="productosMasVendidos" role="img" aria-labelledby="masVendidosDescripcion"></canvas>
-                    <p id="masVendidosDescripcion" class="visually-hidden">Listado de productos con mayor volumen de ventas.</p>
-                    <p id="summary-productos_mas_vendidos" class="chart-summary text-muted small mt-2" aria-live="polite"></p>
+                    <p id="masVendidosDescripcion" class="visually-hidden">Listado de productos con mayor volumen de
+                        ventas.</p>
+                    <p id="summary-productos_mas_vendidos" class="chart-summary text-muted small mt-2"
+                        aria-live="polite"></p>
                     <div class="d-flex flex-wrap gap-2 mt-2">
-                        <a id="summary-download-productos_mas_vendidos" class="btn btn-outline-light btn-sm summary-download" data-chart="productos_mas_vendidos" download="productos_mas_vendidos_resumen.txt" href="#">
+                        <a id="summary-download-productos_mas_vendidos"
+                            class="btn btn-outline-light btn-sm summary-download" data-chart="productos_mas_vendidos"
+                            download="productos_mas_vendidos_resumen.txt" href="#">
                             Descargar resumen
                         </a>
-                        <a id="export-productos_mas_vendidos" class="btn btn-secondary btn-sm export-link" data-chart="productos_mas_vendidos" download="productos_mas_vendidos.csv" href="#">
+                        <a id="export-productos_mas_vendidos" class="btn btn-secondary btn-sm export-link"
+                            data-chart="productos_mas_vendidos" download="productos_mas_vendidos.csv" href="#">
                             Descargar CSV
                         </a>
                     </div>
@@ -130,12 +681,16 @@
                     <h3 class="card-title titlewhiteN">Usuarios Registrados</h3>
                     <canvas id="usuariosRegistrados" role="img" aria-labelledby="usuariosDescripcion"></canvas>
                     <p id="usuariosDescripcion" class="visually-hidden">Usuarios registrados por periodo.</p>
-                    <p id="summary-usuarios_registrados" class="chart-summary text-muted small mt-2" aria-live="polite"></p>
+                    <p id="summary-usuarios_registrados" class="chart-summary text-muted small mt-2" aria-live="polite">
+                    </p>
                     <div class="d-flex flex-wrap gap-2 mt-2">
-                        <a id="summary-download-usuarios_registrados" class="btn btn-outline-light btn-sm summary-download" data-chart="usuarios_registrados" download="usuarios_registrados_resumen.txt" href="#">
+                        <a id="summary-download-usuarios_registrados"
+                            class="btn btn-outline-light btn-sm summary-download" data-chart="usuarios_registrados"
+                            download="usuarios_registrados_resumen.txt" href="#">
                             Descargar resumen
                         </a>
-                        <a id="export-usuarios_registrados" class="btn btn-secondary btn-sm export-link" data-chart="usuarios_registrados" download="usuarios_registrados.csv" href="#">
+                        <a id="export-usuarios_registrados" class="btn btn-secondary btn-sm export-link"
+                            data-chart="usuarios_registrados" download="usuarios_registrados.csv" href="#">
                             Descargar CSV
                         </a>
                     </div>
@@ -148,12 +703,16 @@
                     <h3 class="card-title titlewhiteN">Ingresos por Usuario</h3>
                     <canvas id="ingresosPorUsuario" role="img" aria-labelledby="ingresosDescripcion"></canvas>
                     <p id="ingresosDescripcion" class="visually-hidden">Ingresos generados por usuario.</p>
-                    <p id="summary-ingresos_por_usuario" class="chart-summary text-muted small mt-2" aria-live="polite"></p>
+                    <p id="summary-ingresos_por_usuario" class="chart-summary text-muted small mt-2" aria-live="polite">
+                    </p>
                     <div class="d-flex flex-wrap gap-2 mt-2">
-                        <a id="summary-download-ingresos_por_usuario" class="btn btn-outline-light btn-sm summary-download" data-chart="ingresos_por_usuario" download="ingresos_por_usuario_resumen.txt" href="#">
+                        <a id="summary-download-ingresos_por_usuario"
+                            class="btn btn-outline-light btn-sm summary-download" data-chart="ingresos_por_usuario"
+                            download="ingresos_por_usuario_resumen.txt" href="#">
                             Descargar resumen
                         </a>
-                        <a id="export-ingresos_por_usuario" class="btn btn-secondary btn-sm export-link" data-chart="ingresos_por_usuario" download="ingresos_por_usuario.csv" href="#">
+                        <a id="export-ingresos_por_usuario" class="btn btn-secondary btn-sm export-link"
+                            data-chart="ingresos_por_usuario" download="ingresos_por_usuario.csv" href="#">
                             Descargar CSV
                         </a>
                     </div>
@@ -176,7 +735,8 @@
                     </dl>
                     <form id="ttlForm" class="d-flex flex-wrap gap-2" autocomplete="off">
                         <label class="form-label titlewhiteN w-100" for="ttlInput">Actualizar TTL (segundos)</label>
-                        <input type="number" min="5" step="5" id="ttlInput" class="form-control fondo titlewhite flex-grow-1" required>
+                        <input type="number" min="5" step="5" id="ttlInput"
+                            class="form-control fondo titlewhite flex-grow-1" required>
                         <button class="btn btn-primary neon-link titlewhite fondo" type="submit">Aplicar</button>
                     </form>
                     <small class="text-muted d-block mt-2">Cambiar el TTL limpia la caché en memoria.</small>
@@ -193,10 +753,13 @@
                     </div>
                     <ul id="cacheHistory" class="list-group list-group-flush bg-transparent"></ul>
                     <div class="d-flex flex-wrap gap-2 mt-3">
-                        <a id="cacheHistoryDownload" href="{{ url_for('reportes.cache_history_export') }}" class="btn btn-secondary btn-sm" download>
+                        <a id="cacheHistoryDownload" href="{{ url_for('reportes.cache_history_export') }}"
+                            class="btn btn-secondary btn-sm" download>
                             Descargar historial actual
                         </a>
-                        <a id="cacheHistoryDownloadAll" href="{{ url_for('reportes.cache_history_export', include_archives=1) }}" class="btn btn-outline-light btn-sm" download>
+                        <a id="cacheHistoryDownloadAll"
+                            href="{{ url_for('reportes.cache_history_export', include_archives=1) }}"
+                            class="btn btn-outline-light btn-sm" download>
                             Descargar historial completo
                         </a>
                     </div>
@@ -230,200 +793,422 @@
         const ttlFeedback = document.getElementById('ttlFeedback');
         const cacheHistoryList = document.getElementById('cacheHistory');
         const historyFilter = document.getElementById('historyFilter');
-        const currencySymbol = {{ (currency_symbol or '€')|tojson }};
-        const currencyLocale = {{ (currency_locale or 'es-ES')|tojson }};
-        const currencyCode = {{ (currency_code or 'EUR')|tojson }};
-        const csrfToken = {{ csrf_token()|tojson }};
-        const summaryElements = {
-            distribucion_productos: document.getElementById('summary-distribucion_productos'),
-            ventas_totales: document.getElementById('summary-ventas_totales'),
-            productos_mas_vendidos: document.getElementById('summary-productos_mas_vendidos'),
-            usuarios_registrados: document.getElementById('summary-usuarios_registrados'),
-            ingresos_por_usuario: document.getElementById('summary-ingresos_por_usuario'),
-        };
-        const summaryDownloadLinks = {
-            distribucion_productos: document.getElementById('summary-download-distribucion_productos'),
-            ventas_totales: document.getElementById('summary-download-ventas_totales'),
-            productos_mas_vendidos: document.getElementById('summary-download-productos_mas_vendidos'),
-            usuarios_registrados: document.getElementById('summary-download-usuarios_registrados'),
-            ingresos_por_usuario: document.getElementById('summary-download-ingresos_por_usuario'),
-        };
-        const summaryDownloadUrls = {};
-        const exportLinks = document.querySelectorAll('.export-link');
-        let cacheHistoryEvents = [];
-        const currencyFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
-            style: 'currency',
-            currency: currencyCode || 'EUR'
-        });
-        const numberFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
-            maximumFractionDigits: 0
-        });
-        const chartConfigs = [
-            {
-                chartName: 'distribucion_productos',
-                ctx: document.getElementById('distribucionProductos'),
-                endpoint: '/data/distribucion_productos',
-                type: 'bar',
-                dataKey: 'cantidades',
-                labelKey: 'tipos',
-                chartLabel: 'Cantidad',
-                valueType: 'quantity',
-                suffix: ' uds',
-                requiresInterval: false,
-            },
-            {
-                chartName: 'ventas_totales',
-                ctx: document.getElementById('ventasTotales'),
-                endpoint: '/data/ventas_totales',
-                type: 'line',
-                dataKey: 'totales',
-                labelKey: 'periodos',
-                chartLabel: `Ventas Totales (${currencySymbol})`,
-                valueType: 'currency',
-                requiresInterval: true,
-            },
-            {
-                chartName: 'productos_mas_vendidos',
-                ctx: document.getElementById('productosMasVendidos'),
-                endpoint: '/data/productos_mas_vendidos',
-                type: 'bar',
-                dataKey: 'cantidades',
-                labelKey: 'productos',
-                chartLabel: 'Cantidad Vendida',
-                valueType: 'quantity',
-                suffix: ' uds',
-                requiresInterval: false,
-            },
-            {
-                chartName: 'usuarios_registrados',
-                ctx: document.getElementById('usuariosRegistrados'),
-                endpoint: '/data/usuarios_registrados',
-                type: 'line',
-                dataKey: 'totales',
-                labelKey: 'periodos',
-                chartLabel: 'Usuarios Registrados',
-                valueType: 'quantity',
-                requiresInterval: true,
-            },
-            {
-                chartName: 'ingresos_por_usuario',
-                ctx: document.getElementById('ingresosPorUsuario'),
-                endpoint: '/data/ingresos_por_usuario',
-                type: 'bar',
-                dataKey: 'ingresos',
-                labelKey: 'usuarios',
-                chartLabel: `Ingresos (${currencySymbol})`,
-                valueType: 'currency',
-                requiresInterval: true,
-            },
-        ];
+        const currencySymbol = {{ (currency_symbol or '€') | tojson }};
+    const currencyLocale = {{ (currency_locale or 'es-ES')| tojson }};
+    const currencyCode = {{ (currency_code or 'EUR')| tojson }};
+    const csrfToken = {{ csrf_token() | tojson }};
+    const summaryElements = {
+        distribucion_productos: document.getElementById('summary-distribucion_productos'),
+        ventas_totales: document.getElementById('summary-ventas_totales'),
+        productos_mas_vendidos: document.getElementById('summary-productos_mas_vendidos'),
+        usuarios_registrados: document.getElementById('summary-usuarios_registrados'),
+        ingresos_por_usuario: document.getElementById('summary-ingresos_por_usuario'),
+    };
+    const summaryDownloadLinks = {
+        distribucion_productos: document.getElementById('summary-download-distribucion_productos'),
+        ventas_totales: document.getElementById('summary-download-ventas_totales'),
+        productos_mas_vendidos: document.getElementById('summary-download-productos_mas_vendidos'),
+        usuarios_registrados: document.getElementById('summary-download-usuarios_registrados'),
+        ingresos_por_usuario: document.getElementById('summary-download-ingresos_por_usuario'),
+    };
+    const summaryDownloadUrls = {};
+    const exportLinks = document.querySelectorAll('.export-link');
+    let cacheHistoryEvents = [];
+    const currencyFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
+        style: 'currency',
+        currency: currencyCode || 'EUR'
+    });
+    const numberFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
+        maximumFractionDigits: 0
+    });
+    const chartConfigs = [
+        {
+            chartName: 'distribucion_productos',
+            ctx: document.getElementById('distribucionProductos'),
+            endpoint: '/data/distribucion_productos',
+            type: 'bar',
+            dataKey: 'cantidades',
+            labelKey: 'tipos',
+            chartLabel: 'Cantidad',
+            valueType: 'quantity',
+            suffix: ' uds',
+            requiresInterval: false,
+        },
+        {
+            chartName: 'ventas_totales',
+            ctx: document.getElementById('ventasTotales'),
+            endpoint: '/data/ventas_totales',
+            type: 'line',
+            dataKey: 'totales',
+            labelKey: 'periodos',
+            chartLabel: `Ventas Totales (${currencySymbol})`,
+            valueType: 'currency',
+            requiresInterval: true,
+        },
+        {
+            chartName: 'productos_mas_vendidos',
+            ctx: document.getElementById('productosMasVendidos'),
+            endpoint: '/data/productos_mas_vendidos',
+            type: 'bar',
+            dataKey: 'cantidades',
+            labelKey: 'productos',
+            chartLabel: 'Cantidad Vendida',
+            valueType: 'quantity',
+            suffix: ' uds',
+            requiresInterval: false,
+        },
+        {
+            chartName: 'usuarios_registrados',
+            ctx: document.getElementById('usuariosRegistrados'),
+            endpoint: '/data/usuarios_registrados',
+            type: 'line',
+            dataKey: 'totales',
+            labelKey: 'periodos',
+            chartLabel: 'Usuarios Registrados',
+            valueType: 'quantity',
+            requiresInterval: true,
+        },
+        {
+            chartName: 'ingresos_por_usuario',
+            ctx: document.getElementById('ingresosPorUsuario'),
+            endpoint: '/data/ingresos_por_usuario',
+            type: 'bar',
+            dataKey: 'ingresos',
+            labelKey: 'usuarios',
+            chartLabel: `Ingresos (${currencySymbol})`,
+            valueType: 'currency',
+            requiresInterval: true,
+        },
+    ];
 
-        const formatValue = (value, valueType, suffix = '') => {
-            if (valueType === 'currency') {
-                return currencyFormatter.format(value);
-            }
-            if (valueType === 'quantity') {
-                return `${numberFormatter.format(value)}${suffix}`;
-            }
-            return `${value}${suffix}`;
-        };
+    const formatValue = (value, valueType, suffix = '') => {
+        if (valueType === 'currency') {
+            return currencyFormatter.format(value);
+        }
+        if (valueType === 'quantity') {
+            return `${numberFormatter.format(value)}${suffix}`;
+        }
+        return `${value}${suffix}`;
+    };
 
-        const summaryBuilders = {
-            distribucion_productos: (data) => {
-                if (!data.tipos.length) {
-                    return 'No hay productos registrados.';
-                }
-                let maxIndex = 0;
-                data.cantidades.forEach((cantidad, idx) => {
-                    if (cantidad > data.cantidades[maxIndex]) {
-                        maxIndex = idx;
-                    }
-                });
-                return `Se registran ${data.tipos.length} tipos. El mayor es ${data.tipos[maxIndex]} con ${numberFormatter.format(data.cantidades[maxIndex])} uds.`;
-            },
-            ventas_totales: (data) => {
-                if (!data.periodos.length) {
-                    return 'No hay ventas registradas.';
-                }
-                let maxIndex = 0;
-                data.totales.forEach((total, idx) => {
-                    if (total > data.totales[maxIndex]) {
-                        maxIndex = idx;
-                    }
-                });
-                return `Se registraron ${data.periodos.length} periodos. El máximo fue ${data.periodos[maxIndex]} con ${currencyFormatter.format(data.totales[maxIndex])}.`;
-            },
-            productos_mas_vendidos: (data) => {
-                if (!data.productos.length) {
-                    return 'No hay productos vendidos.';
-                }
-                return `El producto más vendido es ${data.productos[0]} con ${numberFormatter.format(data.cantidades[0])} uds.`;
-            },
-            usuarios_registrados: (data) => {
-                const total = data.totales.reduce((acc, value) => acc + value, 0);
-                return total ? `Se registraron ${numberFormatter.format(total)} usuarios en total.` : 'No hay nuevos registros en este intervalo.';
-            },
-            ingresos_por_usuario: (data) => {
-                if (!data.usuarios.length) {
-                    return 'No hay ingresos registrados.';
-                }
-                let maxIndex = 0;
-                data.ingresos.forEach((total, idx) => {
-                    if (total > data.ingresos[maxIndex]) {
-                        maxIndex = idx;
-                    }
-                });
-                return `El mayor ingreso provino de ${data.usuarios[maxIndex]} con ${currencyFormatter.format(data.ingresos[maxIndex])}.`;
-            },
-        };
-
-        const summaryDownloadUrlsCleanup = (chartName) => {
-            if (summaryDownloadUrls[chartName]) {
-                URL.revokeObjectURL(summaryDownloadUrls[chartName]);
+    const summaryBuilders = {
+        distribucion_productos: (data) => {
+            if (!data.tipos.length) {
+                return 'No hay productos registrados.';
             }
-        };
-
-        const updateSummary = (chartName, data) => {
-            const summaryEl = summaryElements[chartName];
-            if (!summaryEl) {
-                return;
-            }
-            const builder = summaryBuilders[chartName];
-            const summaryText = builder ? builder(data) : 'Sin datos disponibles.';
-            summaryEl.textContent = summaryText;
-            const downloadLink = summaryDownloadLinks[chartName];
-            if (downloadLink) {
-                summaryDownloadUrlsCleanup(chartName);
-                const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                summaryDownloadUrls[chartName] = url;
-                downloadLink.href = url;
-            }
-        };
-
-        const updateExportLinks = (interval) => {
-            exportLinks.forEach((link) => {
-                const chart = link.dataset.chart;
-                let href = `/data/chart_export/${chart}`;
-                if (interval) {
-                    href += `?interval=${encodeURIComponent(interval)}`;
+            let maxIndex = 0;
+            data.cantidades.forEach((cantidad, idx) => {
+                if (cantidad > data.cantidades[maxIndex]) {
+                    maxIndex = idx;
                 }
-                link.href = href;
             });
-        };
+            return `Se registran ${data.tipos.length} tipos. El mayor es ${data.tipos[maxIndex]} con ${numberFormatter.format(data.cantidades[maxIndex])} uds.`;
+        },
+        ventas_totales: (data) => {
+            if (!data.periodos.length) {
+                return 'No hay ventas registradas.';
+            }
+            let maxIndex = 0;
+            data.totales.forEach((total, idx) => {
+                if (total > data.totales[maxIndex]) {
+                    maxIndex = idx;
+                }
+            });
+            return `Se registraron ${data.periodos.length} periodos. El máximo fue ${data.periodos[maxIndex]} con ${currencyFormatter.format(data.totales[maxIndex])}.`;
+        },
+        productos_mas_vendidos: (data) => {
+            if (!data.productos.length) {
+                return 'No hay productos vendidos.';
+            }
+            return `El producto más vendido es ${data.productos[0]} con ${numberFormatter.format(data.cantidades[0])} uds.`;
+        },
+        usuarios_registrados: (data) => {
+            const total = data.totales.reduce((acc, value) => acc + value, 0);
+            return total ? `Se registraron ${numberFormatter.format(total)} usuarios en total.` : 'No hay nuevos registros en este intervalo.';
+        },
+        ingresos_por_usuario: (data) => {
+            if (!data.usuarios.length) {
+                return 'No hay ingresos registrados.';
+            }
+            let maxIndex = 0;
+            data.ingresos.forEach((total, idx) => {
+                if (total > data.ingresos[maxIndex]) {
+                    maxIndex = idx;
+                }
+            });
+            return `El mayor ingreso provino de ${data.usuarios[maxIndex]} con ${currencyFormatter.format(data.ingresos[maxIndex])}.`;
+        },
+    };
 
-        const renderCacheHistory = () => {
-            cacheHistoryList.innerHTML = '';
-            const selectedType = historyFilter.value;
-            const filtered = cacheHistoryEvents.filter((event) => selectedType === 'all' || event.type === selectedType);
-            if (!filtered.length) {
-                const emptyItem = document.createElement('li');
-                emptyItem.className = 'list-group-item bg-transparent text-muted';
-                emptyItem.textContent = 'Sin eventos registrados.';
-                cacheHistoryList.appendChild(emptyItem);
+    const summaryDownloadUrlsCleanup = (chartName) => {
+        if (summaryDownloadUrls[chartName]) {
+            URL.revokeObjectURL(summaryDownloadUrls[chartName]);
+        }
+    };
+
+    const updateSummary = (chartName, data) => {
+        const summaryEl = summaryElements[chartName];
+        if (!summaryEl) {
+            return;
+        }
+        const builder = summaryBuilders[chartName];
+        const summaryText = builder ? builder(data) : 'Sin datos disponibles.';
+        summaryEl.textContent = summaryText;
+        const downloadLink = summaryDownloadLinks[chartName];
+        if (downloadLink) {
+            summaryDownloadUrlsCleanup(chartName);
+            const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            summaryDownloadUrls[chartName] = url;
+            downloadLink.href = url;
+        }
+    };
+
+    const updateExportLinks = (interval) => {
+        exportLinks.forEach((link) => {
+            const chart = link.dataset.chart;
+            let href = `/data/chart_export/${chart}`;
+            if (interval) {
+                href += `?interval=${encodeURIComponent(interval)}`;
+            }
+            link.href = href;
+        });
+    };
+
+    const renderCacheHistory = () => {
+        cacheHistoryList.innerHTML = '';
+        const selectedType = historyFilter.value;
+        const filtered = cacheHistoryEvents.filter((event) => selectedType === 'all' || event.type === selectedType);
+        if (!filtered.length) {
+            const emptyItem = document.createElement('li');
+            emptyItem.className = 'list-group-item bg-transparent text-muted';
+            emptyItem.textContent = 'Sin eventos registrados.';
+            cacheHistoryList.appendChild(emptyItem);
+            return;
+        }
+        filtered.forEach((event) => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item bg-transparent titlewhite small';
+            const date = new Date(event.timestamp);
+            const readableDate = date.toLocaleString(currencyLocale || navigator.language || 'es-ES');
+            let description = '';
+            if (event.type === 'hit' || event.type === 'miss') {
+                description = `Cache ${event.type} → ${event.key}`;
+            } else if (event.type === 'ttl_update') {
+                description = `TTL actualizado a ${event.ttl_seconds}s`;
+            } else {
+                description = event.type;
+            }
+            li.textContent = `${readableDate}: ${description}`;
+            cacheHistoryList.appendChild(li);
+        });
+    };
+
+    const chartUrl = (config, interval) => {
+        if (config.requiresInterval) {
+            return `${config.endpoint}?interval=${interval}`;
+        }
+        return config.endpoint;
+    };
+
+    const createChartForConfig = async (config, interval) => {
+        try {
+            const url = chartUrl(config, interval);
+            const data = await fetchChartData(url);
+            const chartData = {
+                labels: data[config.labelKey],
+                datasets: [{
+                    label: config.chartLabel,
+                    data: data[config.dataKey],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2
+                }]
+            };
+
+            const options = {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    tooltip: {}
+                }
+            };
+
+            if (config.valueType) {
+                options.scales.y.ticks = options.scales.y.ticks || {};
+                options.scales.y.ticks.callback = (value) => formatValue(value, config.valueType, config.suffix);
+                options.plugins.tooltip.callbacks = {
+                    label: (context) => {
+                        const label = context.dataset.label || '';
+                        return `${label}: ${formatValue(context.parsed.y, config.valueType, config.suffix)}`;
+                    }
+                };
+            }
+
+            new Chart(config.ctx, {
+                type: config.type,
+                data: chartData,
+                options
+            });
+            updateSummary(config.chartName, data);
+        } catch (error) {
+            console.error('Error al obtener los datos:', error);
+        }
+    };
+
+    const updateCharts = () => {
+        const interval = intervaloTiempo.value;
+        chartConfigs.forEach((cfg) => createChartForConfig(cfg, interval));
+        updateExportLinks(interval);
+    };
+
+    async function refreshCacheStats() {
+        try {
+            const data = await fetchChartData('/data/cache_stats');
+            cacheEntries.textContent = data.entries;
+            cacheHits.textContent = data.hits;
+            cacheMisses.textContent = data.misses;
+            cacheTtl.textContent = data.ttl_seconds;
+            ttlInput.value = data.ttl_seconds;
+        } catch (error) {
+            console.error('Error al obtener las métricas de caché:', error);
+        }
+    }
+
+    async function refreshCacheHistory() {
+        try {
+            const data = await fetchChartData('/data/cache_history');
+            cacheHistoryEvents = data.events;
+            renderCacheHistory();
+        } catch (error) {
+            console.error('Error al obtener el histórico de caché:', error);
+        }
+    }
+
+    ttlForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const ttlSeconds = parseInt(ttlInput.value, 10);
+        if (!Number.isFinite(ttlSeconds) || ttlSeconds < 5) {
+            ttlFeedback.textContent = 'El TTL debe ser mayor o igual a 5 segundos.';
+            ttlFeedback.classList.remove('d-none', 'text-success');
+            ttlFeedback.classList.add('text-warning');
+            return;
+        }
+
+        try {
+            const response = await fetch('/data/cache_ttl', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ ttl_seconds: ttlSeconds })
+            });
+
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'No se pudo actualizar el TTL.');
+            }
+
+            ttlFeedback.textContent = payload.message || 'TTL actualizado correctamente.';
+            ttlFeedback.classList.remove('d-none', 'text-warning', 'text-danger');
+            ttlFeedback.classList.add('text-success');
+            await refreshCacheStats();
+            await refreshCacheHistory();
+        } catch (error) {
+            ttlFeedback.textContent = error.message;
+            ttlFeedback.classList.remove('d-none', 'text-success', 'text-warning');
+            ttlFeedback.classList.add('text-danger');
+        }
+    });
+
+    historyFilter.addEventListener('change', renderCacheHistory);
+    intervaloTiempo.addEventListener('change', updateCharts);
+    updateCharts();
+    refreshCacheStats();
+    refreshCacheHistory();
+    });
+    const numberFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
+        maximumFractionDigits: 0
+    });
+
+    function updateCharts() {
+        const interval = intervaloTiempo.value;
+        createChart({
+            ctx: document.getElementById('distribucionProductos'),
+            url: `/data/distribucion_productos?interval=${interval}`,
+            type: 'bar',
+            dataKey: 'cantidades',
+            labelKey: 'tipos',
+            chartLabel: 'Cantidad',
+            valueType: 'quantity',
+            suffix: ' uds'
+        });
+        createChart({
+            ctx: document.getElementById('ventasTotales'),
+            url: `/data/ventas_totales?interval=${interval}`,
+            type: 'line',
+            dataKey: 'totales',
+            labelKey: 'periodos',
+            chartLabel: `Ventas Totales (${currencySymbol})`,
+            valueType: 'currency'
+        });
+        createChart({
+            ctx: document.getElementById('productosMasVendidos'),
+            url: `/data/productos_mas_vendidos?interval=${interval}`,
+            type: 'bar',
+            dataKey: 'cantidades',
+            labelKey: 'productos',
+            chartLabel: 'Cantidad Vendida',
+            valueType: 'quantity',
+            suffix: ' uds'
+        });
+        createChart({
+            ctx: document.getElementById('usuariosRegistrados'),
+            url: `/data/usuarios_registrados?interval=${interval}`,
+            type: 'line',
+            dataKey: 'totales',
+            labelKey: 'periodos',
+            chartLabel: 'Usuarios Registrados',
+            valueType: 'quantity'
+        });
+        createChart({
+            ctx: document.getElementById('ingresosPorUsuario'),
+            url: `/data/ingresos_por_usuario?interval=${interval}`,
+            type: 'bar',
+            dataKey: 'ingresos',
+            labelKey: 'usuarios',
+            chartLabel: `Ingresos (${currencySymbol})`,
+            valueType: 'currency'
+        });
+    }
+
+    async function refreshCacheStats() {
+        try {
+            const data = await fetchChartData('/data/cache_stats');
+            cacheEntries.textContent = data.entries;
+            cacheHits.textContent = data.hits;
+            cacheMisses.textContent = data.misses;
+            cacheTtl.textContent = data.ttl_seconds;
+            ttlInput.value = data.ttl_seconds;
+        } catch (error) {
+            console.error('Error al obtener las métricas de caché:', error);
+        }
+    }
+
+    async function refreshCacheHistory() {
+        try {
+            const data = await fetchChartData('/data/cache_history');
+            cacheHistory.innerHTML = '';
+            if (!data.events.length) {
+                cacheHistory.innerHTML = '<li class="list-group-item bg-transparent text-muted">Sin eventos registrados.</li>';
                 return;
             }
-            filtered.forEach((event) => {
+            data.events.forEach(event => {
                 const li = document.createElement('li');
                 li.className = 'list-group-item bg-transparent titlewhite small';
                 const date = new Date(event.timestamp);
@@ -437,276 +1222,54 @@
                     description = event.type;
                 }
                 li.textContent = `${readableDate}: ${description}`;
-                cacheHistoryList.appendChild(li);
+                cacheHistory.appendChild(li);
             });
-        };
+        } catch (error) {
+            console.error('Error al obtener el histórico de caché:', error);
+        }
+    }
 
-        const chartUrl = (config, interval) => {
-            if (config.requiresInterval) {
-                return `${config.endpoint}?interval=${interval}`;
-            }
-            return config.endpoint;
-        };
-
-        const createChartForConfig = async (config, interval) => {
-            try {
-                const url = chartUrl(config, interval);
-                const data = await fetchChartData(url);
-                const chartData = {
-                    labels: data[config.labelKey],
-                    datasets: [{
-                        label: config.chartLabel,
-                        data: data[config.dataKey],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 2
-                    }]
-                };
-
-                const options = {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        tooltip: {}
-                    }
-                };
-
-                if (config.valueType) {
-                    options.scales.y.ticks = options.scales.y.ticks || {};
-                    options.scales.y.ticks.callback = (value) => formatValue(value, config.valueType, config.suffix);
-                    options.plugins.tooltip.callbacks = {
-                        label: (context) => {
-                            const label = context.dataset.label || '';
-                            return `${label}: ${formatValue(context.parsed.y, config.valueType, config.suffix)}`;
-                        }
-                    };
-                }
-
-                new Chart(config.ctx, {
-                    type: config.type,
-                    data: chartData,
-                    options
-                });
-                updateSummary(config.chartName, data);
-            } catch (error) {
-                console.error('Error al obtener los datos:', error);
-            }
-        };
-
-        const updateCharts = () => {
-            const interval = intervaloTiempo.value;
-            chartConfigs.forEach((cfg) => createChartForConfig(cfg, interval));
-            updateExportLinks(interval);
-        };
-
-        async function refreshCacheStats() {
-            try {
-                const data = await fetchChartData('/data/cache_stats');
-                cacheEntries.textContent = data.entries;
-                cacheHits.textContent = data.hits;
-                cacheMisses.textContent = data.misses;
-                cacheTtl.textContent = data.ttl_seconds;
-                ttlInput.value = data.ttl_seconds;
-            } catch (error) {
-                console.error('Error al obtener las métricas de caché:', error);
-            }
+    ttlForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const ttlSeconds = parseInt(ttlInput.value, 10);
+        if (!Number.isFinite(ttlSeconds) || ttlSeconds < 5) {
+            ttlFeedback.textContent = 'El TTL debe ser mayor o igual a 5 segundos.';
+            ttlFeedback.classList.remove('d-none', 'text-success');
+            ttlFeedback.classList.add('text-warning');
+            return;
         }
 
-        async function refreshCacheHistory() {
-            try {
-                const data = await fetchChartData('/data/cache_history');
-                cacheHistoryEvents = data.events;
-                renderCacheHistory();
-            } catch (error) {
-                console.error('Error al obtener el histórico de caché:', error);
+        try {
+            const response = await fetch('/data/cache_ttl', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ ttl_seconds: ttlSeconds })
+            });
+
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'No se pudo actualizar el TTL.');
             }
+
+            ttlFeedback.textContent = payload.message || 'TTL actualizado correctamente.';
+            ttlFeedback.classList.remove('d-none', 'text-warning', 'text-danger');
+            ttlFeedback.classList.add('text-success');
+            await refreshCacheStats();
+            await refreshCacheHistory();
+        } catch (error) {
+            ttlFeedback.textContent = error.message;
+            ttlFeedback.classList.remove('d-none', 'text-success', 'text-warning');
+            ttlFeedback.classList.add('text-danger');
         }
-
-        ttlForm.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            const ttlSeconds = parseInt(ttlInput.value, 10);
-            if (!Number.isFinite(ttlSeconds) || ttlSeconds < 5) {
-                ttlFeedback.textContent = 'El TTL debe ser mayor o igual a 5 segundos.';
-                ttlFeedback.classList.remove('d-none', 'text-success');
-                ttlFeedback.classList.add('text-warning');
-                return;
-            }
-
-            try {
-                const response = await fetch('/data/cache_ttl', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({ ttl_seconds: ttlSeconds })
-                });
-
-                const payload = await response.json().catch(() => ({}));
-                if (!response.ok) {
-                    throw new Error(payload.error || 'No se pudo actualizar el TTL.');
-                }
-
-                ttlFeedback.textContent = payload.message || 'TTL actualizado correctamente.';
-                ttlFeedback.classList.remove('d-none', 'text-warning', 'text-danger');
-                ttlFeedback.classList.add('text-success');
-                await refreshCacheStats();
-                await refreshCacheHistory();
-            } catch (error) {
-                ttlFeedback.textContent = error.message;
-                ttlFeedback.classList.remove('d-none', 'text-success', 'text-warning');
-                ttlFeedback.classList.add('text-danger');
-            }
-        });
-
-        historyFilter.addEventListener('change', renderCacheHistory);
-        intervaloTiempo.addEventListener('change', updateCharts);
-        updateCharts();
-        refreshCacheStats();
-        refreshCacheHistory();
     });
-        const numberFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
-            maximumFractionDigits: 0
-        });
 
-        function updateCharts() {
-            const interval = intervaloTiempo.value;
-            createChart({
-                ctx: document.getElementById('distribucionProductos'),
-                url: `/data/distribucion_productos?interval=${interval}`,
-                type: 'bar',
-                dataKey: 'cantidades',
-                labelKey: 'tipos',
-                chartLabel: 'Cantidad',
-                valueType: 'quantity',
-                suffix: ' uds'
-            });
-            createChart({
-                ctx: document.getElementById('ventasTotales'),
-                url: `/data/ventas_totales?interval=${interval}`,
-                type: 'line',
-                dataKey: 'totales',
-                labelKey: 'periodos',
-                chartLabel: `Ventas Totales (${currencySymbol})`,
-                valueType: 'currency'
-            });
-            createChart({
-                ctx: document.getElementById('productosMasVendidos'),
-                url: `/data/productos_mas_vendidos?interval=${interval}`,
-                type: 'bar',
-                dataKey: 'cantidades',
-                labelKey: 'productos',
-                chartLabel: 'Cantidad Vendida',
-                valueType: 'quantity',
-                suffix: ' uds'
-            });
-            createChart({
-                ctx: document.getElementById('usuariosRegistrados'),
-                url: `/data/usuarios_registrados?interval=${interval}`,
-                type: 'line',
-                dataKey: 'totales',
-                labelKey: 'periodos',
-                chartLabel: 'Usuarios Registrados',
-                valueType: 'quantity'
-            });
-            createChart({
-                ctx: document.getElementById('ingresosPorUsuario'),
-                url: `/data/ingresos_por_usuario?interval=${interval}`,
-                type: 'bar',
-                dataKey: 'ingresos',
-                labelKey: 'usuarios',
-                chartLabel: `Ingresos (${currencySymbol})`,
-                valueType: 'currency'
-            });
-        }
-
-        async function refreshCacheStats() {
-            try {
-                const data = await fetchChartData('/data/cache_stats');
-                cacheEntries.textContent = data.entries;
-                cacheHits.textContent = data.hits;
-                cacheMisses.textContent = data.misses;
-                cacheTtl.textContent = data.ttl_seconds;
-                ttlInput.value = data.ttl_seconds;
-            } catch (error) {
-                console.error('Error al obtener las métricas de caché:', error);
-            }
-        }
-
-        async function refreshCacheHistory() {
-            try {
-                const data = await fetchChartData('/data/cache_history');
-                cacheHistory.innerHTML = '';
-                if (!data.events.length) {
-                    cacheHistory.innerHTML = '<li class="list-group-item bg-transparent text-muted">Sin eventos registrados.</li>';
-                    return;
-                }
-                data.events.forEach(event => {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item bg-transparent titlewhite small';
-                    const date = new Date(event.timestamp);
-                    const readableDate = date.toLocaleString(currencyLocale || navigator.language || 'es-ES');
-                    let description = '';
-                    if (event.type === 'hit' || event.type === 'miss') {
-                        description = `Cache ${event.type} → ${event.key}`;
-                    } else if (event.type === 'ttl_update') {
-                        description = `TTL actualizado a ${event.ttl_seconds}s`;
-                    } else {
-                        description = event.type;
-                    }
-                    li.textContent = `${readableDate}: ${description}`;
-                    cacheHistory.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error al obtener el histórico de caché:', error);
-            }
-        }
-
-        ttlForm.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            const ttlSeconds = parseInt(ttlInput.value, 10);
-            if (!Number.isFinite(ttlSeconds) || ttlSeconds < 5) {
-                ttlFeedback.textContent = 'El TTL debe ser mayor o igual a 5 segundos.';
-                ttlFeedback.classList.remove('d-none', 'text-success');
-                ttlFeedback.classList.add('text-warning');
-                return;
-            }
-
-            try {
-                const response = await fetch('/data/cache_ttl', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({ ttl_seconds: ttlSeconds })
-                });
-
-                const payload = await response.json().catch(() => ({}));
-                if (!response.ok) {
-                    throw new Error(payload.error || 'No se pudo actualizar el TTL.');
-                }
-
-                ttlFeedback.textContent = payload.message || 'TTL actualizado correctamente.';
-                ttlFeedback.classList.remove('d-none', 'text-warning', 'text-danger');
-                ttlFeedback.classList.add('text-success');
-                await refreshCacheStats();
-                await refreshCacheHistory();
-            } catch (error) {
-                ttlFeedback.textContent = error.message;
-                ttlFeedback.classList.remove('d-none', 'text-success', 'text-warning');
-                ttlFeedback.classList.add('text-danger');
-            }
-        });
-
-        intervaloTiempo.addEventListener('change', updateCharts);
-        updateCharts();
-        refreshCacheStats();
-        refreshCacheHistory();
+    intervaloTiempo.addEventListener('change', updateCharts);
+    updateCharts();
+    refreshCacheStats();
+    refreshCacheHistory();
     });
 </script>
 {% endblock %}

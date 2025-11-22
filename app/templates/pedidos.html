@@ -1,22 +1,120 @@
 {% extends "base.html" %}
 {% block title %}Mis Pedidos{% endblock %}
+
+{% block content %}
+<main class="container my-4">
+    <div class="glass-container">
+        <div class="d-flex align-items-center mb-4">
+            <a class="back-btn" href="{{ url_for('inventario.menu_cliente') }}" aria-label="Volver al menú del cliente">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <h1 class="ms-3 titlewhiteN mb-0">Mis Pedidos</h1>
+        </div>
+
+        <div class="table-responsive">
+            <table class="glass-table w-100">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos %}
+                    <tr>
+                        <td>{{ pedido.producto.modelo }}</td>
+                        <td>{{ pedido.cantidad }}</td>
+                        <td>{{ pedido.precio_unitario | currency }}</td>
+                        <td>{{ pedido.total | currency }}</td>
+                        <td>{{ pedido.estado }}</td>
+                        <td>{{ pedido.fecha.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            {% if pedido.estado == "Pendiente" %}
+                            <form action="{{ url_for('inventario.cancelar_pedido', pedido_id=pedido.id) }}"
+                                method="POST"
+                                onsubmit="return confirm('¿Estás seguro de que deseas cancelar este pedido?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn-danger-light"
+                                    aria-label="Cancelar {{ pedido.producto.nombre }}">
+                                    Cancelar
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
 {% block page_styles %}
 <style>
-    table { width: 100%; table-layout: fixed; border-collapse: collapse; }
-    th, td { padding: 10px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); }
-    th { background-color: rgba(0, 0, 0, 0.8); text-transform: uppercase; }
-    td { background-color: #333; color: white; border-bottom: 1px solid #444; }
-    thead th { position: sticky; top: 0; z-index: 10; }
-    .material-symbols-outlined { font-size: 34px; background-color: transparent; color: white; }
-    .btn-neon-r { background: transparent; color: red; border: 1px solid white; padding: 5px 10px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-    .btn-neon-r:hover { color: black; box-shadow: 0 0 5px red; }
+    table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    th {
+        background-color: rgba(0, 0, 0, 0.8);
+        text-transform: uppercase;
+    }
+
+    td {
+        background-color: #333;
+        color: white;
+        border-bottom: 1px solid #444;
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .material-symbols-outlined {
+        font-size: 34px;
+        background-color: transparent;
+        color: white;
+    }
+
+    .btn-neon-r {
+        background: transparent;
+        color: red;
+        border: 1px solid white;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+
+    .btn-neon-r:hover {
+        color: black;
+        box-shadow: 0 0 5px red;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="container py-5">
     <div class="d-flex align-items-center mb-4">
-        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_cliente') }}" aria-label="Volver al menú del cliente">
+        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_cliente') }}"
+            aria-label="Volver al menú del cliente">
             arrow_back
         </a>
         <h1 class="ms-3 titlewhiteN mb-0">Mis Pedidos</h1>
@@ -37,24 +135,26 @@
             </thead>
             <tbody>
                 {% for pedido in pedidos %}
-                    <tr>
-                        <td>{{ pedido.producto.modelo }}</td>
-                        <td>{{ pedido.cantidad }}</td>
-                        <td>{{ pedido.precio_unitario | currency }}</td>
-                <td>{{ pedido.total | currency }}</td>
-                <td>{{ pedido.estado }}</td>
-                <td>{{ pedido.fecha.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                <td>
-                            {% if pedido.estado == "Pendiente" %}
-                                <form action="{{ url_for('inventario.cancelar_pedido', pedido_id=pedido.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas cancelar este pedido?');">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn-danger-light" aria-label="Cancelar {{ pedido.producto.nombre }}">
-                                        Cancelar
-                                    </button>
-                                </form>
-                            {% endif %}
-                        </td>
-                    </tr>
+                <tr>
+                    <td>{{ pedido.producto.modelo }}</td>
+                    <td>{{ pedido.cantidad }}</td>
+                    <td>{{ pedido.precio_unitario | currency }}</td>
+                    <td>{{ pedido.total | currency }}</td>
+                    <td>{{ pedido.estado }}</td>
+                    <td>{{ pedido.fecha.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        {% if pedido.estado == "Pendiente" %}
+                        <form action="{{ url_for('inventario.cancelar_pedido', pedido_id=pedido.id) }}" method="POST"
+                            onsubmit="return confirm('¿Estás seguro de que deseas cancelar este pedido?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-danger-light"
+                                aria-label="Cancelar {{ pedido.producto.nombre }}">
+                                Cancelar
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>

@@ -1,8 +1,73 @@
 {% extends "base.html" %}
 {% block title %}Confirmar compra{% endblock %}
+
+{% block content %}
+<main class="container py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a class="back-btn" href="{{ url_for('inventario.cesta') }}" aria-label="Volver a la cesta">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <h1 class="ms-3 titlewhiteN mb-0">Confirmación de Compra</h1>
+    </div>
+
+    <div class="glass-container">
+        <div class="table-responsive mb-4">
+            <table class="glass-table w-100 text-center">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cesta_items %}
+                    <tr>
+                        <td>{{ item.producto.modelo }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>{{ item.producto.precio | currency }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-center mb-4">
+            <h2 class="titlewhite">Total: {{ total | currency }}</h2>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h3 class="titlewhiteN mb-3">Información de envío</h3>
+                <form action="{{ url_for('inventario.confirmar_compra') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label titlewhite">Dirección</label>
+                        <input type="text" class="form-control" id="direccion" name="direccion" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="metodo_pago" class="form-label titlewhite">Método de pago</label>
+                        <select class="form-control" id="metodo_pago" name="metodo_pago" required>
+                            <option value="">Seleccione</option>
+                            <option value="tarjeta">Tarjeta de crédito</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="transferencia">Transferencia bancaria</option>
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="cta">Confirmar compra</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
 {% block content %}
 <main class="container p-5">
-    <a href="{{ url_for('inventario.cesta') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a la cesta">
+    <a href="{{ url_for('inventario.cesta') }}" class="back-btn material-symbols-outlined"
+        style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a la cesta">
         arrow_back
     </a>
 
@@ -21,11 +86,11 @@
                         </thead>
                         <tbody>
                             {% for item in cesta_items %}
-                                <tr>
-                                    <td>{{ item.producto.modelo }}</td>
-                                    <td>{{ item.cantidad }}</td>
-                                    <td>{{ item.producto.precio | currency }}</td>
-                                </tr>
+                            <tr>
+                                <td>{{ item.producto.modelo }}</td>
+                                <td>{{ item.cantidad }}</td>
+                                <td>{{ item.producto.precio | currency }}</td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -40,11 +105,13 @@
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="mb-3">
                                 <label for="direccion" class="form-label titlewhite">Dirección</label>
-                                <input type="text" class="form-control fondo titlewhite" id="direccion" name="direccion" required>
+                                <input type="text" class="form-control fondo titlewhite" id="direccion" name="direccion"
+                                    required>
                             </div>
                             <div class="mb-3">
                                 <label for="metodo_pago" class="form-label titlewhite">Método de pago</label>
-                                <select class="form-control fondo titlewhite" id="metodo_pago" name="metodo_pago" required>
+                                <select class="form-control fondo titlewhite" id="metodo_pago" name="metodo_pago"
+                                    required>
                                     <option value="">Seleccione</option>
                                     <option value="tarjeta">Tarjeta de crédito</option>
                                     <option value="paypal">PayPal</option>

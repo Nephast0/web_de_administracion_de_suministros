@@ -1,5 +1,101 @@
 {% extends "base.html" %}
 {% block title %}Productos{% endblock %}
+
+{% block content %}
+<main class="container my-4">
+    <div class="glass-container">
+        <div class="d-flex align-items-center mb-4 flex-wrap gap-3">
+            <a class="back-btn" href="{{ url_for('inventario.menu_principal') }}" aria-label="Volver al menú">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <h1 class="titlewhiteN mb-0 ms-2">Productos Disponibles</h1>
+            <div class="ms-auto">
+                <a href="/agregar-producto" class="cta cta-inline text-decoration-none">Agregar producto</a>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label for="ordenar" class="form-label titlewhiteN">Ordenar por:</label>
+            <select id="ordenar" class="form-select bg-dark text-light border-secondary w-auto d-inline-block"
+                onchange="window.location.href=this.value;">
+                <option value="{{ url_for('inventario.productos', orden='asc') }}" {% if orden=='asc' %}selected{% endif
+                    %}>ABC...</option>
+                <option value="{{ url_for('inventario.productos', orden='desc') }}" {% if orden=='desc' %}selected{%
+                    endif %}>ZYX...</option>
+                <option value="{{ url_for('inventario.productos', orden='precio_asc') }}" {% if orden=='precio_asc'
+                    %}selected{% endif %}>Precio: Menor a Mayor</option>
+                <option value="{{ url_for('inventario.productos', orden='precio_desc') }}" {% if orden=='precio_desc'
+                    %}selected{% endif %}>Precio: Mayor a Menor</option>
+                <option value="{{ url_for('inventario.productos', orden='cantidad_asc') }}" {% if orden=='cantidad_asc'
+                    %}selected{% endif %}>Cantidad: Menor a Mayor</option>
+                <option value="{{ url_for('inventario.productos', orden='cantidad_desc') }}" {% if
+                    orden=='cantidad_desc' %}selected{% endif %}>Cantidad: Mayor a Menor</option>
+            </select>
+        </div>
+
+        {% if alertas %}
+        <div class="alert alert-warning border-warning bg-opacity-10 text-warning mb-4">
+            <h4 class="alert-heading h5"><span
+                    class="material-symbols-outlined align-middle me-2">warning</span>Productos que necesitan
+                reposición:</h4>
+            <ul class="mb-0 ps-3">
+                {% for producto in alertas %}
+                <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{
+                    producto.cantidad }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="glass-table w-100">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Cantidad Disponible</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto.tipo_producto }}</td>
+                        <td>{{ producto.marca }}</td>
+                        <td>{{ producto.modelo }}</td>
+                        <td>{{ producto.descripcion }}</td>
+                        <td>{{ producto.precio | currency }}</td>
+                        <td>{{ producto.cantidad }}</td>
+                        <td>
+                            <div class="d-flex gap-2 justify-content-center">
+                                <form action="{{ url_for('proveedores.editar_producto', id=producto.id) }}"
+                                    method="get">
+                                    <button class="cta cta-inline"
+                                        aria-label="Editar {{ producto.modelo }}">Editar</button>
+                                </form>
+                                <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}"
+                                    method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn-danger-light" type="submit"
+                                        onclick="return confirm('¿Estás seguro de eliminar este producto?');"
+                                        aria-label="Eliminar {{ producto.modelo }}">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
 {% block page_styles %}
 
 {% endblock %}
@@ -7,7 +103,8 @@
 {% block content %}
 <main class="container p-5">
     <div class="d-flex align-items-center mb-4">
-        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_principal') }}" aria-label="Volver al menú">
+        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_principal') }}"
+            aria-label="Volver al menú">
             arrow_back
         </a>
         <h1 class="ms-3 titlewhiteN mb-0">Productos Disponibles</h1>
@@ -21,24 +118,31 @@
             <div class="mb-3">
                 <label for="ordenar" class="form-label titlewhite">Ordenar por:</label>
                 <select id="ordenar" class="form-select fondo titlewhite" onchange="window.location.href=this.value;">
-                    <option value="{{ url_for('inventario.productos', orden='asc') }}" {% if orden == 'asc' %}selected{% endif %}>ABC...</option>
-                    <option value="{{ url_for('inventario.productos', orden='desc') }}" {% if orden == 'desc' %}selected{% endif %}>ZYX...</option>
-                    <option value="{{ url_for('inventario.productos', orden='precio_asc') }}" {% if orden == 'precio_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
-                    <option value="{{ url_for('inventario.productos', orden='precio_desc') }}" {% if orden == 'precio_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
-                    <option value="{{ url_for('inventario.productos', orden='cantidad_asc') }}" {% if orden == 'cantidad_asc' %}selected{% endif %}>Cantidad: Menor a Mayor</option>
-                    <option value="{{ url_for('inventario.productos', orden='cantidad_desc') }}" {% if orden == 'cantidad_desc' %}selected{% endif %}>Cantidad: Mayor a Menor</option>
+                    <option value="{{ url_for('inventario.productos', orden='asc') }}" {% if orden=='asc' %}selected{%
+                        endif %}>ABC...</option>
+                    <option value="{{ url_for('inventario.productos', orden='desc') }}" {% if orden=='desc' %}selected{%
+                        endif %}>ZYX...</option>
+                    <option value="{{ url_for('inventario.productos', orden='precio_asc') }}" {% if orden=='precio_asc'
+                        %}selected{% endif %}>Precio: Menor a Mayor</option>
+                    <option value="{{ url_for('inventario.productos', orden='precio_desc') }}" {% if
+                        orden=='precio_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                    <option value="{{ url_for('inventario.productos', orden='cantidad_asc') }}" {% if
+                        orden=='cantidad_asc' %}selected{% endif %}>Cantidad: Menor a Mayor</option>
+                    <option value="{{ url_for('inventario.productos', orden='cantidad_desc') }}" {% if
+                        orden=='cantidad_desc' %}selected{% endif %}>Cantidad: Mayor a Menor</option>
                 </select>
             </div>
 
             {% if alertas %}
-                <div class="alerta-container">
-                    <h2>Productos que necesitan reposición:</h2>
-                    <ul>
-                        {% for producto in alertas %}
-                            <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{ producto.cantidad }})</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+            <div class="alerta-container">
+                <h2>Productos que necesitan reposición:</h2>
+                <ul>
+                    {% for producto in alertas %}
+                    <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible:
+                        {{ producto.cantidad }})</li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% endif %}
 
             <div class="table-container">
@@ -56,27 +160,32 @@
                     </thead>
                     <tbody>
                         {% for producto in productos %}
-                            <tr>
-                                <td>{{ producto.tipo_producto }}</td>
-                                <td>{{ producto.marca }}</td>
-                                <td>{{ producto.modelo }}</td>
-                                <td>{{ producto.descripcion }}</td>
-                                <td>{{ producto.precio | currency }}</td>
-                                <td>{{ producto.cantidad }}</td>
-                                <td>
-                                    <div class="btn-group">
-                                        <form action="{{ url_for('proveedores.editar_producto', id=producto.id) }}" method="get">
-                                            <button class="cta cta-inline" aria-label="Editar {{ producto.modelo }}">Editar</button>
-                                        </form>
-                                        <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}" method="POST">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <button class="btn-danger-light" type="submit" onclick="return confirm('¿Estás seguro de eliminar este producto?');" aria-label="Eliminar {{ producto.modelo }}">
-                                                Eliminar
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td>{{ producto.tipo_producto }}</td>
+                            <td>{{ producto.marca }}</td>
+                            <td>{{ producto.modelo }}</td>
+                            <td>{{ producto.descripcion }}</td>
+                            <td>{{ producto.precio | currency }}</td>
+                            <td>{{ producto.cantidad }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <form action="{{ url_for('proveedores.editar_producto', id=producto.id) }}"
+                                        method="get">
+                                        <button class="cta cta-inline"
+                                            aria-label="Editar {{ producto.modelo }}">Editar</button>
+                                    </form>
+                                    <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}"
+                                        method="POST">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn-danger-light" type="submit"
+                                            onclick="return confirm('¿Estás seguro de eliminar este producto?');"
+                                            aria-label="Eliminar {{ producto.modelo }}">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>

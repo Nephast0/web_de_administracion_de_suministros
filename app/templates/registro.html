@@ -1,5 +1,57 @@
 {% extends "base.html" %}
 {% block title %}Registro{% endblock %}
+
+{% block content %}
+<main class="container my-5 position-relative">
+    <a href="{{ url_for('auth.login') }}" class="back-btn" style="position: absolute; top: 0; left: -60px;"
+        aria-label="Volver al inicio de sesión">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+
+    <div class="glass-container" style="max-width: 600px; margin: 0 auto;">
+        <h3 class="text-center titlewhiteN mb-4">Introduzca sus datos</h3>
+
+        <form action="{{ url_for('auth.registro') }}" method="post">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="nombre" class="form-label">Nombre y Apellido</label>
+                <input type="text" name="nombre" class="form-control" id="nombre" placeholder="Nombre Completo">
+            </div>
+
+            <div class="form-group">
+                <label for="usuario" class="form-label">Nombre de Usuario</label>
+                <input type="text" name="usuario" class="form-control" id="usuario" placeholder="Usuario">
+            </div>
+
+            <div class="form-group">
+                <label for="direccion" class="form-label">Dirección de Usuario</label>
+                <input type="text" name="direccion" class="form-control" id="direccion" placeholder="Dirección">
+            </div>
+
+            <div class="form-group">
+                <label for="contrasenya" class="form-label">Contraseña deseada</label>
+                <input type="password" name="contrasenya" class="form-control" id="contrasenya"
+                    placeholder="Contraseña">
+            </div>
+
+            <div class="form-group">
+                <label for="contrasenya2" class="form-label">Confirmar contraseña</label>
+                <input type="password" name="contrasenya2" class="form-control" id="contrasenya2"
+                    placeholder="Confirmar contraseña">
+            </div>
+
+            <p class="text-white-50 small mt-3 mb-4">Las nuevas cuentas se registran como clientes. Si necesitas un rol
+                administrativo, contacta con un administrador existente.</p>
+
+            <div class="d-grid">
+                <button class="cta" type="submit">Registrar</button>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}
+{% block title %}Registro{% endblock %}
 {% block page_styles %}
 <style>
     .registro-container {
@@ -15,7 +67,8 @@
 
 {% block content %}
 <main class="registro-container">
-    <a href="{{ url_for('auth.login') }}" class="back-btn material-symbols-outlined" style="position: absolute; top: 20px; left: 20px;" aria-label="Volver al inicio de sesión">
+    <a href="{{ url_for('auth.login') }}" class="back-btn material-symbols-outlined"
+        style="position: absolute; top: 20px; left: 20px;" aria-label="Volver al inicio de sesión">
         arrow_back
     </a>
     <h3 class="text-center titlewhiteN">Introduzca sus datos</h3>
@@ -39,9 +92,11 @@
         </div>
         <div class="form-group">
             <label for="contrasenya2" class="form-label titlewhite">Confirmar contraseña</label>
-            <input type="password" name="contrasenya2" class="form-control" id="contrasenya2" placeholder="Confirmar contraseña">
+            <input type="password" name="contrasenya2" class="form-control" id="contrasenya2"
+                placeholder="Confirmar contraseña">
         </div>
-        <p class="text-muted small mt-3 mb-4">Las nuevas cuentas se registran como clientes. Si necesitas un rol administrativo, contacta con un administrador existente.</p>
+        <p class="text-muted small mt-3 mb-4">Las nuevas cuentas se registran como clientes. Si necesitas un rol
+            administrativo, contacta con un administrador existente.</p>
         <button class="btn-block neon-link titlewhite fondo" type="submit">Registrar</button>
     </form>
 </main>
