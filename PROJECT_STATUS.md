@@ -11,6 +11,28 @@
 1. **Exportaciones Cliente:** Extender las exportaciones CSV/texto al panel de gráficas de clientes.
 2. **Persistencia de Caché:** Implementar persistencia en base de datos para el histórico de caché.
 
+## 2025-11-22: Double-Entry Accounting Implementation
+- **Status:** Completed
+- **Changes:**
+    - Refactored all monetary fields to `Decimal` (Numeric 10,2) for precision.
+    - Implemented `Cuenta`, `Asiento`, `Apunte` models.
+    - Created `accounting_services.py` for core logic.
+    - Created `contabilidad` blueprint with Journal and Balance Sheet views.
+    - Integrated automated accounting entries for:
+        - Product Purchases (Stock vs Cash).
+        - Sales (Cash vs Revenue, COGS vs Inventory).
+        - Order Cancellations (Reversal).
+    - Added Manual Journal Entry form.
+    - Updated UI with Glassmorphism for new pages.
+    - **Advanced Features:**
+        - Implemented Weighted Average Cost (PMP) for stock valuation.
+        - Added "Cuenta de Resultados" (Profit & Loss) report.
+        - Added "Reponer Stock" feature with cost tracking.
+- **Next Steps:**
+    - **User Acceptance Testing (UAT):** Verify manual and automated entries.
+    - **Exporting:** Implement PDF/Excel exports for reports.
+    - **Fiscal Year Closing:** Logic to reset temporary accounts.
+
 ## Revisión 2025-11-19 (tarde)
 
 ### Cambios realizados

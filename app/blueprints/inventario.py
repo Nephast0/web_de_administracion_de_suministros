@@ -4,6 +4,7 @@ Agrupa rutas de catálogo, cesta y menús para separar responsabilidades
 respecto a autenticación y reportes.
 """
 
+from decimal import Decimal
 from flask import abort, Blueprint, current_app as app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
@@ -11,6 +12,7 @@ from ..db import db
 from ..forms import EditarPerfilForm
 from ..models import CestaDeCompra, Compra, Producto, Proveedor
 from .helpers import role_required
+from ..services.accounting_services import crear_asiento
 
 
 inventario_bp = Blueprint("inventario", __name__)
@@ -252,6 +254,10 @@ def confirmar_compra():
             if compra_existente:
                 compra_existente.cantidad += cantidad
                 compra_existente.total += total
+                # Nota: No actualizamos asientos de compras existentes para simplificar,
+                # idealmente cada compra debería ser única o generar su propio asiento.
+                # Asumiremos que se crea un asiento por el delta.
+                # Para simplificar, crearemos asiento por el total añadido.
             else:
                 nueva_compra = Compra(
                     producto_id=producto_id,
@@ -263,6 +269,33 @@ def confirmar_compra():
                     estado="Pendiente"
                 )
                 db.session.add(nueva_compra)
+            
+            # --- Contabilidad ---
+            # 1. Ingreso por Venta
+            # Debe: Caja (570) - Haber: Ventas (700)
+            crear_asiento(
+                descripcion=f"Venta de {producto.modelo} (x{cantidad})",
+                usuario_id=current_user.id,
+                referencia_id=producto_id,
+                apuntes_data=[
+                    {'cuenta_codigo': '570', 'debe': total, 'haber': 0},
+                    {'cuenta_codigo': '700', 'debe': 0, 'haber': total}
+                ]
+            )
+            
+            # 2. Costo de Venta (Salida de Inventario)
+            # Debe: Costo de Mercaderías (600) - Haber: Inventario (300)
+            costo_total = Decimal(producto.costo) * Decimal(cantidad)
+            if costo_total > 0:
+                crear_asiento(
+                    descripcion=f"Costo Venta {producto.modelo}",
+                    usuario_id=current_user.id,
+                    referencia_id=producto_id,
+                    apuntes_data=[
+                        {'cuenta_codigo': '600', 'debe': costo_total, 'haber': 0},
+                        {'cuenta_codigo': '300', 'debe': 0, 'haber': costo_total}
+                    ]
+                )
 
         for item in cesta_items:
             db.session.delete(item)
@@ -300,6 +333,31 @@ def cancelar_pedido(pedido_id):
         producto = db.session.get(Producto, pedido.producto_id)
         if producto:
             producto.cantidad += pedido.cantidad
+            
+            # --- Contabilidad (Reversión) ---
+            # 1. Revertir Ingreso
+            crear_asiento(
+                descripcion=f"Cancelación Venta {producto.modelo}",
+                usuario_id=current_user.id,
+                referencia_id=pedido.id,
+                apuntes_data=[
+                    {'cuenta_codigo': '700', 'debe': pedido.total, 'haber': 0},
+                    {'cuenta_codigo': '570', 'debe': 0, 'haber': pedido.total}
+                ]
+            )
+            
+            # 2. Revertir Costo
+            costo_total = Decimal(producto.costo) * Decimal(pedido.cantidad)
+            if costo_total > 0:
+                crear_asiento(
+                    descripcion=f"Reversión Costo {producto.modelo}",
+                    usuario_id=current_user.id,
+                    referencia_id=pedido.id,
+                    apuntes_data=[
+                        {'cuenta_codigo': '300', 'debe': costo_total, 'haber': 0},
+                        {'cuenta_codigo': '600', 'debe': 0, 'haber': costo_total}
+                    ]
+                )
 
         pedido.estado = "Cancelado"
 

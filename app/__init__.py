@@ -149,7 +149,9 @@ def create_app():
     login_manager.login_view = "auth.login"
 
     # Inicializar Flask-Migrate para futuras migraciones.
-    migrate.init_app(app, db)
+    # render_as_batch=True es necesario para SQLite que no soporta ALTER TABLE completamente.
+    migrate.init_app(app, db, render_as_batch=True)
+
 
     # Registrar filtros compartidos antes de exponer las vistas.
     app.jinja_env.filters["currency"] = format_currency

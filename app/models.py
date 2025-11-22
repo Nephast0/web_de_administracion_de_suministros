@@ -8,7 +8,7 @@ import secrets
 from datetime import datetime, timezone
 
 from flask_login import UserMixin
-from sqlalchemy import Column, String, Float
+from sqlalchemy import ForeignKey
 
 from .db import db
 from .extensions import bcrypt
@@ -24,14 +24,14 @@ class Usuario(UserMixin, db.Model):
     __table_args__ = {"sqlite_autoincrement": True}
 
     # IDs cortos de 8 caracteres para legibilidad, pero no autoincrementales.
-    id = Column(String(8), primary_key=True, default=lambda: secrets.token_hex(4)[:8])
+    id = db.Column(db.String(8), primary_key=True, default=lambda: secrets.token_hex(4)[:8])
     # Se fijan longitudes y unicidad para evitar duplicados y truncados.
-    nombre = Column(String(80), nullable=False)
-    usuario = Column(String(50), nullable=False, unique=True)
-    direccion = Column(String(150), nullable=False)
-    contrasenya_hash = Column(String(128), nullable=False)
-    rol = Column(String(20), nullable=False)
-    fecha_registro = Column(db.DateTime, nullable=False, default=utcnow)
+    nombre = db.Column(db.String(80), nullable=False)
+    usuario = db.Column(db.String(50), nullable=False, unique=True)
+    direccion = db.Column(db.String(150), nullable=False)
+    contrasenya_hash = db.Column(db.String(128), nullable=False)
+    rol = db.Column(db.String(20), nullable=False)
+    fecha_registro = db.Column(db.DateTime, nullable=False, default=utcnow)
 
     def hash_contrasenya(self, contrasenya: str) -> None:
         """Genera un hash usando flask-bcrypt configurado en la app."""
@@ -68,7 +68,8 @@ class Producto(db.Model):
     descripcion = db.Column(db.String(500), nullable=True)
     cantidad = db.Column(db.Integer, nullable=False)
     cantidad_minima = db.Column(db.Integer, nullable=True)
-    precio = db.Column(db.Float, nullable=False)
+    precio = db.Column(db.Numeric(10, 2), nullable=False)
+    costo = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
     marca = db.Column(db.String(100), nullable=True)
     num_referencia = db.Column(db.String(80), nullable=False)
     fecha = db.Column(db.DateTime, default=utcnow, nullable=False)
@@ -76,7 +77,7 @@ class Producto(db.Model):
     # Enlazamos explícitamente la tabla pivote para evitar warnings de relaciones solapadas.
     proveedor_links = db.relationship("ProveedorTipoProducto", back_populates="producto", cascade="all, delete-orphan")
 
-    def __init__(self, proveedor_id, tipo_producto, modelo, descripcion, cantidad, cantidad_minima, precio, marca, num_referencia, fecha=None):
+    def __init__(self, proveedor_id, tipo_producto, modelo, descripcion, cantidad, cantidad_minima, precio, marca, num_referencia, costo=0.00, fecha=None):
         self.proveedor_id = proveedor_id
         self.tipo_producto = tipo_producto
         self.modelo = modelo
@@ -84,6 +85,7 @@ class Producto(db.Model):
         self.cantidad = cantidad
         self.cantidad_minima = cantidad_minima
         self.precio = precio
+        self.costo = costo
         self.marca = marca
         self.num_referencia = num_referencia
         self.fecha = fecha or utcnow()
@@ -95,14 +97,14 @@ class Producto(db.Model):
 class Proveedor(db.Model):
     __tablename__ = "proveedor"
 
-    id = Column(String(8), primary_key=True, default=lambda: secrets.token_hex(4)[:8])
-    nombre = Column(String(100), nullable=False)
-    telefono = Column(String(15), nullable=False)
-    direccion = Column(String(255), nullable=False)
-    email = Column(String(255), nullable=False)
-    cif = Column(String(15), nullable=False, unique=True)  # único para evitar duplicados.
-    tasa_de_descuento = Column(Float, nullable=True)
-    iva = Column(Float, nullable=False)
+    id = db.Column(db.String(8), primary_key=True, default=lambda: secrets.token_hex(4)[:8])
+    nombre = db.Column(db.String(100), nullable=False)
+    telefono = db.Column(db.String(15), nullable=False)
+    direccion = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    cif = db.Column(db.String(15), nullable=False, unique=True)  # único para evitar duplicados.
+    tasa_de_descuento = db.Column(db.Numeric(10, 2), nullable=True)
+    iva = db.Column(db.Numeric(10, 2), nullable=False)
     tipo_producto = db.Column(db.String(500), nullable=False)
     fecha = db.Column(db.DateTime, default=utcnow, nullable=False)
 
@@ -140,7 +142,7 @@ class ProveedorTipoProducto(db.Model):
 class CestaDeCompra(db.Model):
     __tablename__ = "cesta_de_compra"
 
-    id = Column(String(8), primary_key=True, default=lambda: secrets.token_hex(4)[:8])
+    id = db.Column(db.String(8), primary_key=True, default=lambda: secrets.token_hex(4)[:8])
     usuario_id = db.Column(db.String(8), db.ForeignKey("usuario.id"), nullable=False)
     # Se homologa el tipo con Producto.id para integridad referencial.
     producto_id = db.Column(db.String(8), db.ForeignKey("producto.id"), nullable=False)
@@ -164,8 +166,8 @@ class Compra(db.Model):
     usuario_id = db.Column(db.String(8), db.ForeignKey("usuario.id"), nullable=False)
     proveedor_id = db.Column(db.String(8), db.ForeignKey("proveedor.id"), nullable=False)
     cantidad = db.Column(db.Integer, nullable=False)
-    precio_unitario = db.Column(db.Float, nullable=False)
-    total = db.Column(db.Float, nullable=False)
+    precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
+    total = db.Column(db.Numeric(10, 2), nullable=False)
     estado = db.Column(db.String(20), nullable=False, default="Pendiente")
     fecha = db.Column(db.DateTime, default=utcnow, nullable=False)
 
@@ -186,7 +188,7 @@ class Compra(db.Model):
 
 class ActividadUsuario(db.Model):
     __tablename__ = "actividad_usuario"
-    id = Column(String(8), primary_key=True, default=lambda: secrets.token_hex(4)[:8])
+    id = db.Column(db.String(8), primary_key=True, default=lambda: secrets.token_hex(4)[:8])
     usuario_id = db.Column(db.String(8), db.ForeignKey("usuario.id"), nullable=False)
     accion = db.Column(db.String(200), nullable=False)
     modulo = db.Column(db.String(100), nullable=False)
@@ -196,3 +198,52 @@ class ActividadUsuario(db.Model):
 
     def __repr__(self):
         return f"<ActividadUsuario {self.accion} - {self.modulo}>"
+
+
+# --- Modelos de Contabilidad (Doble Partida) ---
+
+class Cuenta(db.Model):
+    __tablename__ = "cuenta"
+    id = db.Column(db.Integer, primary_key=True)
+    codigo = db.Column(db.String(20), unique=True, nullable=False)
+    nombre = db.Column(db.String(100), nullable=False)
+    # Tipos: 'ACTIVO', 'PASIVO', 'PATRIMONIO', 'INGRESO', 'GASTO'
+    tipo = db.Column(db.String(20), nullable=False)
+
+    def __repr__(self):
+        return f"<Cuenta {self.codigo} - {self.nombre}>"
+
+
+class Asiento(db.Model):
+    __tablename__ = "asiento"
+    id = db.Column(db.Integer, primary_key=True)
+    fecha = db.Column(db.DateTime, default=utcnow, nullable=False)
+    descripcion = db.Column(db.String(255), nullable=False)
+    usuario_id = db.Column(db.String(8), db.ForeignKey("usuario.id"), nullable=False)
+    referencia_id = db.Column(db.String(50), nullable=True)
+
+    usuario = db.relationship("Usuario", backref="asientos")
+    apuntes = db.relationship("Apunte", back_populates="asiento", cascade="all, delete-orphan")
+
+    def __init__(self, descripcion, usuario_id, referencia_id=None, fecha=None):
+        self.descripcion = descripcion
+        self.usuario_id = usuario_id
+        self.referencia_id = referencia_id
+        self.fecha = fecha or utcnow()
+
+
+class Apunte(db.Model):
+    __tablename__ = "apunte"
+    id = db.Column(db.Integer, primary_key=True)
+    asiento_id = db.Column(db.Integer, db.ForeignKey("asiento.id"), nullable=False)
+    cuenta_id = db.Column(db.Integer, db.ForeignKey("cuenta.id"), nullable=False)
+    debe = db.Column(db.Numeric(10, 2), default=0.00, nullable=False)
+    haber = db.Column(db.Numeric(10, 2), default=0.00, nullable=False)
+
+    asiento = db.relationship("Asiento", back_populates="apuntes")
+    cuenta = db.relationship("Cuenta", backref="apuntes")
+
+    def __init__(self, cuenta_id, debe=0.00, haber=0.00):
+        self.cuenta_id = cuenta_id
+        self.debe = debe
+        self.haber = haber

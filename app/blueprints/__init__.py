@@ -10,6 +10,7 @@ from .auth import auth_bp
 from .inventario import inventario_bp
 from .proveedores import proveedores_bp
 from .reportes import reportes_bp
+from .contabilidad import contabilidad_bp
 
 
 def register_blueprints(app: Flask) -> None:
@@ -23,3 +24,4 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(inventario_bp)
     app.register_blueprint(proveedores_bp)
     app.register_blueprint(reportes_bp)
+    app.register_blueprint(contabilidad_bp)

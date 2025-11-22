@@ -1,4 +1,4 @@
-from wtforms import PasswordField
+from wtforms import PasswordField, DateField, FieldList, FormField
 from wtforms.validators import EqualTo
 from wtforms.validators import Email, Regexp
 from flask_wtf import FlaskForm
@@ -6,7 +6,7 @@ from wtforms import (
     StringField,
     TextAreaField,
     IntegerField,
-    FloatField,
+    DecimalField,
     SelectField,
     SelectMultipleField,
     SubmitField,
@@ -99,7 +99,7 @@ class Registro_producto(FlaskForm):
             NumberRange(min=0, message="La cantidad mínima debe ser un número positivo.")
         ]
     )
-    precio = FloatField(
+    precio = DecimalField(
         "Precio",
         validators=[
             DataRequired(message="El precio es obligatorio."),
@@ -176,14 +176,14 @@ class ProveedorForm(FlaskForm):
             Regexp(r'^[A-Za-z0-9]{9}$', message="El CIF debe contener 9 caracteres alfanuméricos.")
         ]
     )
-    tasa_de_descuento = FloatField(
+    tasa_de_descuento = DecimalField(
         'Tasa de descuento',
         validators=[
             Optional(),
             NumberRange(min=0, max=100, message="La tasa de descuento debe estar entre 0 y 100.")
         ]
     )
-    iva = FloatField(
+    iva = DecimalField(
         'IVA',
         validators=[
             DataRequired(message="El IVA es obligatorio."),
@@ -226,8 +226,11 @@ class AgregarProductoForm(FlaskForm):
     cantidad_minima = IntegerField(
         'Cantidad mínima', validators=[Optional(), NumberRange(min=0)]
     )
-    precio = FloatField(
+    precio = DecimalField(
         'Precio', validators=[DataRequired(), NumberRange(min=0.01)]
+    )
+    costo = DecimalField(
+        'Costo', validators=[DataRequired(), NumberRange(min=0.00)]
     )
     num_referencia = StringField(
         'Número de referencia', validators=[DataRequired(), Length(max=80)]
@@ -235,3 +238,20 @@ class AgregarProductoForm(FlaskForm):
     proveedor_id = StringField(
         'Proveedor', validators=[DataRequired(), Length(max=8)]
     )
+
+
+# --- Formularios de Contabilidad ---
+
+class ApunteForm(FlaskForm):
+    cuenta_codigo = StringField('Código Cuenta', validators=[DataRequired()])
+    debe = DecimalField('Debe', default=0.00, validators=[NumberRange(min=0)])
+    haber = DecimalField('Haber', default=0.00, validators=[NumberRange(min=0)])
+
+class AsientoManualForm(FlaskForm):
+    descripcion = StringField('Descripción', validators=[DataRequired(), Length(max=255)])
+    fecha = DateField('Fecha', format='%Y-%m-%d', validators=[Optional()])
+    # Usamos FieldList para permitir múltiples apuntes.
+    # En el frontend se puede usar JS para duplicar campos.
+    # Inicializamos con 2 apuntes mínimos para partida doble.
+    apuntes = FieldList(FormField(ApunteForm), min_entries=2, max_entries=10)
+    submit = SubmitField('Crear Asiento')

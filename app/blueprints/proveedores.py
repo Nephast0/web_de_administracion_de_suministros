@@ -4,6 +4,7 @@ Se separa del resto para aislar validaciones y altas/ediciones de
 inventario respecto a otras áreas de la app.
 """
 
+from decimal import Decimal
 from flask import abort, Blueprint, current_app as app, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
@@ -11,6 +12,7 @@ from ..db import db
 from ..forms import AgregarProductoForm, ProveedorForm
 from ..models import Producto, Proveedor
 from .helpers import registrar_actividad, validar_datos_proveedor, role_required
+from ..services.accounting_services import crear_asiento
 
 
 proveedores_bp = Blueprint("proveedores", __name__)
@@ -201,10 +203,26 @@ def agregar_producto():
                 cantidad=form.cantidad.data,
                 cantidad_minima=form.cantidad_minima.data or 0,
                 precio=form.precio.data,
+                costo=form.costo.data,
                 marca=form.marca.data.strip(),
                 num_referencia=form.num_referencia.data.strip(),
             )
             db.session.add(nuevo_producto)
+            db.session.flush() # Obtener ID
+
+            # Registrar Asiento Contable (Compra de Stock)
+            total_compra = Decimal(nuevo_producto.costo) * Decimal(nuevo_producto.cantidad)
+            if total_compra > 0:
+                crear_asiento(
+                    descripcion=f"Compra de Stock: {nuevo_producto.modelo}",
+                    usuario_id=current_user.id,
+                    referencia_id=nuevo_producto.id,
+                    apuntes_data=[
+                        {'cuenta_codigo': '300', 'debe': total_compra, 'haber': 0}, # Inventario (Activo) aumenta
+                        {'cuenta_codigo': '570', 'debe': 0, 'haber': total_compra}  # Caja (Activo) disminuye
+                    ]
+                )
+
             db.session.commit()
 
             registrar_actividad(
@@ -217,10 +235,10 @@ def agregar_producto():
             flash("Producto agregado con éxito", "success")
             return redirect(url_for("inventario.productos"))
 
-        except Exception:
+        except Exception as e:
             db.session.rollback()
             app.logger.exception("Error al guardar el producto")
-            flash("Error al guardar el producto", "error")
+            flash(f"Error al guardar el producto: {e}", "error")
             return render_template("agregar-producto.html", proveedores=proveedores, form=form)
 
     if request.method == "POST" and form.errors:
@@ -246,9 +264,10 @@ def editar_producto(id):
 
     if request.method == "POST":
         producto.descripcion = request.form["descripcion"]
-        producto.cantidad = request.form["cantidad"]
-        producto.cantidad_minima = request.form["cantidad_minima"]
-        producto.precio = request.form["precio"]
+        producto.cantidad = int(request.form["cantidad"])
+        producto.cantidad_minima = int(request.form["cantidad_minima"])
+        producto.precio = Decimal(request.form["precio"])
+        producto.costo = Decimal(request.form.get("costo", producto.costo))
         producto.num_referencia = request.form["num_referencia"]
 
         db.session.commit()
@@ -360,8 +379,8 @@ def editar_proveedor(proveedor_id):
             proveedor.direccion = datos_o_error['direccion']
             proveedor.email = datos_o_error['email']
             proveedor.cif = datos_o_error['cif']
-            proveedor.tasa_de_descuento = float(datos_o_error['tasa_de_descuento'])
-            proveedor.iva = float(datos_o_error['iva'])
+            proveedor.tasa_de_descuento = Decimal(datos_o_error['tasa_de_descuento'])
+            proveedor.iva = Decimal(datos_o_error['iva'])
             proveedor.tipo_producto = datos_o_error['tipo_producto']
 
             db.session.commit()
@@ -400,3 +419,59 @@ def eliminar_proveedor(id):
         modulo="Gestión de Proveedores",
     )
     return redirect(url_for("proveedores.proveedores"))
+
+
+@proveedores_bp.route("/reponer_stock/<string:id>", methods=["GET", "POST"])
+@login_required
+@role_required("admin")
+def reponer_stock(id):
+    producto = db.session.get(Producto, id)
+    if not producto:
+        abort(404, description="Producto no encontrado")
+
+    if request.method == "POST":
+        try:
+            cantidad_nueva = int(request.form["cantidad"])
+            costo_nuevo = Decimal(request.form["costo"])
+            
+            if cantidad_nueva <= 0 or costo_nuevo < 0:
+                flash("La cantidad y el costo deben ser valores positivos.", "error")
+                return render_template("reponer_stock.html", producto=producto)
+
+            # Calcular PMP
+            from ..services.accounting_services import calcular_pmp
+            nuevo_pmp = calcular_pmp(producto.id, cantidad_nueva, costo_nuevo)
+            
+            # Actualizar producto
+            producto.costo = nuevo_pmp
+            producto.cantidad += cantidad_nueva
+            
+            # Asiento Contable
+            total_compra = cantidad_nueva * costo_nuevo
+            crear_asiento(
+                descripcion=f"Reposición de Stock: {producto.modelo} (PMP actualizado)",
+                usuario_id=current_user.id,
+                referencia_id=producto.id,
+                apuntes_data=[
+                    {'cuenta_codigo': '300', 'debe': total_compra, 'haber': 0},
+                    {'cuenta_codigo': '570', 'debe': 0, 'haber': total_compra}
+                ]
+            )
+            
+            db.session.commit()
+            
+            registrar_actividad(
+                usuario_id=current_user.id,
+                accion=f"Repuso stock de {producto.modelo}: +{cantidad_nueva} u. a {costo_nuevo} €/u. Nuevo PMP: {nuevo_pmp}",
+                modulo="Gestión de Inventario",
+            )
+            
+            flash(f"Stock actualizado. Nuevo costo promedio: {nuevo_pmp} €", "success")
+            return redirect(url_for("inventario.productos"))
+            
+        except Exception as e:
+            db.session.rollback()
+            app.logger.exception("Error al reponer stock")
+            flash(f"Error al reponer stock: {e}", "error")
+    
+    return render_template("reponer_stock.html", producto=producto)

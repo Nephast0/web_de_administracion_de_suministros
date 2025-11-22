@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Libro Diario{% endblock %}
+
+{% block body_class %}menu-body{% endblock %}
+
+{% block content %}
+<div class="glass-container">
+    <h2 class="text-center mb-4" style="color: #fff;">Libro Diario</h2>
+
+    <div class="d-flex justify-content-between mb-3">
+        <a href="{{ url_for('menu.menu_principal') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+        <a href="{{ url_for('contabilidad.nuevo_asiento') }}" class="cta">
+            <i class="fas fa-plus"></i> Nuevo Asiento
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="glass-table table table-borderless text-white">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Descripción / Cuenta</th>
+                    <th class="text-end">Debe</th>
+                    <th class="text-end">Haber</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asiento in asientos %}
+                <tr class="table-active" style="background-color: rgba(255, 255, 255, 0.1);">
+                    <td>{{ asiento.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td colspan="3"><strong>{{ asiento.descripcion }}</strong> <small class="text-muted">(Ref: {{
+                            asiento.referencia_id or 'N/A' }}) - Usuario: {{ asiento.usuario.nombre }}</small></td>
+                </tr>
+                {% for apunte in asiento.apuntes %}
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 2rem;">
+                        {{ apunte.cuenta.codigo }} - {{ apunte.cuenta.nombre }}
+                    </td>
+                    <td class="text-end">
+                        {% if apunte.debe > 0 %}
+                        {{ "%.2f"|format(apunte.debe) }} €
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if apunte.haber > 0 %}
+                        {{ "%.2f"|format(apunte.haber) }} €
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                <!-- Spacer row -->
+                <tr>
+                    <td colspan="4" style="height: 10px;"></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No hay asientos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Balance de Situación{% endblock %}
+
+{% block body_class %}menu-body{% endblock %}
+
+{% block content %}
+<div class="glass-container">
+    <h2 class="text-center mb-4" style="color: #fff;">Balance de Situación</h2>
+
+    <div class="d-flex justify-content-between mb-3">
+        <a href="{{ url_for('menu.menu_principal') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+        <a href="{{ url_for('contabilidad.diario') }}" class="cta">
+            <i class="fas fa-book"></i> Ver Diario
+        </a>
+    </div>
+
+    <!-- Resumen -->
+    <div class="row mb-4">
+        {% for tipo, total in totales.items() %}
+        <div class="col-md-2">
+            <div class="glass-card p-3 text-center">
+                <h5 class="text-white">{{ tipo }}</h5>
+                <p class="h4 {% if total < 0 %}text-danger{% else %}text-success{% endif %}">
+                    {{ "%.2f"|format(total) }} €
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="table-responsive">
+        <table class="glass-table table table-borderless text-white">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Cuenta</th>
+                    <th>Tipo</th>
+                    <th class="text-end">Saldo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cuenta in cuentas %}
+                <tr>
+                    <td>{{ cuenta.codigo }}</td>
+                    <td>{{ cuenta.nombre }}</td>
+                    <td><span class="badge bg-secondary">{{ cuenta.tipo }}</span></td>
+                    <td class="text-end font-monospace">
+                        {{ "%.2f"|format(saldos[cuenta.id]) }} €
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No hay cuentas registradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
