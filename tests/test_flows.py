@@ -6,6 +6,7 @@ soportan validaciones y commits atómicos.
 
 import json
 import os
+import secrets
 import sys
 import types
 import unittest
@@ -33,7 +34,8 @@ if "flask_migrate" not in sys.modules:
 
 from app import create_app
 from app.db import db
-from app.models import Usuario, Producto, Proveedor, CestaDeCompra, Compra
+from app.models import Usuario, Producto, Proveedor, CestaDeCompra, Compra, Asiento
+from app.services.accounting_services import inicializar_plan_cuentas, crear_asiento
 
 
 _TEST_APP = None
@@ -627,7 +629,7 @@ class ReportesCacheTest(BaseTestCase):
         with self.app.app_context():
             admin = Usuario(
                 nombre="Admin Reportes",
-                usuario="admin_reportes",
+                usuario=f"admin_reportes_{secrets.token_hex(2)}",
                 direccion="Oficina",
                 contrasenya="segura",
                 rol="admin",
@@ -655,6 +657,9 @@ class ReportesCacheTest(BaseTestCase):
         with self.app.app_context():
             from app.blueprints import reportes
 
+            reportes._CACHE.clear()
+            reportes._CACHE_STATS["hits"] = 0
+            reportes._CACHE_STATS["misses"] = 0
             assert str(reportes._get_cache_history_file()) == str(self.cache_history_file)
             assert str(reportes._get_cache_history_archive_dir()) == str(self.cache_archive_dir)
 
@@ -748,6 +753,80 @@ class ReportesCacheTest(BaseTestCase):
         payload = json.loads(resp.data.decode("utf-8"))
         self.assertTrue(payload["events"])
         self.assertTrue(self.cache_history_file.exists())
+
+
+class ContabilidadFlowsTest(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        with self.app.app_context():
+            admin = Usuario(
+                nombre="Admin Conta",
+                usuario="admin_conta",
+                direccion="Oficina",
+                contrasenya="segura",
+                rol="admin",
+            )
+            db.session.add(admin)
+            inicializar_plan_cuentas()
+            db.session.commit()
+            self.admin_id = admin.id
+
+    def _login_admin(self):
+        with self.client.session_transaction() as session:
+            session["_user_id"] = self.admin_id
+            session["_fresh"] = True
+
+    def test_nuevo_asiento_manual_persiste(self):
+        self._login_admin()
+        payload = MultiDict(
+            {
+                "descripcion": "Asiento manual test",
+                "fecha": "2024-01-02",
+                "apuntes-0-cuenta_codigo": "570",
+                "apuntes-0-debe": "100",
+                "apuntes-0-haber": "0",
+                "apuntes-1-cuenta_codigo": "700",
+                "apuntes-1-debe": "0",
+                "apuntes-1-haber": "100",
+            }
+        )
+        resp = self.client.post("/contabilidad/nuevo-asiento", data=payload, follow_redirects=False)
+        self.assertEqual(resp.status_code, 302)
+        with self.app.app_context():
+            db.session.remove()
+            self.assertEqual(Asiento.query.count(), 1)
+            asiento = Asiento.query.first()
+            self.assertEqual(len(asiento.apuntes), 2)
+
+    def test_exportar_cuenta_resultados_csv(self):
+        with self.app.app_context():
+            crear_asiento(
+                descripcion="Venta test",
+                usuario_id=self.admin_id,
+                apuntes_data=[
+                    {"cuenta_codigo": "570", "debe": 50, "haber": 0},
+                    {"cuenta_codigo": "700", "debe": 0, "haber": 50},
+                ],
+            )
+            crear_asiento(
+                descripcion="Costo test",
+                usuario_id=self.admin_id,
+                apuntes_data=[
+                    {"cuenta_codigo": "600", "debe": 30, "haber": 0},
+                    {"cuenta_codigo": "300", "debe": 0, "haber": 30},
+                ],
+            )
+            db.session.commit()
+
+        self._login_admin()
+        resp = self.client.get("/contabilidad/cuenta-resultados/exportar")
+        self.assertEqual(resp.status_code, 200)
+        csv_text = resp.data.decode("utf-8")
+        self.assertIn("Total Ingresos", csv_text)
+        self.assertIn("Total Gastos", csv_text)
+        self.assertIn("RESULTADO NETO", csv_text)
+        self.assertIn("700", csv_text)
+        self.assertIn("600", csv_text)
 
 
 class CsrfProtectionTest(unittest.TestCase):

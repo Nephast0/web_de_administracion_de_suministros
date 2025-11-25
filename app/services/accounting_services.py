@@ -65,6 +65,9 @@ def crear_asiento(descripcion, usuario_id, fecha=None, referencia_id=None, apunt
     for apunte_dict in apuntes_data:
         cuenta = obtener_cuenta_por_codigo(apunte_dict['cuenta_codigo'])
         if not cuenta:
+            inicializar_plan_cuentas()
+            cuenta = obtener_cuenta_por_codigo(apunte_dict['cuenta_codigo'])
+        if not cuenta:
             raise ValueError(f"Cuenta no encontrada: {apunte_dict['cuenta_codigo']}")
         
         apunte = Apunte(

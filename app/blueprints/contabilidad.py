@@ -74,11 +74,14 @@ def nuevo_asiento():
                 fecha=form.fecha.data,
                 apuntes_data=apuntes_data
             )
+            db.session.commit()
             flash('Asiento creado correctamente.', 'success')
             return redirect(url_for('contabilidad.diario'))
         except ValueError as e:
+            db.session.rollback()
             flash(f'Error al crear asiento: {str(e)}', 'danger')
         except Exception as e:
+            db.session.rollback()
             flash(f'Error inesperado: {str(e)}', 'danger')
             
     cuentas = Cuenta.query.order_by(Cuenta.codigo).all()
@@ -174,14 +177,18 @@ def exportar_cuenta_resultados():
     
     cw.writerow(['Concepto', 'Importe'])
     cw.writerow(['INGRESOS', ''])
-    for c, saldo in datos['ingresos']:
-        cw.writerow([f"{c.codigo} - {c.nombre}", saldo])
+    for item in datos['ingresos']:
+        cuenta = item['cuenta']
+        saldo = item['saldo']
+        cw.writerow([f"{cuenta.codigo} - {cuenta.nombre}", saldo])
     cw.writerow(['Total Ingresos', datos['total_ingresos']])
     
     cw.writerow([])
     cw.writerow(['GASTOS', ''])
-    for c, saldo in datos['gastos']:
-        cw.writerow([f"{c.codigo} - {c.nombre}", saldo])
+    for item in datos['gastos']:
+        cuenta = item['cuenta']
+        saldo = item['saldo']
+        cw.writerow([f"{cuenta.codigo} - {cuenta.nombre}", saldo])
     cw.writerow(['Total Gastos', datos['total_gastos']])
     
     cw.writerow([])

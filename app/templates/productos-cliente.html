@@ -78,24 +78,29 @@
     td {
         padding: 10px;
         text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 14px;
     }
 
     th {
-        background-color: rgba(0, 0, 0, 0.8);
-        text-transform: uppercase;
-    }
-
-    td {
-        background-color: #333;
-        color: white;
-        border-bottom: 1px solid #444;
+        white-space: nowrap;
     }
 
     thead th {
         position: sticky;
         top: 0;
         z-index: 10;
+        text-align: center;
+    }
+
+    td:nth-child(4) {
+        word-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    td input {
+        width: 40px;
     }
 
     .material-symbols-outlined {
@@ -103,76 +108,5 @@
         background-color: transparent;
         color: white;
     }
-
-    .alerta-container {
-        background-color: #ff9800;
-        color: white;
-        padding: 10px;
-        margin-bottom: 20px;
-        border-radius: 5px;
-    }
 </style>
-{% endblock %}
-
-{% block content %}
-<main class="container py-5">
-    <div class="d-flex align-items-center mb-4">
-        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_cliente') }}"
-            aria-label="Volver al menú del cliente">
-            arrow_back
-        </a>
-        <h1 class="ms-3 titlewhiteN mb-0">Catálogo</h1>
-    </div>
-
-    {% if alertas %}
-    <div class="alerta-container">
-        <h2>Productos que necesitan reposición:</h2>
-        <ul>
-            {% for producto in alertas %}
-            <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{
-                producto.cantidad }})</li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr class="titlewhiteN">
-                    <th>Tipo</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Cantidad disponible</th>
-                    <th>Agregar a la cesta</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for producto in productos %}
-                <tr>
-                    <td>{{ producto.tipo_producto }}</td>
-                    <td>{{ producto.marca }}</td>
-                    <td>{{ producto.modelo }}</td>
-                    <td>{{ producto.descripcion }}</td>
-                    <td>{{ producto.precio | currency }}</td>
-                    <td>{{ producto.cantidad }}</td>
-                    <td>
-                        <form class="d-flex gap-2 justify-content-center"
-                            action="{{ url_for('inventario.agregar_a_la_cesta', producto_id=producto.id) }}"
-                            method="post">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <input type="number" name="cantidad" value="1" min="1" max="{{ producto.cantidad }}"
-                                class="form-control w-auto fondo titlewhite"
-                                aria-label="Cantidad para {{ producto.modelo }}">
-                            <button type="submit" class="btn btn-sm btn-outline-light">Añadir</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</main>
 {% endblock %}

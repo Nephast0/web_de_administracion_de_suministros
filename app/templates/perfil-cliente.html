@@ -28,30 +28,3 @@
     </div>
 </main>
 {% endblock %}
-
-{% block content %}
-<main class="container py-5">
-    <div class="d-flex align-items-center mb-4">
-        <a class="back-btn material-symbols-outlined" href="{{ url_for('inventario.menu_cliente') }}"
-            aria-label="Volver al menú del cliente">
-            arrow_back
-        </a>
-        <h1 class="ms-3 titlewhiteN mb-0">Perfil de {{ usuario.usuario }}</h1>
-    </div>
-
-    <div class="card p-4 bg-dark text-white">
-        <form method="POST" action="{{ url_for('inventario.perfil_cliente') }}">
-            {{ form.hidden_tag() }}
-            <div class="form-group mb-3">
-                {{ form.nombre_usuario.label(class_="titlewhite form-label") }}
-                {{ form.nombre_usuario(class_="form-control fondo titlewhite") }}
-            </div>
-            <div class="form-group mb-3">
-                {{ form.direccion.label(class_="titlewhite form-label") }}
-                {{ form.direccion(class_="form-control fondo titlewhite") }}
-            </div>
-            <button type="submit" class="btn btn-primary">Actualizar perfil</button>
-        </form>
-    </div>
-</main>
-{% endblock %}

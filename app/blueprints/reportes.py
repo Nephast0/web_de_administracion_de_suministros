@@ -26,6 +26,9 @@ _DEFAULT_CACHE_TTL = int(os.getenv("REPORT_CACHE_TTL", "60"))
 _CACHE_TTL = timedelta(seconds=_DEFAULT_CACHE_TTL)
 _INSTANCE_DIR = Path(__file__).resolve().parents[2] / "instance"
 _CACHE_FILE_FALLBACK = _INSTANCE_DIR / "report_cache.json"
+_HISTORY_FILE_FALLBACK = _INSTANCE_DIR / "cache_history.json"
+_HISTORY_ARCHIVE_DIR_FALLBACK = _INSTANCE_DIR / "cache_history_archive"
+_DEFAULT_HISTORY_MAX_BYTES = int(os.getenv("REPORT_CACHE_HISTORY_MAX_BYTES", "524288"))
 
 
 def _make_cache_key(prefix: str, **params) -> str:
@@ -45,6 +48,24 @@ def _get_cache_file() -> Path:
     return _CACHE_FILE_FALLBACK
 
 
+def _get_cache_history_file() -> Path:
+    try:
+        override = current_app.config.get("REPORT_CACHE_HISTORY_FILE")
+    except RuntimeError:
+        override = None
+    override = override or os.getenv("REPORT_CACHE_HISTORY_FILE")
+    return Path(override) if override else _HISTORY_FILE_FALLBACK
+
+
+def _get_cache_history_archive_dir() -> Path:
+    try:
+        override = current_app.config.get("REPORT_CACHE_HISTORY_ARCHIVE_DIR")
+    except RuntimeError:
+        override = None
+    override = override or os.getenv("REPORT_CACHE_HISTORY_ARCHIVE_DIR")
+    return Path(override) if override else _HISTORY_ARCHIVE_DIR_FALLBACK
+
+
 def _load_cache_settings():
     global _CACHE_TTL
     path = _get_cache_file()
@@ -59,6 +80,87 @@ def _load_cache_settings():
         _logger.warning("No se pudo cargar la configuración de caché: %s", exc)
 
 
+def _load_history_events(include_archives: bool = False) -> list[dict]:
+    """Carga eventos de historial desde archivos activos y archivados."""
+    events: list[dict] = []
+    path = _get_cache_history_file()
+    if path.exists():
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(payload, dict):
+                events.extend(payload.get("events", []))
+            elif isinstance(payload, list):
+                events.extend(payload)
+        except (json.JSONDecodeError, OSError, ValueError):
+            _logger.warning("Historial de cache corrupto, se reiniciará")
+
+    if include_archives:
+        archive_dir = _get_cache_history_archive_dir()
+        if archive_dir.exists():
+            for archive_file in sorted(archive_dir.glob("cache_history_*.json")):
+                try:
+                    payload = json.loads(archive_file.read_text(encoding="utf-8"))
+                    if isinstance(payload, dict):
+                        events.extend(payload.get("events", []))
+                    elif isinstance(payload, list):
+                        events.extend(payload)
+                except (json.JSONDecodeError, OSError, ValueError):
+                    _logger.warning("Archivo de historial en archivo dañado: %s", archive_file)
+    return events
+
+
+
+def _persist_history_events(events: list[dict], path: Path | None = None):
+    target = path or _get_cache_history_file()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps({"events": events}, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _rotate_cache_history_if_needed():
+    path = _get_cache_history_file()
+    if not path.exists():
+        return
+    try:
+        max_bytes = int(
+            current_app.config.get(
+                "REPORT_CACHE_HISTORY_MAX_BYTES",
+                os.getenv("REPORT_CACHE_HISTORY_MAX_BYTES", _DEFAULT_HISTORY_MAX_BYTES),
+            )
+        )
+    except Exception:
+        max_bytes = _DEFAULT_HISTORY_MAX_BYTES
+
+    if max_bytes and path.stat().st_size > max_bytes:
+        archive_dir = _get_cache_history_archive_dir()
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+        archive_path = archive_dir / f"cache_history_{timestamp}.json"
+        path.replace(archive_path)
+        _persist_history_events([])
+
+
+def _append_history_event(event: dict):
+    path = _get_cache_history_file()
+    try:
+        _rotate_cache_history_if_needed()
+        events: list[dict] = []
+        if path.exists():
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+                if isinstance(payload, dict):
+                    events = payload.get("events", [])
+                elif isinstance(payload, list):
+                    events = payload
+            except (json.JSONDecodeError, OSError, ValueError):
+                events = []
+        events.append(event)
+        _persist_history_events(events, path)
+    except Exception as exc:  # pragma: no cover - los fallos de logging no deben romper el flujo
+        _logger.warning("No se pudo registrar historial de cache en archivo: %s", exc)
+
+
+
+
 def _persist_cache_settings(seconds: int):
     path = _get_cache_file()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -67,14 +169,22 @@ def _persist_cache_settings(seconds: int):
 
 
 def _record_cache_event(event_type: str, **extra):
+    event = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "type": event_type,
+        "details": extra,
+    }
     try:
         details = json.dumps(extra, ensure_ascii=False)
-        event = CacheEvent(event_type=event_type, details=details)
-        db.session.add(event)
+        event_row = CacheEvent(event_type=event_type, details=details)
+        db.session.add(event_row)
         db.session.commit()
+        _append_history_event(event)
     except Exception as exc:
         db.session.rollback()
         _logger.warning("No se pudo persistir el evento de caché: %s", exc)
+        _append_history_event(event)
+
 
 
 def _cache_get(key: str):
@@ -128,14 +238,10 @@ def cache_stats():
 @login_required
 @role_required("admin")
 def cache_history():
-    """Devuelve los últimos eventos registrados en la caché (desde DB)."""
-    events = CacheEvent.query.order_by(CacheEvent.timestamp.desc()).limit(200).all()
-    events_data = [{
-        "timestamp": e.timestamp.isoformat(),
-        "type": e.event_type,
-        "details": json.loads(e.details) if e.details else {}
-    } for e in events]
-    return jsonify({"events": events_data})
+    """Devuelve los eventos recientes registrados en la caché."""
+    events = _load_history_events()
+    return jsonify({"events": events[-200:]})
+
 
 
 @reportes_bp.route("/data/cache_history/export")
@@ -143,17 +249,13 @@ def cache_history():
 @role_required("admin")
 def cache_history_export():
     """Permite descargar el historial persistente en un archivo JSON."""
-    events = CacheEvent.query.order_by(CacheEvent.timestamp.asc()).all()
-    events_data = [{
-        "timestamp": e.timestamp.isoformat(),
-        "type": e.event_type,
-        "details": json.loads(e.details) if e.details else {}
-    } for e in events]
-    
-    payload = json.dumps({"events": events_data}, ensure_ascii=False, indent=2)
+    include_archives = str(request.args.get("include_archives", "0")).lower() in {"1", "true", "yes"}
+    events = _load_history_events(include_archives=include_archives)
+    payload = json.dumps({"events": events}, ensure_ascii=False, indent=2)
     response = Response(payload, mimetype="application/json")
     response.headers["Content-Disposition"] = "attachment; filename=cache_history.json"
     return response
+
 
 
 @reportes_bp.route("/data/chart_export/<string:chart_name>")

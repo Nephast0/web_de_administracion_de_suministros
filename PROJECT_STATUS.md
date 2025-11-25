@@ -1,5 +1,15 @@
 # Estado actualizado del proyecto
 
+## Revisión 2025-11-25 (tarde)
+
+- Se corrigieron bloqueos de plantillas duplicadas en `registro.html`, `cesta.html`, `productos-cliente.html`, `perfil-cliente.html` y `editar_proveedor.html` (errores `TemplateAssertionError` resueltos).
+- `crear_asiento` ahora inicializa el plan de cuentas en caliente y el formulario manual de asientos confirma/rollback las transacciones; el CSV de cuenta de resultados consume la estructura correcta de datos.
+- Se añadió persistencia/rotación de historial de caché en archivo (`_get_cache_history_file`, `_rotate_cache_history_if_needed`) alineada con la configuración de tests y exportaciones.
+- Nuevas pruebas: validación de creación manual de asientos y export de cuenta de resultados; reset explícito de caché en los tests de reportes.
+- Pruebas ejecutadas: `python -m unittest discover tests` → **32 OK** (25/11/2025 11:22:15).
+
+
+
 ## Revisión 2025-11-22 (madrugada)
 
 ### Resumen de revisión
