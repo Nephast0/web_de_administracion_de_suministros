@@ -147,17 +147,84 @@ def actividades():
     # Capturar mensajes de éxito o error desde la URL
     mensaje_exito = request.args.get("flash_success")
     mensaje_error = request.args.get("flash_error")
+    page_act = max(int(request.args.get("page_act", 1)), 1)
+    page_user = max(int(request.args.get("page_user", 1)), 1)
+    page_comp = max(int(request.args.get("page_comp", 1)), 1)
+    per_page = min(int(request.args.get("page_size", 20)), 50)
 
     if mensaje_exito:
         flash(mensaje_exito, "success")
     if mensaje_error:
         flash(mensaje_error, "danger")
 
-    actividades = ActividadUsuario.query.order_by(ActividadUsuario.fecha.desc()).all()
-    usuarios = Usuario.query.order_by(Usuario.fecha_registro.desc()).all()
-    compras = Compra.query.order_by(Compra.fecha.desc()).all()
+    filtro_usuario = (request.args.get("f_usuario") or "").strip()
+    filtro_modulo = (request.args.get("f_modulo") or "").strip()
+    fecha_inicio_raw = request.args.get("f_desde")
+    fecha_fin_raw = request.args.get("f_hasta")
+    fecha_inicio = datetime.strptime(fecha_inicio_raw, "%Y-%m-%d") if fecha_inicio_raw else None
+    fecha_fin = datetime.strptime(fecha_fin_raw, "%Y-%m-%d") if fecha_fin_raw else None
+    if fecha_fin:
+        fecha_fin = fecha_fin + timedelta(days=1)
 
-    return render_template("menu-admin.html", actividades=actividades, usuarios=usuarios, compras=compras)
+    act_query = ActividadUsuario.query.join(Usuario)
+    if filtro_usuario:
+        like = f"%{filtro_usuario}%"
+        act_query = act_query.filter(Usuario.usuario.ilike(like))
+    if filtro_modulo:
+        act_query = act_query.filter(ActividadUsuario.modulo.ilike(f"%{filtro_modulo}%"))
+    if fecha_inicio:
+        act_query = act_query.filter(ActividadUsuario.fecha >= fecha_inicio)
+    if fecha_fin:
+        act_query = act_query.filter(ActividadUsuario.fecha < fecha_fin)
+    actividades_pag = act_query.order_by(ActividadUsuario.fecha.desc()).paginate(page=page_act, per_page=per_page, error_out=False)
+
+    filtro_rol = (request.args.get("f_rol") or "").strip()
+    filtro_busqueda = (request.args.get("f_q") or "").strip()
+    user_query = Usuario.query
+    if filtro_rol:
+        user_query = user_query.filter(Usuario.rol == filtro_rol)
+    if filtro_busqueda:
+        like_u = f"%{filtro_busqueda}%"
+        user_query = user_query.filter(Usuario.usuario.ilike(like_u) | Usuario.nombre.ilike(like_u))
+    usuarios_pag = user_query.order_by(Usuario.fecha_registro.desc()).paginate(page=page_user, per_page=per_page, error_out=False)
+
+    filtro_estado = (request.args.get("c_estado") or "").strip()
+    filtro_fecha_desde = request.args.get("c_desde")
+    filtro_fecha_hasta = request.args.get("c_hasta")
+    fecha_c_desde = datetime.strptime(filtro_fecha_desde, "%Y-%m-%d") if filtro_fecha_desde else None
+    fecha_c_hasta = datetime.strptime(filtro_fecha_hasta, "%Y-%m-%d") if filtro_fecha_hasta else None
+    if fecha_c_hasta:
+        fecha_c_hasta = fecha_c_hasta + timedelta(days=1)
+
+    compras_query = Compra.query
+    if filtro_estado:
+        compras_query = compras_query.filter(Compra.estado == filtro_estado)
+    if fecha_c_desde:
+        compras_query = compras_query.filter(Compra.fecha >= fecha_c_desde)
+    if fecha_c_hasta:
+        compras_query = compras_query.filter(Compra.fecha < fecha_c_hasta)
+    compras_pag = compras_query.order_by(Compra.fecha.desc()).paginate(page=page_comp, per_page=per_page, error_out=False)
+
+    return render_template(
+        "menu-admin.html",
+        actividades=actividades_pag.items,
+        usuarios=usuarios_pag.items,
+        compras=compras_pag.items,
+        pag_actividades=actividades_pag,
+        pag_usuarios=usuarios_pag,
+        pag_compras=compras_pag,
+        filtros={
+            "f_usuario": filtro_usuario,
+            "f_modulo": filtro_modulo,
+            "f_desde": fecha_inicio_raw or "",
+            "f_hasta": fecha_fin_raw or "",
+            "f_rol": filtro_rol,
+            "f_q": filtro_busqueda,
+            "c_estado": filtro_estado,
+            "c_desde": filtro_fecha_desde or "",
+            "c_hasta": filtro_fecha_hasta or "",
+        },
+    )
 
 
 @auth_bp.route('/eliminar_usuario/<string:usuario_id>', methods=['POST'])

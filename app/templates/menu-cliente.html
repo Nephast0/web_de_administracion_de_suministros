@@ -6,16 +6,12 @@
 <main>
     <div class="menu-hero">
         <div class="menu-actions-abs menu-actions-left">
-            <a href="{{ url_for('auth.logout') }}" class="icon-btn text-decoration-none"
-                aria-label="Cerrar Sesión">logout</a>
+            <a href="{{ url_for('auth.logout') }}" class="icon-btn text-decoration-none" aria-label="Cerrar Sesión">logout</a>
         </div>
         <div class="menu-actions-abs menu-actions-right d-flex gap-2">
-            <a href="{{ url_for('inventario.cesta') }}" class="icon-btn text-decoration-none"
-                aria-label="Ir a la cesta">shopping_cart</a>
-            <a href="{{ url_for('inventario.perfil_cliente') }}" class="icon-btn text-decoration-none"
-                aria-label="Ir al perfil">person</a>
-            <a href="{{ url_for('inventario.pedidos') }}" class="icon-btn text-decoration-none"
-                aria-label="Ver pedidos">orders</a>
+            <a href="{{ url_for('inventario.cesta') }}" class="icon-btn text-decoration-none" aria-label="Ir a la cesta">shopping_cart</a>
+            <a href="{{ url_for('inventario.perfil_cliente') }}" class="icon-btn text-decoration-none" aria-label="Ir al perfil">person</a>
+            <a href="{{ url_for('inventario.pedidos') }}" class="icon-btn text-decoration-none" aria-label="Ver pedidos">orders</a>
         </div>
 
         <div class="glass-container">
@@ -26,8 +22,41 @@
             <div class="menu-links">
                 <a href="{{ url_for('inventario.productos_cliente') }}" class="cta text-decoration-none">Productos</a>
                 <a href="{{ url_for('reportes.graficas_cliente') }}" class="cta text-decoration-none">Gráficos</a>
+                <a href="{{ url_for('inventario.cesta') }}" class="btn btn-secondary btn-sm text-decoration-none">Cesta ({{ cesta_count or 0 }})</a>
+                <a href="{{ url_for('inventario.pedidos') }}" class="btn btn-secondary btn-sm text-decoration-none">Pedidos pendientes ({{ pedidos_pendientes or 0 }})</a>
             </div>
+            {% if pedidos_pendientes and pedidos_pendientes > 0 %}
+            <div class="alert alert-warning mt-3 d-flex justify-content-between align-items-center">
+                <span>Tienes {{ pedidos_pendientes }} pedidos pendientes.</span>
+                <a class="btn btn-outline-warning btn-sm" href="{{ url_for('inventario.pedidos') }}">Ver pedidos</a>
+            </div>
+            {% endif %}
         </div>
     </div>
+    <section class="container py-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="glass-card p-3">
+                    <p class="text-muted mb-1">En cesta</p>
+                    <h3 class="h4 text-white">{{ cesta_count or 0 }} ítems</h3>
+                    <a class="text-decoration-none small" href="{{ url_for('inventario.cesta') }}">Ver cesta</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card p-3">
+                    <p class="text-muted mb-1">Pedidos pendientes</p>
+                    <h3 class="h4 text-white">{{ pedidos_pendientes or 0 }}</h3>
+                    <a class="text-decoration-none small" href="{{ url_for('inventario.pedidos') }}">Ver pedidos</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card p-3">
+                    <p class="text-muted mb-1">Gráficos</p>
+                    <h3 class="h4 text-white">Exportar CSV</h3>
+                    <a class="text-decoration-none small" href="{{ url_for('reportes.graficas_cliente') }}">Ir a gráficos</a>
+                </div>
+            </div>
+        </div>
+    </section>
 </main>
 {% endblock %}

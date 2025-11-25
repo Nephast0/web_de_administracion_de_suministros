@@ -13,6 +13,9 @@
 - Plantillas sin bloques duplicados en registro/cesta/perfil/editar proveedor; validaciones extra en formularios de compra y productos.
 - Historial de cache con rotacion y limites configurables (bytes, registros, dias) y recorte de tabla `CacheEvent`; plan de cuentas se inicializa al primer request si la tabla existe.
 - Filtros/búsqueda en inventario (admin/cliente) y proveedores; fechas aplicables en diario y cuenta de resultados (incluyendo exportaciones).
+- Inventario/proveedores con paginación y export CSV; pedidos paginados; menús enriquecidos con tarjetas de resumen (stock bajo, inventario, pedidos, ventas, cache) y alertas contextuales (stock bajo, pedidos pendientes).
+- Alertas: auto-ocultado selectivo (peligro se mantiene), estilo snackbar para success/info, banners en menús y contadores en cliente (cesta, pedidos).
+- Panel admin: actividades y usuarios con paginación; menús muestran métricas (inventario, valor, ventas, TTL cache).
 
 ### Graficos y reportes
 - Admin: graficas de inventario/ventas/usuarios con cache y export CSV; TTL ajustable.

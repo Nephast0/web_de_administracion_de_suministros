@@ -11,7 +11,7 @@ from flask_login import current_user, login_required, logout_user
 
 from ..db import db
 from ..forms import EditarPerfilForm
-from ..models import CestaDeCompra, Compra, Producto, Proveedor, ActividadUsuario
+from ..models import CestaDeCompra, Compra, Producto, Proveedor, ActividadUsuario, Usuario
 from .helpers import role_required
 from ..services.accounting_services import crear_asiento
 
@@ -105,7 +105,44 @@ def _build_productos_query(args):
 @role_required("admin")
 def menu_principal():
     if current_user.is_authenticated and current_user.rol == "admin":
-        return render_template("menu_principal.html")
+        alertas_stock_bajo = Producto.query.filter(
+            and_(
+                Producto.cantidad_minima.isnot(None),
+                Producto.cantidad <= Producto.cantidad_minima,
+            )
+        ).count()
+        pedidos_pendientes = Compra.query.filter(Compra.estado != "Cancelado").count()
+        total_proveedores = Proveedor.query.count()
+        total_usuarios = Usuario.query.count()
+        total_inventario = Producto.query.count()
+        valor_inventario = (
+            db.session.query(db.func.sum(Producto.precio * Producto.cantidad)).scalar() or 0
+        )
+        ventas_totales = db.session.query(db.func.sum(Compra.total)).scalar() or 0
+
+        # Datos de cache/reportes
+        try:
+            from app.blueprints import reportes as reportes_bp_module  # type: ignore
+
+            cache_ttl = int(getattr(reportes_bp_module, "_CACHE_TTL", 0).total_seconds())
+            cache_hits = reportes_bp_module._CACHE_STATS.get("hits", 0)
+            cache_misses = reportes_bp_module._CACHE_STATS.get("misses", 0)
+        except Exception:
+            cache_ttl = app.config.get("REPORT_CACHE_TTL", 0)
+            cache_hits = cache_misses = 0
+        return render_template(
+            "menu_principal.html",
+            alertas_stock_bajo=alertas_stock_bajo,
+            pedidos_pendientes=pedidos_pendientes,
+            total_proveedores=total_proveedores,
+            total_usuarios=total_usuarios,
+            total_inventario=total_inventario,
+            valor_inventario=valor_inventario,
+            ventas_totales=ventas_totales,
+            cache_ttl=cache_ttl,
+            cache_hits=cache_hits,
+            cache_misses=cache_misses,
+        )
 
 
 @inventario_bp.route("/menu-cliente", methods=["GET", "POST"])
