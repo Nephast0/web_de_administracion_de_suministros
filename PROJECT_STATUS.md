@@ -1,5 +1,40 @@
 # Estado actualizado del proyecto
 
+## Revisión 2025-11-25 (ancho completo)
+
+### Cambios clave
+- Se añadió un contenedor global `layout-shell` para que todas las vistas (menús, inventario, proveedores, pedidos, contabilidad, gráficas) aprovechen el ancho completo hasta 1600px con padding reducido.
+- Se amplió el ancho máximo de `.container` y se aseguraron `glass-container` y tarjetas a 100% de ancho para evitar columnas estrechas y aprovechar la pantalla en listados y tarjetas.
+
+### Estado
+- Las páginas existentes heredan el nuevo ancho fluido sin cambios específicos por vista; las tablas y secciones glass se expanden de forma consistente en escritorio y mantienen padding seguro en móvil.
+
+### Pruebas ejecutadas
+- `python -m unittest discover tests` -> **32 OK** (25/11/2025 18:44:34).
+
+### Pendiente / próximos pasos
+1. Revisar visualmente en entorno real que cada vista (productos, proveedores, pedidos, contabilidad, gráficas) usa el nuevo ancho sin generar scroll horizontal.
+2. Ajustar padding fino o grids por vista si se detectan zonas aún estrechas.
+
+## Revisión 2025-11-25 (noche)
+
+### Cambios clave
+- Panel admin con filtros y paginación visibles para actividades (usuario/módulo/fechas), usuarios (búsqueda y rol) y compras (estado y fechas), con selector de filas por página y conservación de filtros entre páginas.
+- Nueva exportación CSV de compras administrada desde `auth.exportar_compras_admin`, reutilizando los filtros actuales y endureciendo la lectura de parámetros numéricos en paginación.
+- Menú cliente adaptado a todo el ancho con distribución en grid, banners de contadores y tarjetas laterales; estilos de snackbar fijados en `main.css` para alertas no intrusivas.
+- Navegación de retorno al menú principal vía enlace GET (sin formularios POST) y textos unificados en español en las vistas del panel.
+
+### Estado
+- Las rutas de administración (actividades, usuarios, compras, export CSV) conservan filtros al paginar y exponen tablas con vacíos controlados.
+- El menú de cliente aprovecha mejor el espacio horizontal y mantiene accesos rápidos a cesta, pedidos, perfil y gráficos.
+
+### Pruebas ejecutadas
+- `python -m unittest discover tests` -> **32 OK** (25/11/2025 18:38:25).
+
+### Pendiente / próximos pasos
+1. Verificar en entorno real las nuevas URLs de export CSV y la persistencia de filtros al navegar entre listados.
+2. UAT de contabilidad y exportes con datos voluminosos; revisar que los mensajes de snackbar se muestren en todas las acciones rápidas.
+
 ## Revision 2025-11-25 (analisis completo)
 
 ### Estado y comportamiento

@@ -3,7 +3,7 @@
 {% block body_class %}menu-body{% endblock %}
 
 {% block content %}
-<main>
+<main class="menu-layout">
     <div class="menu-hero">
         <div class="menu-actions-abs menu-actions-left">
             <form action="{{ url_for('auth.logout') }}" method="post">
@@ -26,8 +26,10 @@
                 <a href="{{ url_for('reportes.graficas') }}" class="cta text-decoration-none">Gráficos</a>
                 <a href="{{ url_for('contabilidad.balance') }}" class="cta text-decoration-none">Contabilidad (Balance)</a>
                 <a href="{{ url_for('contabilidad.cuenta_resultados') }}" class="cta text-decoration-none">Cuenta Resultados</a>
-                <a href="{{ url_for('inventario.exportar_productos') }}" class="btn btn-secondary btn-sm text-decoration-none">Export inventario</a>
-                <a href="{{ url_for('proveedores.exportar_proveedores') }}" class="btn btn-secondary btn-sm text-decoration-none">Export proveedores</a>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <a href="{{ url_for('inventario.exportar_productos') }}" class="btn btn-secondary btn-sm text-decoration-none">Export inventario</a>
+                    <a href="{{ url_for('proveedores.exportar_proveedores') }}" class="btn btn-secondary btn-sm text-decoration-none">Export proveedores</a>
+                </div>
             </div>
             {% if alertas_stock_bajo and alertas_stock_bajo > 0 %}
             <div class="alert alert-warning mt-3 d-flex justify-content-between align-items-center">
@@ -37,67 +39,48 @@
             {% endif %}
         </div>
     </div>
-    <section class="container py-4">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <div class="glass-card p-3">
-                    <p class="text-muted mb-1">Stock bajo</p>
-                    <h3 class="h4 text-white">{{ alertas_stock_bajo if alertas_stock_bajo is not none else '-' }}</h3>
-                    <a class="text-decoration-none small" href="{{ url_for('inventario.productos', stock='bajo') }}">Ver productos</a>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="glass-card p-3">
-                    <p class="text-muted mb-1">Inventario total</p>
-                    <h3 class="h4 text-white">{{ total_inventario if total_inventario is not none else '-' }} ítems</h3>
-                    <p class="mb-0 text-muted small">Valor: {{ valor_inventario | currency }}</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="glass-card p-3">
-                    <p class="text-muted mb-1">Pedidos pendientes</p>
-                    <h3 class="h4 text-white">{{ pedidos_pendientes if pedidos_pendientes is not none else '-' }}</h3>
-                    <a class="text-decoration-none small" href="{{ url_for('inventario.pedidos') }}">Ver pedidos</a>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="glass-card p-3">
-                    <p class="text-muted mb-1">Ventas totales</p>
-                    <h3 class="h4 text-white">{{ ventas_totales | currency }}</h3>
-                    <a class="text-decoration-none small" href="{{ url_for('contabilidad.diario') }}">Ver diario</a>
-                </div>
-            </div>
+
+    <section class="menu-stats">
+        <div class="glass-card p-3">
+            <p class="text-muted mb-1">Stock bajo</p>
+            <h3 class="h4 text-white">{{ alertas_stock_bajo if alertas_stock_bajo is not none else '-' }}</h3>
+            <a class="text-decoration-none small" href="{{ url_for('inventario.productos', stock='bajo') }}">Ver productos</a>
         </div>
-        <div class="row g-3 mt-2">
-            <div class="col-md-3">
-                <div class="glass-card p-3">
-                    <p class="text-muted mb-1">Proveedores</p>
-                    <h3 class="h4 text-white">{{ total_proveedores if total_proveedores is not none else '-' }}</h3>
-                    <a class="text-decoration-none small" href="{{ url_for('proveedores.proveedores') }}">Gestionar proveedores</a>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="glass-card p-3">
-                    <p class="text-muted mb-1">Usuarios</p>
-                    <h3 class="h4 text-white">{{ total_usuarios if total_usuarios is not none else '-' }}</h3>
-                    <a class="text-decoration-none small" href="{{ url_for('auth.actividades') }}">Actividad</a>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="glass-card p-3">
-                    <p class="text-muted mb-1">TTL caché reportes</p>
-                    <h3 class="h4 text-white">{{ cache_ttl if cache_ttl is not none else '-' }}s</h3>
-                    <p class="mb-0 text-muted small">Hits: {{ cache_hits }} | Misses: {{ cache_misses }}</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="glass-card p-3">
-                    <p class="text-muted mb-1">Exportaciones</p>
-                    <h3 class="h4 text-white">Inventario / Proveedores</h3>
-                    <a class="text-decoration-none small" href="{{ url_for('inventario.exportar_productos') }}">Export inventario</a><br>
-                    <a class="text-decoration-none small" href="{{ url_for('proveedores.exportar_proveedores') }}">Export proveedores</a>
-                </div>
-            </div>
+        <div class="glass-card p-3">
+            <p class="text-muted mb-1">Inventario total</p>
+            <h3 class="h4 text-white">{{ total_inventario if total_inventario is not none else '-' }} ítems</h3>
+            <p class="mb-0 text-muted small">Valor: {{ valor_inventario | currency }}</p>
+        </div>
+        <div class="glass-card p-3">
+            <p class="text-muted mb-1">Pedidos pendientes</p>
+            <h3 class="h4 text-white">{{ pedidos_pendientes if pedidos_pendientes is not none else '-' }}</h3>
+            <a class="text-decoration-none small" href="{{ url_for('inventario.pedidos') }}">Ver pedidos</a>
+        </div>
+        <div class="glass-card p-3">
+            <p class="text-muted mb-1">Ventas totales</p>
+            <h3 class="h4 text-white">{{ ventas_totales | currency }}</h3>
+            <a class="text-decoration-none small" href="{{ url_for('contabilidad.diario') }}">Ver diario</a>
+        </div>
+        <div class="glass-card p-3">
+            <p class="text-muted mb-1">Proveedores</p>
+            <h3 class="h4 text-white">{{ total_proveedores if total_proveedores is not none else '-' }}</h3>
+            <a class="text-decoration-none small" href="{{ url_for('proveedores.proveedores') }}">Gestionar proveedores</a>
+        </div>
+        <div class="glass-card p-3">
+            <p class="text-muted mb-1">Usuarios</p>
+            <h3 class="h4 text-white">{{ total_usuarios if total_usuarios is not none else '-' }}</h3>
+            <a class="text-decoration-none small" href="{{ url_for('auth.actividades') }}">Actividad</a>
+        </div>
+        <div class="glass-card p-3">
+            <p class="text-muted mb-1">TTL caché reportes</p>
+            <h3 class="h4 text-white">{{ cache_ttl if cache_ttl is not none else '-' }}s</h3>
+            <p class="mb-0 text-muted small">Hits: {{ cache_hits }} | Misses: {{ cache_misses }}</p>
+        </div>
+        <div class="glass-card p-3">
+            <p class="text-muted mb-1">Exportaciones</p>
+            <h3 class="h4 text-white">Inventario / Proveedores</h3>
+            <a class="text-decoration-none small" href="{{ url_for('inventario.exportar_productos') }}">Export inventario</a><br>
+            <a class="text-decoration-none small" href="{{ url_for('proveedores.exportar_proveedores') }}">Export proveedores</a>
         </div>
     </section>
 </main>

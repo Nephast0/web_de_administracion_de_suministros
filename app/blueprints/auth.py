@@ -4,8 +4,13 @@ Agrupa las rutas de login/registro y acciones de administración para
 reducir el monolito previo y documentar por qué se ajusta cada flujo.
 """
 
+import csv
+import io
+from datetime import datetime, timedelta
+
 from flask import (
     Blueprint,
+    Response,
     current_app as app,
     flash,
     jsonify,
@@ -147,10 +152,20 @@ def actividades():
     # Capturar mensajes de éxito o error desde la URL
     mensaje_exito = request.args.get("flash_success")
     mensaje_error = request.args.get("flash_error")
-    page_act = max(int(request.args.get("page_act", 1)), 1)
-    page_user = max(int(request.args.get("page_user", 1)), 1)
-    page_comp = max(int(request.args.get("page_comp", 1)), 1)
-    per_page = min(int(request.args.get("page_size", 20)), 50)
+    def _safe_positive_int(raw, default):
+        try:
+            return max(int(raw), 1)
+        except (TypeError, ValueError):
+            return default
+
+    page_act = _safe_positive_int(request.args.get("page_act", 1), 1)
+    page_user = _safe_positive_int(request.args.get("page_user", 1), 1)
+    page_comp = _safe_positive_int(request.args.get("page_comp", 1), 1)
+
+    try:
+        per_page = min(int(request.args.get("page_size", 20)), 50)
+    except (TypeError, ValueError):
+        per_page = 20
 
     if mensaje_exito:
         flash(mensaje_exito, "success")
@@ -225,6 +240,65 @@ def actividades():
             "c_hasta": filtro_fecha_hasta or "",
         },
     )
+
+
+@auth_bp.route("/compras/export", methods=["GET"])
+@login_required
+@role_required("admin")
+def exportar_compras_admin():
+    """Exporta las compras del panel admin con filtros aplicados."""
+
+    filtro_estado = (request.args.get("c_estado") or request.args.get("estado") or "").strip()
+    filtro_fecha_desde = request.args.get("c_desde") or request.args.get("desde")
+    filtro_fecha_hasta = request.args.get("c_hasta") or request.args.get("hasta")
+
+    fecha_desde = datetime.strptime(filtro_fecha_desde, "%Y-%m-%d") if filtro_fecha_desde else None
+    fecha_hasta = datetime.strptime(filtro_fecha_hasta, "%Y-%m-%d") if filtro_fecha_hasta else None
+    if fecha_hasta:
+        fecha_hasta = fecha_hasta + timedelta(days=1)
+
+    compras_query = Compra.query
+    if filtro_estado:
+        compras_query = compras_query.filter(Compra.estado == filtro_estado)
+    if fecha_desde:
+        compras_query = compras_query.filter(Compra.fecha >= fecha_desde)
+    if fecha_hasta:
+        compras_query = compras_query.filter(Compra.fecha < fecha_hasta)
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(
+        [
+            "compra_id",
+            "usuario",
+            "producto",
+            "proveedor",
+            "cantidad",
+            "precio_unitario",
+            "total",
+            "estado",
+            "fecha",
+        ]
+    )
+
+    for compra in compras_query.order_by(Compra.fecha.desc()).all():
+        writer.writerow(
+            [
+                compra.id,
+                getattr(compra.usuario, "usuario", compra.usuario_id),
+                getattr(compra.producto, "modelo", compra.producto_id),
+                getattr(compra.proveedor, "nombre", compra.proveedor_id),
+                compra.cantidad,
+                f"{compra.precio_unitario}",
+                f"{compra.total}",
+                compra.estado,
+                compra.fecha.strftime("%Y-%m-%d %H:%M") if hasattr(compra, "fecha") else "",
+            ]
+        )
+
+    response = Response(buffer.getvalue(), mimetype="text/csv; charset=utf-8")
+    response.headers["Content-Disposition"] = "attachment; filename=compras_admin.csv"
+    return response
 
 
 @auth_bp.route('/eliminar_usuario/<string:usuario_id>', methods=['POST'])
