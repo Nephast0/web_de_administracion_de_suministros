@@ -4,7 +4,7 @@ Se separa del resto para aislar validaciones y altas/ediciones de
 inventario respecto a otras áreas de la app.
 """
 
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from flask import abort, Blueprint, current_app as app, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
@@ -263,12 +263,28 @@ def editar_producto(id):
     proveedor = db.session.get(Proveedor, producto.proveedor_id) if producto.proveedor_id else None
 
     if request.method == "POST":
-        producto.descripcion = request.form["descripcion"]
-        producto.cantidad = int(request.form["cantidad"])
-        producto.cantidad_minima = int(request.form["cantidad_minima"])
-        producto.precio = Decimal(request.form["precio"])
-        producto.costo = Decimal(request.form.get("costo", producto.costo))
-        producto.num_referencia = request.form["num_referencia"]
+        descripcion = (request.form.get("descripcion") or "").strip()
+        num_referencia = (request.form.get("num_referencia") or "").strip()
+
+        try:
+            cantidad = int(request.form.get("cantidad", producto.cantidad))
+            cantidad_minima = int(request.form.get("cantidad_minima", producto.cantidad_minima or 0))
+            precio = Decimal(request.form.get("precio", producto.precio))
+            costo = Decimal(request.form.get("costo", producto.costo))
+        except (TypeError, ValueError, InvalidOperation):
+            flash("Datos numéricos inválidos en el producto.", "danger")
+            return render_template("editar_producto.html", producto=producto, proveedor=proveedor)
+
+        if cantidad < 0 or cantidad_minima < 0 or precio < 0 or costo < 0:
+            flash("Cantidad, mínimo, precio y costo deben ser valores positivos.", "warning")
+            return render_template("editar_producto.html", producto=producto, proveedor=proveedor)
+
+        producto.descripcion = descripcion
+        producto.cantidad = cantidad
+        producto.cantidad_minima = cantidad_minima
+        producto.precio = precio
+        producto.costo = costo
+        producto.num_referencia = num_referencia
 
         db.session.commit()
 

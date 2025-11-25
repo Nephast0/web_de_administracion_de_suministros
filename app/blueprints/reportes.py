@@ -29,6 +29,13 @@ _CACHE_FILE_FALLBACK = _INSTANCE_DIR / "report_cache.json"
 _HISTORY_FILE_FALLBACK = _INSTANCE_DIR / "cache_history.json"
 _HISTORY_ARCHIVE_DIR_FALLBACK = _INSTANCE_DIR / "cache_history_archive"
 _DEFAULT_HISTORY_MAX_BYTES = int(os.getenv("REPORT_CACHE_HISTORY_MAX_BYTES", "524288"))
+_DEFAULT_HISTORY_MAX_RECORDS = int(os.getenv("REPORT_CACHE_HISTORY_MAX_RECORDS", "2000"))
+_DEFAULT_HISTORY_MAX_DAYS = int(os.getenv("REPORT_CACHE_HISTORY_MAX_DAYS", "90"))
+_DEFAULT_HISTORY_MAX_BYTES = int(os.getenv("REPORT_CACHE_HISTORY_MAX_BYTES", "524288"))
+_DEFAULT_HISTORY_MAX_RECORDS = int(os.getenv("REPORT_CACHE_HISTORY_MAX_RECORDS", "2000"))
+_HISTORY_FILE_FALLBACK = _INSTANCE_DIR / "cache_history.json"
+_HISTORY_ARCHIVE_DIR_FALLBACK = _INSTANCE_DIR / "cache_history_archive"
+_DEFAULT_HISTORY_MAX_BYTES = int(os.getenv("REPORT_CACHE_HISTORY_MAX_BYTES", "524288"))
 
 
 def _make_cache_key(prefix: str, **params) -> str:
@@ -161,6 +168,34 @@ def _append_history_event(event: dict):
 
 
 
+def _trim_cache_events(max_records: int = _DEFAULT_HISTORY_MAX_RECORDS):
+    """Limita el tamaño de CacheEvent para evitar crecimiento ilimitado."""
+    try:
+        total = CacheEvent.query.count()
+        if max_records and total > max_records:
+            overflow = total - max_records
+            (
+                CacheEvent.query.order_by(CacheEvent.timestamp.asc())
+                .limit(overflow)
+                .delete(synchronize_session=False)
+            )
+            db.session.commit()
+    except Exception as exc:  # pragma: no cover
+        db.session.rollback()
+        _logger.warning("No se pudo recortar CacheEvent: %s", exc)
+
+
+def _purge_cache_events_older_than(days: int = _DEFAULT_HISTORY_MAX_DAYS):
+    """Elimina eventos muy antiguos para retención temporal."""
+    try:
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        CacheEvent.query.filter(CacheEvent.timestamp < cutoff).delete(synchronize_session=False)
+        db.session.commit()
+    except Exception as exc:  # pragma: no cover
+        db.session.rollback()
+        _logger.warning("No se pudieron purgar eventos antiguos: %s", exc)
+
+
 def _persist_cache_settings(seconds: int):
     path = _get_cache_file()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -179,6 +214,8 @@ def _record_cache_event(event_type: str, **extra):
         event_row = CacheEvent(event_type=event_type, details=details)
         db.session.add(event_row)
         db.session.commit()
+        _trim_cache_events()
+        _purge_cache_events_older_than()
         _append_history_event(event)
     except Exception as exc:
         db.session.rollback()
@@ -238,10 +275,29 @@ def cache_stats():
 @login_required
 @role_required("admin")
 def cache_history():
-    """Devuelve los eventos recientes registrados en la caché."""
-    events = _load_history_events()
-    return jsonify({"events": events[-200:]})
+    """Devuelve los eventos recientes registrados en la caché con paginación."""
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = min(int(request.args.get("page_size", 100)), 500)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Parámetros de paginación inválidos"}), 400
 
+    events = _load_history_events()
+    events_sorted = sorted(events, key=lambda e: e.get("timestamp", ""), reverse=True)
+    total = len(events_sorted)
+    start = max(page - 1, 0) * per_page
+    end = start + per_page
+    page_events = events_sorted[start:end]
+
+    return jsonify({
+        "events": page_events,
+        "pagination": {
+            "page": page,
+            "page_size": per_page,
+            "total": total,
+            "pages": (total + per_page - 1) // per_page if per_page else 0,
+        },
+    })
 
 
 @reportes_bp.route("/data/cache_history/export")

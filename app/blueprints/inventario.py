@@ -198,11 +198,15 @@ def confirmacion_de_compra():
 @login_required
 @role_required("cliente")
 def confirmar_compra():
-    direccion = request.form.get('direccion')
-    metodo_pago = request.form.get('metodo_pago')
+    direccion = (request.form.get('direccion') or "").strip()
+    metodo_pago = (request.form.get('metodo_pago') or "").strip()
 
     if not direccion or not metodo_pago:
         flash('Por favor, completa todos los campos', 'warning')
+        return redirect(url_for('inventario.confirmacion_de_compra'))
+
+    if len(direccion) > 255 or len(metodo_pago) > 50:
+        flash('Los campos exceden la longitud permitida.', 'warning')
         return redirect(url_for('inventario.confirmacion_de_compra'))
 
     cesta_items = CestaDeCompra.query.filter_by(usuario_id=current_user.id).all()

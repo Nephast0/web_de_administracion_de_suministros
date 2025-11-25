@@ -156,6 +156,21 @@ def create_app():
     # Registrar filtros compartidos antes de exponer las vistas.
     app.jinja_env.filters["currency"] = format_currency
 
+    def _ensure_plan_cuentas():
+        if getattr(app, "_plan_cuentas_initialized", False):
+            return
+        try:
+            inspector = db.inspect(db.engine)
+            if inspector.has_table("cuenta"):
+                from app.services.accounting_services import inicializar_plan_cuentas
+
+                inicializar_plan_cuentas()
+                app._plan_cuentas_initialized = True
+        except Exception as exc:  # pragma: no cover - evitar romper flujos si la tabla no existe
+            app.logger.warning("No se pudo inicializar el plan de cuentas: %s", exc)
+
+    app.before_request(_ensure_plan_cuentas)
+
     # Registrar modelos y blueprints dentro del contexto para evitar imports
     # circulares y mantener la inicialización documentada.
     with app.app_context():
