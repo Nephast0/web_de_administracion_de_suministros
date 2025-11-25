@@ -1,5 +1,32 @@
 # Estado actualizado del proyecto
 
+## Revision 2025-11-25 (analisis completo)
+
+### Estado y comportamiento
+- Arquitectura con factory Flask y blueprints (`auth`, `inventario`, `proveedores`, `reportes`, `contabilidad`); CSRF/login/SQLAlchemy configurables por entorno.
+- Flujos clave: registro/login con roles; cesta, confirmacion y compras; gestion de proveedores/productos (altas, edicion, reposicion con PMP); contabilidad de doble partida con asientos automaticos (ventas, cancelaciones, costo de ventas) y vistas de diario/balance/cuenta de resultados.
+- Cache y graficos: cache en memoria con eventos persistidos en `CacheEvent` y archivos rotados; endpoints de datos agregados y graficas para admin y cliente.
+- Exportaciones CSV: graficas admin (`/data/chart_export/*`) y cliente (`/data/chart_export_cliente/*`); contabilidad (diario, balance, cuenta de resultados); historial de cache exportable como JSON con limites y paginacion.
+- Seguridad de entradas: CSRF activo; WTForms en altas; validaciones adicionales de numericos/longitudes en compra y edicion de productos; cambio de rol solo para admin.
+
+### Cambios recientes
+- Plantillas sin bloques duplicados en registro/cesta/perfil/editar proveedor; validaciones extra en formularios de compra y productos.
+- Historial de cache con rotacion y limites configurables (bytes, registros, dias) y recorte de tabla `CacheEvent`; plan de cuentas se inicializa al primer request si la tabla existe.
+- Filtros/búsqueda en inventario (admin/cliente) y proveedores; fechas aplicables en diario y cuenta de resultados (incluyendo exportaciones).
+
+### Graficos y reportes
+- Admin: graficas de inventario/ventas/usuarios con cache y export CSV; TTL ajustable.
+- Cliente: graficas de compras/favoritos/estados con export CSV.
+- Contabilidad: diario, balance y cuenta de resultados con export CSV; PMP aplicado en reposicion.
+
+### Pruebas ejecutadas
+- `python -m unittest discover tests` -> **32 OK** (25/11/2025 12:02:08).
+
+### Pendiente / siguientes pasos
+1. Validar en entorno real rutas y permisos de `REPORT_CACHE_HISTORY_*` y confirmar politica de retencion.
+2. Evaluar si se requiere paginar otros listados largos (actividad de usuarios) y UAT funcional de contabilidad y exportes.
+
+
 ## Revisión 2025-11-25 (tarde)
 
 - Se corrigieron bloqueos de plantillas duplicadas en `registro.html`, `cesta.html`, `productos-cliente.html`, `perfil-cliente.html` y `editar_proveedor.html` (errores `TemplateAssertionError` resueltos).

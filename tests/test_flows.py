@@ -70,8 +70,8 @@ class AuthFlowTest(BaseTestCase):
             "nombre": "Usuario Test",
             "usuario": "tester",
             "direccion": "Calle Falsa 123",
-            "contrasenya": "segura",
-            "contrasenya2": "segura",
+            "contrasenya": "Segura123!",
+            "contrasenya2": "Segura123!",
         }
 
         with self.app.app_context():
@@ -83,7 +83,7 @@ class AuthFlowTest(BaseTestCase):
 
             login_resp = self.client.post(
                 "/login",
-                data={"usuario": "tester", "contrasenya": "segura"},
+                data={"usuario": "tester", "contrasenya": "Segura123!"},
                 follow_redirects=False,
             )
             self.assertEqual(login_resp.status_code, 302)
@@ -95,8 +95,8 @@ class AuthFlowTest(BaseTestCase):
             "nombre": "Usuario Test",
             "usuario": "tester",
             "direccion": "Calle Falsa 123",
-            "contrasenya": "segura",
-            "contrasenya2": "otra",
+            "contrasenya": "Segura123!",
+            "contrasenya2": "Otra123!",
         }
 
         with self.app.app_context():
@@ -121,7 +121,7 @@ class CompraFlowTest(BaseTestCase):
             nombre="Cliente",
             usuario="cliente1",
             direccion="Calle 1",
-            contrasenya="segura",
+            contrasenya="Segura123!",
             rol="cliente",
         )
         db.session.add_all([proveedor, cliente])
@@ -199,7 +199,7 @@ class CompraFlowTest(BaseTestCase):
                 nombre="Cliente",
                 usuario="cliente_stock",
                 direccion="Calle 1",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="cliente",
             )
             db.session.add_all([proveedor, cliente])
@@ -221,7 +221,7 @@ class CompraFlowTest(BaseTestCase):
 
         self.client.post(
             "/login",
-            data={"usuario": "cliente_stock", "contrasenya": "segura"},
+            data={"usuario": "cliente_stock", "contrasenya": "Segura123!"},
             follow_redirects=True,
         )
         self.client.post(
@@ -269,7 +269,7 @@ class CompraFlowTest(BaseTestCase):
                 nombre="Cliente Null",
                 usuario="cliente_null",
                 direccion="Calle 123",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="cliente",
             )
             db.session.add_all([proveedor, cliente])
@@ -288,7 +288,7 @@ class CompraFlowTest(BaseTestCase):
             db.session.add(producto)
             db.session.commit()
 
-        self.client.post("/login", data={"usuario": "cliente_null", "contrasenya": "segura"}, follow_redirects=True)
+        self.client.post("/login", data={"usuario": "cliente_null", "contrasenya": "Segura123!"}, follow_redirects=True)
         resp = self.client.get("/productos_cliente")
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b"Cat\xc3\xa1logo", resp.data)
@@ -337,7 +337,7 @@ class ClienteGraficasTest(BaseTestCase):
                 nombre="Cliente Charts",
                 usuario="clienteCharts",
                 direccion="Calle Graf",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="cliente",
             )
             db.session.add_all([self.producto_a, self.producto_b, self.cliente])
@@ -408,7 +408,7 @@ class DataEndpointsTest(BaseTestCase):
             nombre="Admin",
             usuario="admin1",
             direccion="Oficina",
-            contrasenya="segura",
+            contrasenya="Segura123!",
             rol="admin",
             fecha_registro=datetime(2024, 1, 1),
         )
@@ -432,7 +432,7 @@ class DataEndpointsTest(BaseTestCase):
                 nombre="Cliente",
                 usuario="cliente_demo",
                 direccion="Calle 1",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="cliente",
             )
             db.session.add(cliente)
@@ -451,7 +451,7 @@ class DataEndpointsTest(BaseTestCase):
                     nombre="Uno",
                     usuario="u1",
                     direccion="Calle 1",
-                    contrasenya="segura",
+                    contrasenya="Segura123!",
                     rol="cliente",
                     fecha_registro=datetime(2024, 1, 10),
                 ),
@@ -459,7 +459,7 @@ class DataEndpointsTest(BaseTestCase):
                     nombre="Dos",
                     usuario="u2",
                     direccion="Calle 2",
-                    contrasenya="segura",
+                    contrasenya="Segura123!",
                     rol="cliente",
                     fecha_registro=datetime(2024, 2, 5),
                 ),
@@ -490,7 +490,7 @@ class DataEndpointsTest(BaseTestCase):
                 nombre="Cliente",
                 usuario="cli1",
                 direccion="Calle 1",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="cliente",
             )
             proveedor = Proveedor(
@@ -534,7 +534,7 @@ class ProveedorAjaxTest(BaseTestCase):
                 nombre="Admin Ajax",
                 usuario="admin_ajax",
                 direccion="Oficina",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="admin",
             )
             proveedor = Proveedor(
@@ -631,7 +631,7 @@ class ReportesCacheTest(BaseTestCase):
                 nombre="Admin Reportes",
                 usuario=f"admin_reportes_{secrets.token_hex(2)}",
                 direccion="Oficina",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="admin",
             )
             db.session.add(admin)
@@ -763,7 +763,7 @@ class ContabilidadFlowsTest(BaseTestCase):
                 nombre="Admin Conta",
                 usuario="admin_conta",
                 direccion="Oficina",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="admin",
             )
             db.session.add(admin)
@@ -847,14 +847,14 @@ class CsrfProtectionTest(unittest.TestCase):
                 nombre="Admin CSRF",
                 usuario="admin_csrf",
                 direccion="Oficina",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="admin",
             )
             self.cliente = Usuario(
                 nombre="Cliente CSRF",
                 usuario="cliente_csrf",
                 direccion="Calle 2",
-                contrasenya="segura",
+                contrasenya="Segura123!",
                 rol="cliente",
             )
             proveedor = Proveedor(
@@ -917,12 +917,12 @@ class PerfilClienteTest(BaseTestCase):
     def test_actualizar_perfil_cliente(self):
         with self.app.app_context():
             cliente = Usuario(
-                nombre="Cliente", usuario="cliente_mod", direccion="Calle 1", contrasenya="segura", rol="cliente"
+                nombre="Cliente", usuario="cliente_mod", direccion="Calle 1", contrasenya="Segura123!", rol="cliente"
             )
             db.session.add(cliente)
             db.session.commit()
 
-        self.client.post("/login", data={"usuario": "cliente_mod", "contrasenya": "segura"}, follow_redirects=True)
+        self.client.post("/login", data={"usuario": "cliente_mod", "contrasenya": "Segura123!"}, follow_redirects=True)
         resp = self.client.post(
             "/perfil_cliente",
             data={"nombre_usuario": "Cliente Editado", "direccion": "Nueva Direccion"},

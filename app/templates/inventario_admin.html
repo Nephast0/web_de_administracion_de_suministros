@@ -9,106 +9,75 @@
                 <span class="material-symbols-outlined">arrow_back</span>
             </a>
             <h1 class="titlewhiteN mb-0 ms-2">Productos Disponibles</h1>
-            <div class="ms-auto">
+            <div class="ms-auto d-flex gap-2 flex-wrap">
                 <a href="/agregar-producto" class="cta cta-inline text-decoration-none">Agregar producto</a>
             </div>
         </div>
 
-        <div class="mb-4">
-            <label for="ordenar" class="form-label titlewhiteN">Ordenar por:</label>
-            <select id="ordenar" class="form-select bg-dark text-light border-secondary w-auto d-inline-block"
-                onchange="window.location.href=this.value;">
-                <option value="{{ url_for('inventario.productos', orden='asc') }}" {% if orden=='asc' %}selected{% endif
-                    %}>ABC...</option>
-                <option value="{{ url_for('inventario.productos', orden='desc') }}" {% if orden=='desc' %}selected{%
-                    endif %}>ZYX...</option>
-                <option value="{{ url_for('inventario.productos', orden='precio_asc') }}" {% if orden=='precio_asc'
-                    %}selected{% endif %}>Precio: Menor a Mayor</option>
-                <option value="{{ url_for('inventario.productos', orden='precio_desc') }}" {% if orden=='precio_desc'
-                    %}selected{% endif %}>Precio: Mayor a Menor</option>
-                <option value="{{ url_for('inventario.productos', orden='cantidad_asc') }}" {% if orden=='cantidad_asc'
-                    %}selected{% endif %}>Cantidad: Menor a Mayor</option>
-                <option value="{{ url_for('inventario.productos', orden='cantidad_desc') }}" {% if
-                    orden=='cantidad_desc' %}selected{% endif %}>Cantidad: Mayor a Menor</option>
-            </select>
-        </div>
-
-        {% if alertas %}
-        <div class="alert alert-warning border-warning bg-opacity-10 text-warning mb-4">
-            <h4 class="alert-heading h5"><span
-                    class="material-symbols-outlined align-middle me-2">warning</span>Productos que necesitan
-                reposición:</h4>
-            <ul class="mb-0 ps-3">
-                {% for producto in alertas %}
-                <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{
-                    producto.cantidad }})</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        <div class="table-responsive">
-            <table class="glass-table w-100">
-                <thead>
-                    <tr>
-                        <th>Tipo</th>
-                        <th>Marca</th>
-                        <th>Modelo</th>
-                        <th>Descripción</th>
-                        <th>Precio</th>
-                        <th>Cantidad Disponible</th>
-                        <th>Opciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for producto in productos %}
-                    <tr>
-                        <td>{{ producto.tipo_producto }}</td>
-                        <td>{{ producto.marca }}</td>
-{% extends "base.html" %}
-{% block title %}Productos{% endblock %}
-
-{% block content %}
-<main class="container my-4">
-    <div class="glass-container">
-        <div class="d-flex align-items-center mb-4 flex-wrap gap-3">
-            <a class="back-btn" href="{{ url_for('inventario.menu_principal') }}" aria-label="Volver al menú">
-                <span class="material-symbols-outlined">arrow_back</span>
-            </a>
-            <h1 class="titlewhiteN mb-0 ms-2">Productos Disponibles</h1>
-            <div class="ms-auto">
-                <a href="/agregar-producto" class="cta cta-inline text-decoration-none">Agregar producto</a>
+        <form class="glass p-3 mb-4" method="get">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label titlewhite">Buscar</label>
+                    <input type="text" name="q" class="form-control" placeholder="Modelo / referencia" value="{{ filtros.q }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label titlewhite">Tipo</label>
+                    <input type="text" name="tipo" class="form-control" value="{{ filtros.tipo }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label titlewhite">Marca</label>
+                    <input type="text" name="marca" class="form-control" value="{{ filtros.marca }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label titlewhite">Proveedor</label>
+                    <select name="proveedor" class="form-select">
+                        <option value="">Todos</option>
+                        {% for prov in proveedores %}
+                        <option value="{{ prov.id }}" {% if filtros.proveedor == prov.id %}selected{% endif %}>{{ prov.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label titlewhite">Stock</label>
+                    <select name="stock" class="form-select">
+                        {% set s = filtros.stock %}
+                        <option value="todos" {% if s=='todos' %}selected{% endif %}>Todos</option>
+                        <option value="disponible" {% if s=='disponible' %}selected{% endif %}>Disponible</option>
+                        <option value="bajo" {% if s=='bajo' %}selected{% endif %}>Stock bajo</option>
+                        <option value="sin" {% if s=='sin' %}selected{% endif %}>Sin stock</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label titlewhite">Precio mínimo</label>
+                    <input type="number" step="0.01" name="precio_min" class="form-control" value="{{ filtros.precio_min }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label titlewhite">Precio máximo</label>
+                    <input type="number" step="0.01" name="precio_max" class="form-control" value="{{ filtros.precio_max }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label titlewhite">Orden</label>
+                    <select name="orden" class="form-select">
+                        <option value="asc" {% if orden=='asc' %}selected{% endif %}>ABC...</option>
+                        <option value="desc" {% if orden=='desc' %}selected{% endif %}>ZYX...</option>
+                        <option value="precio_asc" {% if orden=='precio_asc' %}selected{% endif %}>Precio ↑</option>
+                        <option value="precio_desc" {% if orden=='precio_desc' %}selected{% endif %}>Precio ↓</option>
+                        <option value="cantidad_asc" {% if orden=='cantidad_asc' %}selected{% endif %}>Cantidad ↑</option>
+                        <option value="cantidad_desc" {% if orden=='cantidad_desc' %}selected{% endif %}>Cantidad ↓</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="cta" type="submit">Filtrar</button>
+                </div>
             </div>
-        </div>
-
-        <div class="mb-4">
-            <label for="ordenar" class="form-label titlewhiteN">Ordenar por:</label>
-            <select id="ordenar" class="form-select bg-dark text-light border-secondary w-auto d-inline-block"
-                onchange="window.location.href=this.value;">
-                <option value="{{ url_for('inventario.productos', orden='asc') }}" {% if orden=='asc' %}selected{% endif
-                    %}>ABC...</option>
-                <option value="{{ url_for('inventario.productos', orden='desc') }}" {% if orden=='desc' %}selected{%
-                    endif %}>ZYX...</option>
-                <option value="{{ url_for('inventario.productos', orden='precio_asc') }}" {% if orden=='precio_asc'
-                    %}selected{% endif %}>Precio: Menor a Mayor</option>
-                <option value="{{ url_for('inventario.productos', orden='precio_desc') }}" {% if orden=='precio_desc'
-                    %}selected{% endif %}>Precio: Mayor a Menor</option>
-                <option value="{{ url_for('inventario.productos', orden='cantidad_asc') }}" {% if orden=='cantidad_asc'
-                    %}selected{% endif %}>Cantidad: Menor a Mayor</option>
-                <option value="{{ url_for('inventario.productos', orden='cantidad_desc') }}" {% if
-                    orden=='cantidad_desc' %}selected{% endif %}>Cantidad: Mayor a Menor</option>
-            </select>
-        </div>
+        </form>
 
         {% if alertas %}
         <div class="alert alert-warning border-warning bg-opacity-10 text-warning mb-4">
-            <h4 class="alert-heading h5"><span
-                    class="material-symbols-outlined align-middle me-2">warning</span>Productos que necesitan
-                reposición:</h4>
+            <h4 class="alert-heading h5"><span class="material-symbols-outlined align-middle me-2">warning</span>Productos con stock bajo:</h4>
             <ul class="mb-0 ps-3">
                 {% for producto in alertas %}
-                <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad disponible: {{
-                    producto.cantidad }})</li>
+                <li>{{ producto.tipo_producto }} - {{ producto.marca }} {{ producto.modelo }} (Cantidad: {{ producto.cantidad }})</li>
                 {% endfor %}
             </ul>
         </div>
@@ -137,25 +106,11 @@
                         <td>{{ producto.precio | currency }}</td>
                         <td>{{ producto.cantidad }}</td>
                         <td>
-                            <div class="d-flex gap-2 justify-content-center">
-                                <form action="{{ url_for('proveedores.reponer_stock', id=producto.id) }}"
-                                    method="get">
-                                    <button class="cta cta-inline"
-                                        aria-label="Reponer Stock {{ producto.modelo }}">Reponer</button>
-                                </form>
-                                <form action="{{ url_for('proveedores.editar_producto', id=producto.id) }}"
-                                    method="get">
-                                    <button class="cta cta-inline"
-                                        aria-label="Editar {{ producto.modelo }}">Editar</button>
-                                </form>
-                                <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}"
-                                    method="POST">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a class="cta cta-inline text-decoration-none" href="{{ url_for('proveedores.editar_producto', id=producto.id) }}">Editar</a>
+                                <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}" method="post" onsubmit="return confirm('¿Eliminar este producto?');">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button class="btn-danger-light" type="submit"
-                                        onclick="return confirm('¿Estás seguro de eliminar este producto?');"
-                                        aria-label="Eliminar {{ producto.modelo }}">
-                                        Eliminar
-                                    </button>
+                                    <button class="btn-danger-light" type="submit">Eliminar</button>
                                 </form>
                             </div>
                         </td>
@@ -164,10 +119,18 @@
                 </tbody>
             </table>
         </div>
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+            <div class="pagination">
+                {% if pagination.has_prev %}
+                <a class="btn btn-outline-light btn-sm" href="{{ url_for('inventario.productos', page=pagination.prev_num, **filtros) }}">&larr; Anterior</a>
+                {% endif %}
+                <span class="text-muted">Página {{ pagination.page }} de {{ pagination.pages }}</span>
+                {% if pagination.has_next %}
+                <a class="btn btn-outline-light btn-sm" href="{{ url_for('inventario.productos', page=pagination.next_num, **filtros) }}">Siguiente &rarr;</a>
+                {% endif %}
+            </div>
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('inventario.exportar_productos', **filtros) }}">Exportar CSV</a>
+        </div>
     </div>
 </main>
-{% endblock %}
-
-{% block page_styles %}
-
 {% endblock %}

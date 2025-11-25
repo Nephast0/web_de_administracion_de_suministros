@@ -5,9 +5,14 @@ inventario respecto a otras áreas de la app.
 """
 
 from decimal import Decimal, InvalidOperation
-from flask import abort, Blueprint, current_app as app, flash, jsonify, redirect, render_template, request, url_for
+from flask import abort, Blueprint, current_app as app, flash, jsonify, redirect, render_template, request, url_for, Response
 from flask_login import current_user, login_required
+from sqlalchemy import or_
+import csv
+import io
 
+DEFAULT_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 50
 from ..db import db
 from ..forms import AgregarProductoForm, ProveedorForm
 from ..models import Producto, Proveedor
@@ -327,9 +332,74 @@ def eliminar_producto(id):
 @role_required("admin")
 def proveedores():
     app.logger.debug("Entrando en /proveedores")
-    proveedores_list = Proveedor.query.all()
+    q = (request.args.get("q") or "").strip()
+    tipo = (request.args.get("tipo") or "").strip()
+    page = max(int(request.args.get("page", 1)), 1)
+    per_page = min(int(request.args.get("page_size", DEFAULT_PAGE_SIZE)), MAX_PAGE_SIZE)
+
+    query = Proveedor.query
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(
+                Proveedor.nombre.ilike(like),
+                Proveedor.cif.ilike(like),
+                Proveedor.email.ilike(like),
+            )
+        )
+    if tipo:
+        query = query.filter(Proveedor.tipo_producto.ilike(f"%{tipo}%"))
+
+    pagination = query.order_by(Proveedor.nombre.asc()).paginate(page=page, per_page=per_page, error_out=False)
+    proveedores_list = pagination.items
     app.logger.debug("Proveedores recuperados: %s", [p.id for p in proveedores_list])
-    return render_template("proveedores.html", proveedores=proveedores_list)
+    return render_template(
+        "proveedores.html",
+        proveedores=proveedores_list,
+        filtros={"q": q, "tipo": tipo},
+        pagination=pagination,
+    )
+
+
+@proveedores_bp.route('/proveedores/export', methods=['GET'])
+@login_required
+@role_required("admin")
+def exportar_proveedores():
+    q = (request.args.get("q") or "").strip()
+    tipo = (request.args.get("tipo") or "").strip()
+
+    query = Proveedor.query
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(
+                Proveedor.nombre.ilike(like),
+                Proveedor.cif.ilike(like),
+                Proveedor.email.ilike(like),
+            )
+        )
+    if tipo:
+        query = query.filter(Proveedor.tipo_producto.ilike(f"%{tipo}%"))
+
+    proveedores_list = query.order_by(Proveedor.nombre.asc()).all()
+    si = io.StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['Fecha', 'Nombre', 'Telefono', 'Direccion', 'Email', 'CIF', 'Descuento', 'IVA', 'Tipo'])
+    for p in proveedores_list:
+        cw.writerow([
+            p.fecha.strftime('%Y-%m-%d') if p.fecha else '',
+            p.nombre,
+            p.telefono,
+            p.direccion,
+            p.email,
+            p.cif,
+            p.tasa_de_descuento,
+            p.iva,
+            p.tipo_producto,
+        ])
+    output = Response(si.getvalue(), mimetype='text/csv')
+    output.headers['Content-Disposition'] = 'attachment; filename=proveedores.csv'
+    return output
 
 
 @proveedores_bp.route('/agregar-proveedor', methods=['GET', 'POST'])

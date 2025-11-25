@@ -3,28 +3,77 @@
 
 {% block content %}
 <main class="container py-4">
-    <div class="d-flex align-items-center mb-4">
+    <div class="d-flex align-items-center mb-4 flex-wrap gap-2">
         <a class="back-btn" href="{{ url_for('inventario.menu_cliente') }}" aria-label="Volver al menú del cliente">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <h1 class="ms-3 titlewhiteN mb-0">Perfil de {{ usuario.usuario }}</h1>
+        <div class="ms-auto d-flex gap-2 flex-wrap">
+            <a class="cta cta-inline" href="{{ url_for('inventario.pedidos') }}">Ver pedidos</a>
+        </div>
+    </div>
+
+    <div class="glass-container mb-4">
+        <form method="POST" action="{{ url_for('inventario.perfil_cliente', page=pagina) }}">
+            {{ form.hidden_tag() }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label titlewhite">Nombre</label>
+                    {{ form.nombre_usuario(class_="form-control") }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label titlewhite">Usuario</label>
+                    <input type="text" class="form-control" value="{{ usuario.usuario }}" disabled>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label titlewhite">Dirección</label>
+                    {{ form.direccion(class_="form-control") }}
+                </div>
+            </div>
+            <hr class="text-white-50 my-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label titlewhite">Idioma/moneda</label>
+                    {{ form.currency_locale(class_="form-select") }}
+                </div>
+            </div>
+            <hr class="text-white-50 my-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label titlewhite">Contraseña actual</label>
+                    {{ form.current_password(class_="form-control", autocomplete="current-password") }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label titlewhite">Nueva contraseña</label>
+                    {{ form.new_password(class_="form-control", autocomplete="new-password") }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label titlewhite">Confirmar nueva contraseña</label>
+                    {{ form.new_password2(class_="form-control", autocomplete="new-password") }}
+                </div>
+            </div>
+            <div class="d-grid mt-4">
+                <button type="submit" class="cta">Guardar cambios</button>
+            </div>
+        </form>
     </div>
 
     <div class="glass-container">
-        <form method="POST" action="{{ url_for('inventario.perfil_cliente') }}">
-            {{ form.hidden_tag() }}
-            <div class="form-group mb-3">
-                {{ form.nombre_usuario.label(class_="form-label titlewhite") }}
-                {{ form.nombre_usuario(class_="form-control") }}
-            </div>
-            <div class="form-group mb-3">
-                {{ form.direccion.label(class_="form-label titlewhite") }}
-                {{ form.direccion(class_="form-control") }}
-            </div>
-            <div class="d-grid">
-                <button type="submit" class="cta">Actualizar perfil</button>
-            </div>
-        </form>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h2 class="titlewhiteN h4 m-0">Actividad reciente</h2>
+            <small class="text-muted">Mostrando {{ actividades|length }} de {{ total_actividades }}</small>
+        </div>
+        {% if actividades %}
+        <ul class="list-group list-group-flush bg-transparent">
+            {% for act in actividades %}
+            <li class="list-group-item bg-transparent text-white d-flex justify-content-between">
+                <span>{{ act.fecha.strftime('%Y-%m-%d %H:%M') }} · {{ act.modulo }}: {{ act.accion }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">Sin actividad registrada.</p>
+        {% endif %}
     </div>
 </main>
 {% endblock %}

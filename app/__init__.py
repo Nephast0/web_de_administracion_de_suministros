@@ -12,7 +12,7 @@ from decimal import Decimal, InvalidOperation
 
 from babel.core import UnknownLocaleError
 from babel.numbers import format_currency as babel_currency, get_currency_symbol
-from flask import Flask, current_app
+from flask import Flask, current_app, session
 
 from .db import db
 from .extensions import csrf, login_manager, bcrypt
@@ -43,6 +43,12 @@ def _currency_config(app=None):
         "locale": _DEFAULT_CURRENCY_LOCALE,
         "symbol": _DEFAULT_CURRENCY_SYMBOL,
     }
+    # Overrides por usuario guardados en sesi�n.
+    if session:
+        if session.get("currency_locale"):
+            config["locale"] = session["currency_locale"]
+        if session.get("currency_symbol"):
+            config["symbol"] = session["currency_symbol"]
     target_app = app
     if target_app is None:
         try:

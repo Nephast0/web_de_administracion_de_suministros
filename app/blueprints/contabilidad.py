@@ -6,6 +6,7 @@ from app.forms import AsientoManualForm
 from app.services.accounting_services import crear_asiento, inicializar_plan_cuentas, obtener_saldo_cuenta
 import csv
 import io
+from datetime import datetime, timedelta
 
 contabilidad_bp = Blueprint('contabilidad', __name__, template_folder='templates')
 
@@ -27,8 +28,27 @@ def diario():
         flash('Acceso no autorizado.', 'danger')
         return redirect(url_for('menu.menu_principal'))
     
-    asientos = Asiento.query.order_by(Asiento.fecha.desc()).all()
-    return render_template('contabilidad/diario.html', asientos=asientos)
+    def _parse_date(raw):
+        if not raw:
+            return None
+        try:
+            return datetime.strptime(raw, '%Y-%m-%d')
+        except ValueError:
+            return None
+
+    fecha_inicio = _parse_date(request.args.get('fecha_inicio'))
+    fecha_fin = _parse_date(request.args.get('fecha_fin'))
+    if fecha_fin:
+        fecha_fin = fecha_fin + timedelta(days=1)
+
+    query = Asiento.query.order_by(Asiento.fecha.desc())
+    if fecha_inicio:
+        query = query.filter(Asiento.fecha >= fecha_inicio)
+    if fecha_fin:
+        query = query.filter(Asiento.fecha < fecha_fin)
+
+    asientos = query.all()
+    return render_template('contabilidad/diario.html', asientos=asientos, filtros={"fecha_inicio": request.args.get('fecha_inicio', ''), "fecha_fin": request.args.get('fecha_fin', '')})
 
 @contabilidad_bp.route('/contabilidad/balance')
 @login_required
@@ -95,14 +115,23 @@ def cuenta_resultados():
         return redirect(url_for('menu.menu_principal'))
         
     from app.services.accounting_services import obtener_cuenta_resultados
+
+    def _parse_date(raw):
+        if not raw:
+            return None
+        try:
+            return datetime.strptime(raw, '%Y-%m-%d')
+        except ValueError:
+            return None
     
-    # Opcional: Filtrar por fechas desde query params
-    fecha_inicio = request.args.get('fecha_inicio')
-    fecha_fin = request.args.get('fecha_fin')
-    
+    fecha_inicio_raw = request.args.get('fecha_inicio')
+    fecha_fin_raw = request.args.get('fecha_fin')
+    fecha_inicio = _parse_date(fecha_inicio_raw)
+    fecha_fin = _parse_date(fecha_fin_raw)
+
     datos = obtener_cuenta_resultados(fecha_inicio, fecha_fin)
     
-    return render_template('contabilidad/cuenta_resultados.html', **datos)
+    return render_template('contabilidad/cuenta_resultados.html', filtros={"fecha_inicio": fecha_inicio_raw or "", "fecha_fin": fecha_fin_raw or ""}, **datos)
 
 @contabilidad_bp.route('/contabilidad/diario/exportar')
 @login_required
@@ -111,11 +140,30 @@ def exportar_diario():
         flash('Acceso no autorizado.', 'danger')
         return redirect(url_for('menu.menu_principal'))
     
-    asientos = Asiento.query.order_by(Asiento.fecha.desc()).all()
+    def _parse_date(raw):
+        if not raw:
+            return None
+        try:
+            return datetime.strptime(raw, '%Y-%m-%d')
+        except ValueError:
+            return None
+
+    fecha_inicio = _parse_date(request.args.get('fecha_inicio'))
+    fecha_fin = _parse_date(request.args.get('fecha_fin'))
+    if fecha_fin:
+        fecha_fin = fecha_fin + timedelta(days=1)
+
+    query = Asiento.query.order_by(Asiento.fecha.desc())
+    if fecha_inicio:
+        query = query.filter(Asiento.fecha >= fecha_inicio)
+    if fecha_fin:
+        query = query.filter(Asiento.fecha < fecha_fin)
+
+    asientos = query.all()
     
     si = io.StringIO()
     cw = csv.writer(si)
-    cw.writerow(['ID', 'Fecha', 'Descripción', 'Usuario', 'Cuenta', 'Debe', 'Haber'])
+    cw.writerow(['ID', 'Fecha', 'Descripcion', 'Usuario', 'Cuenta', 'Debe', 'Haber'])
     
     for asiento in asientos:
         for apunte in asiento.apuntes:
@@ -166,9 +214,17 @@ def exportar_cuenta_resultados():
         return redirect(url_for('menu.menu_principal'))
         
     from app.services.accounting_services import obtener_cuenta_resultados
+
+    def _parse_date(raw):
+        if not raw:
+            return None
+        try:
+            return datetime.strptime(raw, '%Y-%m-%d')
+        except ValueError:
+            return None
     
-    fecha_inicio = request.args.get('fecha_inicio')
-    fecha_fin = request.args.get('fecha_fin')
+    fecha_inicio = _parse_date(request.args.get('fecha_inicio'))
+    fecha_fin = _parse_date(request.args.get('fecha_fin'))
     
     datos = obtener_cuenta_resultados(fecha_inicio, fecha_fin)
     

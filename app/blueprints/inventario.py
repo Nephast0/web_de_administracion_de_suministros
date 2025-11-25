@@ -4,18 +4,100 @@ Agrupa rutas de catálogo, cesta y menús para separar responsabilidades
 respecto a autenticación y reportes.
 """
 
-from decimal import Decimal
-from flask import abort, Blueprint, current_app as app, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_required
+from decimal import Decimal, InvalidOperation
+from sqlalchemy import or_, and_
+from flask import abort, Blueprint, current_app as app, flash, redirect, render_template, request, url_for, session, Response
+from flask_login import current_user, login_required, logout_user
 
 from ..db import db
 from ..forms import EditarPerfilForm
-from ..models import CestaDeCompra, Compra, Producto, Proveedor
+from ..models import CestaDeCompra, Compra, Producto, Proveedor, ActividadUsuario
 from .helpers import role_required
 from ..services.accounting_services import crear_asiento
 
 
 inventario_bp = Blueprint("inventario", __name__)
+DEFAULT_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 50
+
+
+def _parse_decimal(value: str | None):
+    if not value:
+        return None
+    try:
+        return Decimal(value)
+    except (InvalidOperation, ValueError):
+        return None
+
+
+def _build_productos_query(args):
+    orden = args.get('orden', 'asc')
+    q = (args.get('q') or "").strip()
+    tipo = (args.get('tipo') or "").strip()
+    marca = (args.get('marca') or "").strip()
+    proveedor_id = (args.get('proveedor') or "").strip()
+    stock = args.get('stock')
+    precio_min = _parse_decimal((args.get('precio_min') or "").strip())
+    precio_max = _parse_decimal((args.get('precio_max') or "").strip())
+
+    query = Producto.query
+
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(
+                Producto.modelo.ilike(like),
+                Producto.num_referencia.ilike(like),
+                Producto.descripcion.ilike(like),
+            )
+        )
+    if tipo:
+        query = query.filter(Producto.tipo_producto.ilike(f"%{tipo}%"))
+    if marca:
+        query = query.filter(Producto.marca.ilike(f"%{marca}%"))
+    if proveedor_id:
+        query = query.filter(Producto.proveedor_id == proveedor_id)
+    if stock == "bajo":
+        query = query.filter(
+            and_(
+                Producto.cantidad_minima.isnot(None),
+                Producto.cantidad <= Producto.cantidad_minima,
+            )
+        )
+    elif stock == "sin":
+        query = query.filter(Producto.cantidad <= 0)
+    elif stock == "disponible":
+        query = query.filter(Producto.cantidad > 0)
+
+    if precio_min is not None:
+        query = query.filter(Producto.precio >= precio_min)
+    if precio_max is not None:
+        query = query.filter(Producto.precio <= precio_max)
+
+    if orden == 'asc':
+        query = query.order_by(Producto.modelo.asc())
+    elif orden == 'desc':
+        query = query.order_by(Producto.modelo.desc())
+    elif orden == 'precio_asc':
+        query = query.order_by(Producto.precio.asc())
+    elif orden == 'precio_desc':
+        query = query.order_by(Producto.precio.desc())
+    elif orden == 'cantidad_asc':
+        query = query.order_by(Producto.cantidad.asc())
+    elif orden == 'cantidad_desc':
+        query = query.order_by(Producto.cantidad.desc())
+
+    filtros = {
+        "q": q,
+        "tipo": tipo,
+        "marca": marca,
+        "proveedor": proveedor_id,
+        "stock": stock or "todos",
+        "precio_min": args.get('precio_min', ''),
+        "precio_max": args.get('precio_max', ''),
+        "orden": orden,
+    }
+    return query, filtros
 
 
 @inventario_bp.route("/menu_principal", methods=["GET", "POST"])
@@ -40,60 +122,120 @@ def menu_cliente():
 def perfil_cliente():
     usuario = current_user
     form = EditarPerfilForm()
+    page = max(int(request.args.get("page", 1)), 1)
+    per_page = 10
 
     if request.method == "GET":
         form.nombre_usuario.data = usuario.nombre
         form.direccion.data = usuario.direccion
+        form.currency_locale.data = session.get("currency_locale", "")
 
     if form.validate_on_submit():
         usuario.nombre = form.nombre_usuario.data
         usuario.direccion = form.direccion.data
 
+        if form.currency_locale.data:
+            session["currency_locale"] = form.currency_locale.data
+
+        new_pass = form.new_password.data
+        if new_pass:
+            current_pass = form.current_password.data
+            if not current_pass or not usuario.check_contrasenya(current_pass):
+                flash("La contraseña actual no es correcta.", "danger")
+                return redirect(url_for("inventario.perfil_cliente"))
+            usuario.hash_contrasenya(new_pass)
+
         try:
             db.session.commit()
+            if new_pass:
+                logout_user()
+                flash("Contraseña actualizada. Vuelve a iniciar sesión.", "success")
+                return redirect(url_for("auth.login"))
             flash("Tu perfil ha sido actualizado con éxito.", "success")
-            return redirect(url_for("inventario.perfil_cliente"))
+            return redirect(url_for("inventario.perfil_cliente", page=page))
         except Exception:
             db.session.rollback()
             flash("Error al actualizar el perfil. Inténtalo nuevamente.", "danger")
 
-    return render_template("perfil-cliente.html", form=form, usuario=usuario)
+    actividades = []
+    if hasattr(usuario, "actividades"):
+        actividades = sorted(usuario.actividades, key=lambda a: a.fecha, reverse=True)
+    total = len(actividades)
+    start = (page - 1) * per_page
+    end = start + per_page
+    actividades_page = actividades[start:end]
+
+    return render_template(
+        "perfil-cliente.html",
+        form=form,
+        usuario=usuario,
+        actividades=actividades_page,
+        pagina=page,
+        total_actividades=total,
+    )
 
 
 @inventario_bp.route("/productos", methods=["GET", "POST"])
 @login_required
 @role_required("admin")
 def productos():
-    orden = request.args.get('orden', 'asc')
-    if orden == 'asc':
-        productos = Producto.query.order_by(Producto.modelo.asc()).all()
-    elif orden == 'desc':
-        productos = Producto.query.order_by(Producto.modelo.desc()).all()
-    elif orden == 'precio_asc':
-        productos = Producto.query.order_by(Producto.precio.asc()).all()
-    elif orden == 'precio_desc':
-        productos = Producto.query.order_by(Producto.precio.desc()).all()
-    elif orden == 'cantidad_asc':
-        productos = Producto.query.order_by(Producto.cantidad.asc()).all()
-    elif orden == 'cantidad_desc':
-        productos = Producto.query.order_by(Producto.cantidad.desc()).all()
-    else:
-        productos = Producto.query.all()
-    # Alertamos al administrador cuando el producto alcanzó el umbral mínimo
+    query, filtros = _build_productos_query(request.args)
+    page = max(int(request.args.get("page", 1)), 1)
+    per_page = min(int(request.args.get("page_size", DEFAULT_PAGE_SIZE)), MAX_PAGE_SIZE)
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    productos = pagination.items
     alertas = [
         producto for producto in productos
         if producto.cantidad_minima is not None
         and producto.cantidad is not None
         and producto.cantidad <= producto.cantidad_minima
     ]
-    return render_template('inventario_admin.html', productos=productos, orden=orden, alertas=alertas)
+    proveedores = Proveedor.query.all()
+    return render_template(
+        'inventario_admin.html',
+        productos=productos,
+        orden=filtros["orden"],
+        alertas=alertas,
+        proveedores=proveedores,
+        filtros=filtros,
+        pagination=pagination,
+    )
+
+
+@inventario_bp.route('/productos/export', methods=['GET'])
+@login_required
+@role_required("admin")
+def exportar_productos():
+    query, _ = _build_productos_query(request.args)
+    productos = query.all()
+    import csv, io
+    si = io.StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['Tipo', 'Marca', 'Modelo', 'Descripcion', 'Precio', 'Cantidad', 'Proveedor'])
+    for p in productos:
+        cw.writerow([
+            p.tipo_producto,
+            p.marca,
+            p.modelo,
+            p.descripcion,
+            p.precio,
+            p.cantidad,
+            p.proveedor_id,
+        ])
+    output = Response(si.getvalue(), mimetype='text/csv')
+    output.headers['Content-Disposition'] = 'attachment; filename=productos.csv'
+    return output
 
 
 @inventario_bp.route("/productos_cliente", methods=["GET", "POST"])
 @login_required
 @role_required("cliente")
 def productos_cliente():
-    productos = Producto.query.all()
+    query, filtros = _build_productos_query(request.args)
+    page = max(int(request.args.get("page", 1)), 1)
+    per_page = min(int(request.args.get("page_size", DEFAULT_PAGE_SIZE)), MAX_PAGE_SIZE)
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    productos = pagination.items
     alertas = [
         producto
         for producto in productos
@@ -101,7 +243,13 @@ def productos_cliente():
         and producto.cantidad is not None
         and producto.cantidad <= producto.cantidad_minima
     ]
-    return render_template("productos-cliente.html", productos=productos, alertas=alertas)
+    return render_template(
+        "productos-cliente.html",
+        productos=productos,
+        alertas=alertas,
+        filtros=filtros,
+        pagination=pagination,
+    )
 
 
 @inventario_bp.route('/agregar_a_la_cesta/<producto_id>', methods=['POST'])
@@ -319,8 +467,15 @@ def confirmar_compra():
 @login_required
 @role_required("cliente")
 def pedidos():
-    pedidos = Compra.query.filter_by(usuario_id=current_user.id).filter(Compra.estado != "Cancelado").all()
-    return render_template("pedidos.html", pedidos=pedidos)
+    page = max(int(request.args.get("page", 1)), 1)
+    per_page = min(int(request.args.get("page_size", DEFAULT_PAGE_SIZE)), MAX_PAGE_SIZE)
+    pagination = (
+        Compra.query.filter_by(usuario_id=current_user.id)
+        .filter(Compra.estado != "Cancelado")
+        .order_by(Compra.fecha.desc())
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+    return render_template("pedidos.html", pedidos=pagination.items, pagination=pagination)
 
 
 @inventario_bp.route('/cancelar_pedido/<pedido_id>', methods=['POST'])

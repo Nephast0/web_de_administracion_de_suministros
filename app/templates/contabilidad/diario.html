@@ -8,12 +8,12 @@
 <div class="glass-container">
     <h2 class="text-center mb-4" style="color: #fff;">Libro Diario</h2>
 
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
         <a href="{{ url_for('menu.menu_principal') }}" class="back-btn">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
         <div class="d-flex gap-2">
-             <a href="{{ url_for('contabilidad.exportar_diario') }}" class="cta">
+             <a href="{{ url_for('contabilidad.exportar_diario', fecha_inicio=filtros.fecha_inicio, fecha_fin=filtros.fecha_fin) }}" class="cta">
                 <i class="fas fa-file-csv"></i> Exportar CSV
             </a>
             <a href="{{ url_for('contabilidad.nuevo_asiento') }}" class="cta">
@@ -21,6 +21,22 @@
             </a>
         </div>
     </div>
+
+    <form class="glass p-3 mb-4" method="get">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label text-white">Fecha desde</label>
+                <input type="date" name="fecha_inicio" class="form-control" value="{{ filtros.fecha_inicio }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label text-white">Fecha hasta</label>
+                <input type="date" name="fecha_fin" class="form-control" value="{{ filtros.fecha_fin }}">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="cta" type="submit">Filtrar</button>
+            </div>
+        </div>
+    </form>
 
     <div class="table-responsive">
         <table class="glass-table table table-borderless text-white">
