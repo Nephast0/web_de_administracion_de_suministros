@@ -279,18 +279,22 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Theme Colors (Updated for Elegant Dark / Indigo)
+    // Theme Colors (Dynamic)
+    const getThemeColor = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+
     const themeColors = {
-        primary: '#6366f1',   // Indigo 500
+        primary: getThemeColor('--color-primary-500') || '#6366f1',
+        primaryTransparent: (getThemeColor('--color-primary-500') || '#6366f1') + '33',
         secondary: '#f59e0b', // Amber 500
         danger: '#ef4444',    // Red 500
         success: '#10b981',   // Emerald 500
         info: '#3b82f6',      // Blue 500
         purple: '#a855f7',    // Purple 500
         pink: '#ec4899',      // Pink 500
-        text: '#f8fafc',      // Slate 50
-        textMuted: '#94a3b8', // Slate 400
-        grid: '#334155',      // Slate 700
-        background: 'rgba(15, 23, 42, 0.7)' // Slate 900 with opacity
+        text: getThemeColor('--color-canvas-300') || '#cbd5e1', // Slate 300
+        textMuted: getThemeColor('--color-canvas-400') || '#94a3b8', // Slate 400
+        grid: getThemeColor('--color-canvas-700') || '#334155', // Slate 700
+        background: getThemeColor('--color-canvas-900') || '#0f172a' // Slate 900
     };
 
     // Chart.js Global Defaults

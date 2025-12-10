@@ -30,8 +30,8 @@
 
 ### Pendiente / próximos pasos
 1. **Solucionar Entorno Local:** Resolver problemas de autenticación en el entorno de pruebas para permitir validación e2e completa.
-2. **Corrección de Rutas:** Investigar y solucionar el error 404 reportado en la ruta `/reportes` (actualmente redirige a gráfica pero la ruta base falla).
-3. **Actualización Cliente:** Aplicar y pulir el diseño "Elegant Dark" en las plantillas específicas de cliente (`catalogo`, `carrito`, `pedidos`, `perfil`) si requieren ajustes adicionales fuera de `base.html`.
+3. **Refactorización Admin Gráficas:** Actualizar `graficas.html` para usar colores semánticos dinámicos en los gráficos (Chart.js), similar a la implementación en cliente.
+4. **Limpieza Final:** Eliminar archivos CSS obsoletos y unificar estilos.
 
 ---
 ## Revisión 2025-12-10 (navbar y suite de tests)
