@@ -2,52 +2,53 @@
 {% block title %}Registro{% endblock %}
 
 {% block content %}
-<main class="container my-5 position-relative">
-    <a href="{{ url_for('auth.login') }}" class="back-btn" style="position: absolute; top: 0; left: -60px;"
-        aria-label="Volver al inicio de sesión">
-        <span class="material-symbols-outlined">arrow_back</span>
-    </a>
-
-    <div class="glass-container" style="max-width: 600px; margin: 0 auto;">
-        <h3 class="text-center titlewhiteN mb-4">Introduzca sus datos</h3>
-
-        <form action="{{ url_for('auth.registro') }}" method="post">
-            {{ form.hidden_tag() }}
-
-            <div class="form-group">
-                <label for="nombre" class="form-label">Nombre y Apellido</label>
-                <input type="text" name="nombre" class="form-control" id="nombre" placeholder="Nombre Completo">
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="text-center">Registro de Nuevo Usuario</h1>
             </div>
+            <div class="card-body">
+                <form action="{{ url_for('auth.registro') }}" method="post">
+                    {{ form.hidden_tag() }}
 
-            <div class="form-group">
-                <label for="usuario" class="form-label">Nombre de Usuario</label>
-                <input type="text" name="usuario" class="form-control" id="usuario" placeholder="Usuario">
+                    <div class="form-group mb-3">
+                        <label for="nombre" class="form-label">Nombre y Apellido</label>
+                        <input type="text" name="nombre" class="form-control" id="nombre" placeholder="Nombre Completo">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="usuario" class="form-label">Nombre de Usuario</label>
+                        <input type="text" name="usuario" class="form-control" id="usuario" placeholder="Usuario">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="direccion" class="form-label">Dirección de Usuario</label>
+                        <input type="text" name="direccion" class="form-control" id="direccion" placeholder="Dirección">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="contrasenya" class="form-label">Contraseña deseada</label>
+                        <input type="password" name="contrasenya" class="form-control" id="contrasenya" placeholder="Contraseña">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="contrasenya2" class="form-label">Confirmar contraseña</label>
+                        <input type="password" name="contrasenya2" class="form-control" id="contrasenya2" placeholder="Confirmar contraseña">
+                    </div>
+
+                    <p class="text-muted small mt-3 mb-4">Las nuevas cuentas se registran como clientes. Si necesitas un rol administrativo, contacta con un administrador existente.</p>
+
+                    <div class="d-grid">
+                        <button class="btn btn-primary" type="submit">Registrar</button>
+                    </div>
+                </form>
             </div>
-
-            <div class="form-group">
-                <label for="direccion" class="form-label">Dirección de Usuario</label>
-                <input type="text" name="direccion" class="form-control" id="direccion" placeholder="Dirección">
+            <div class="card-footer text-center">
+                <a href="{{ url_for('auth.login') }}">¿Ya tienes una cuenta? Inicia sesión</a>
             </div>
-
-            <div class="form-group">
-                <label for="contrasenya" class="form-label">Contraseña deseada</label>
-                <input type="password" name="contrasenya" class="form-control" id="contrasenya"
-                    placeholder="Contraseña">
-            </div>
-
-            <div class="form-group">
-                <label for="contrasenya2" class="form-label">Confirmar contraseña</label>
-                <input type="password" name="contrasenya2" class="form-control" id="contrasenya2"
-                    placeholder="Confirmar contraseña">
-            </div>
-
-            <p class="text-white-50 small mt-3 mb-4">Las nuevas cuentas se registran como clientes. Si necesitas un rol
-                administrativo, contacta con un administrador existente.</p>
-
-            <div class="d-grid">
-                <button class="cta" type="submit">Registrar</button>
-            </div>
-        </form>
+        </div>
     </div>
-</main>
+</div>
 {% endblock %}
+

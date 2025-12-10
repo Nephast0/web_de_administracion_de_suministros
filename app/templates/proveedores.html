@@ -1,81 +1,71 @@
 {% extends "base.html" %}
 {% block title %}Proveedores{% endblock %}
-{% block page_styles %}
-<style>
-    .glass-table td:nth-child(4) {
-        max-width: 200px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
-<main class="container my-4 position-relative">
-    <a href="{{ url_for('inventario.menu_principal') }}" class="back-btn" style="position: absolute; top: 0; left: -60px;" aria-label="Volver al menú principal">
-        <span class="material-symbols-outlined">arrow_back</span>
+<main class="container mx-auto my-4 px-4 relative">
+    <a href="{{ url_for('inventario.menu_principal') }}" class="absolute top-0 -left-4 z-10 flex items-center justify-center w-10 h-10 bg-gray-700 rounded-full hover:bg-gray-600" aria-label="Volver al menú principal">
+        <span class="material-symbols-outlined text-white">arrow_back</span>
     </a>
 
-    <div class="glass-container">
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-            <h1 class="titlewhiteN m-0">Proveedores</h1>
-            <div class="d-flex gap-2">
-                <a href="{{ url_for('proveedores.agregar_proveedor') }}" class="cta cta-inline text-decoration-none">Agregar proveedor</a>
-                <a href="{{ url_for('proveedores.exportar_proveedores', **filtros) }}" class="btn btn-secondary btn-sm">Exportar CSV</a>
+    <div class="bg-gray-800 rounded-lg shadow-xl p-6">
+        <div class="flex justify-between items-center mb-6 flex-wrap gap-2">
+            <h1 class="text-2xl font-bold text-white m-0">Proveedores</h1>
+            <div class="flex gap-2">
+                <a href="{{ url_for('proveedores.agregar_proveedor') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Agregar proveedor</a>
+                <a href="{{ url_for('proveedores.exportar_proveedores', **filtros) }}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Exportar CSV</a>
             </div>
         </div>
 
-        <form class="glass p-3 mb-4" method="get">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label titlewhite">Buscar</label>
-                    <input type="text" name="q" class="form-control" placeholder="Nombre / CIF / email" value="{{ filtros.q }}">
+        <form class="bg-gray-700 p-4 rounded-md mb-6" method="get">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Buscar</label>
+                    <input type="text" name="q" class="w-full bg-gray-800 border-gray-600 text-white rounded-md p-2" placeholder="Nombre / CIF / email" value="{{ filtros.q }}">
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label titlewhite">Tipo</label>
-                    <input type="text" name="tipo" class="form-control" value="{{ filtros.tipo }}">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Tipo</label>
+                    <input type="text" name="tipo" class="w-full bg-gray-800 border-gray-600 text-white rounded-md p-2" value="{{ filtros.tipo }}">
                 </div>
-                <div class="col-md-2 d-grid">
-                    <button class="cta" type="submit">Filtrar</button>
+                <div>
+                    <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">Filtrar</button>
                 </div>
             </div>
         </form>
 
-        <div class="table-responsive">
-            <table class="glass-table">
-                <thead>
+        <div class="overflow-x-auto rounded-lg">
+            <table class="w-full text-sm text-left text-gray-400">
+                <thead class="text-xs text-gray-300 uppercase bg-gray-700">
                     <tr>
-                        <th>Fecha</th>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Dirección</th>
-                        <th>Email</th>
-                        <th>CIF</th>
-                        <th>Desc.</th>
-                        <th>IVA</th>
-                        <th>Tipo</th>
-                        <th>Opciones</th>
+                        <th class="px-6 py-3">Fecha</th>
+                        <th class="px-6 py-3">Nombre</th>
+                        <th class="px-6 py-3">Teléfono</th>
+                        <th class="px-6 py-3">Dirección</th>
+                        <th class="px-6 py-3">Email</th>
+                        <th class="px-6 py-3">CIF</th>
+                        <th class="px-6 py-3">Desc.</th>
+                        <th class="px-6 py-3">IVA</th>
+                        <th class="px-6 py-3">Tipo</th>
+                        <th class="px-6 py-3 text-center">Opciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for proveedor in proveedores %}
-                    <tr>
-                        <td>{{ proveedor.fecha.strftime('%Y-%m-%d') if proveedor.fecha else '-' }}</td>
-                        <td>{{ proveedor.nombre }}</td>
-                        <td>{{ proveedor.telefono }}</td>
-                        <td title="{{ proveedor.direccion }}">{{ proveedor.direccion }}</td>
-                        <td>{{ proveedor.email }}</td>
-                        <td>{{ proveedor.cif }}</td>
-                        <td>{{ proveedor.tasa_de_descuento }}%</td>
-                        <td>{{ proveedor.iva }}%</td>
-                        <td>{{ proveedor.tipo_producto }}</td>
-                        <td>
-                            <div class="d-flex gap-2 flex-column flex-md-row">
-                                <a class="cta cta-inline text-decoration-none py-1 px-3 text-center" style="font-size: 0.85rem;" href="{{ url_for('proveedores.editar_proveedor', proveedor_id=proveedor.id) }}">Editar</a>
-                                <form action="{{ url_for('proveedores.eliminar_proveedor', id=proveedor.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este proveedor?');" class="w-100">
+                    <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-600">
+                        <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.fecha.strftime('%Y-%m-%d') if proveedor.fecha else '-' }}</td>
+                        <td class="px-6 py-4 font-medium text-white">{{ proveedor.nombre }}</td>
+                        <td class="px-6 py-4">{{ proveedor.telefono }}</td>
+                        <td class="px-6 py-4 max-w-xs truncate" title="{{ proveedor.direccion }}">{{ proveedor.direccion }}</td>
+                        <td class="px-6 py-4">{{ proveedor.email }}</td>
+                        <td class="px-6 py-4">{{ proveedor.cif }}</td>
+                        <td class="px-6 py-4">{{ proveedor.tasa_de_descuento }}%</td>
+                        <td class="px-6 py-4">{{ proveedor.iva }}%</td>
+                        <td class="px-6 py-4">{{ proveedor.tipo_producto }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <a class="text-blue-400 hover:text-blue-300 font-semibold" href="{{ url_for('proveedores.editar_proveedor', proveedor_id=proveedor.id) }}">Editar</a>
+                                <form action="{{ url_for('proveedores.eliminar_proveedor', id=proveedor.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este proveedor?');">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button class="btn-danger-light w-100 py-1 px-3" style="font-size: 0.85rem;" type="submit">Eliminar</button>
+                                    <button class="text-red-400 hover:text-red-300 font-semibold" type="submit">Eliminar</button>
                                 </form>
                             </div>
                         </td>
@@ -84,14 +74,16 @@
                 </tbody>
             </table>
         </div>
-        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-            <div class="pagination">
+        <div class="flex justify-between items-center mt-6 flex-wrap gap-2">
+            <div class="text-sm text-gray-400">
+                Página {{ pagination.page if pagination else 1 }} de {{ pagination.pages if pagination else 1 }}
+            </div>
+            <div class="flex gap-2">
                 {% if pagination and pagination.has_prev %}
-                <a class="btn btn-outline-light btn-sm" href="{{ url_for('proveedores.proveedores', page=pagination.prev_num, **filtros) }}">&larr; Anterior</a>
+                <a class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-bold py-2 px-4 rounded" href="{{ url_for('proveedores.proveedores', page=pagination.prev_num, **filtros) }}">&larr; Anterior</a>
                 {% endif %}
-                <span class="text-muted">Página {{ pagination.page if pagination else 1 }} de {{ pagination.pages if pagination else 1 }}</span>
                 {% if pagination and pagination.has_next %}
-                <a class="btn btn-outline-light btn-sm" href="{{ url_for('proveedores.proveedores', page=pagination.next_num, **filtros) }}">Siguiente &rarr;</a>
+                <a class="bg-gray-600 hover:bg-gray-700 text-white text-sm font-bold py-2 px-4 rounded" href="{{ url_for('proveedores.proveedores', page=pagination.next_num, **filtros) }}">Siguiente &rarr;</a>
                 {% endif %}
             </div>
         </div>

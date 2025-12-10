@@ -1,87 +1,104 @@
 {% extends "base.html" %}
-{% block title %}Menú Admin{% endblock %}
-{% block body_class %}menu-body{% endblock %}
+{% block title %}Menú Principal{% endblock %}
 
 {% block content %}
-<main class="menu-layout">
-    <div class="menu-hero">
-        <div class="menu-actions-abs menu-actions-left">
-            <form action="{{ url_for('auth.logout') }}" method="post">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="icon-btn" aria-label="Cerrar sesión">logout</button>
-            </form>
-        </div>
-        <div class="menu-actions-abs menu-actions-right">
-            <a href="{{ url_for('auth.actividades') }}" class="icon-btn text-decoration-none"
-                aria-label="Panel de actividades">shield_person</a>
-        </div>
-        <div class="glass-container">
-            <div class="menu-title">
-                <h1 class="titlewhiteN mb-2">Suministros Informáticos</h1>
-                <h2 class="titlewhiteN">CNCV</h2>
-            </div>
-            <div class="menu-links">
-                <a href="{{ url_for('proveedores.proveedores') }}" class="cta text-decoration-none">Proveedores</a>
-                <a href="{{ url_for('inventario.productos') }}" class="cta text-decoration-none">Inventario</a>
-                <a href="{{ url_for('reportes.graficas') }}" class="cta text-decoration-none">Gráficos</a>
-                <a href="{{ url_for('contabilidad.balance') }}" class="cta text-decoration-none">Contabilidad (Balance)</a>
-                <a href="{{ url_for('contabilidad.cuenta_resultados') }}" class="cta text-decoration-none">Cuenta Resultados</a>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                    <a href="{{ url_for('inventario.exportar_productos') }}" class="btn btn-secondary btn-sm text-decoration-none">Export inventario</a>
-                    <a href="{{ url_for('proveedores.exportar_proveedores') }}" class="btn btn-secondary btn-sm text-decoration-none">Export proveedores</a>
+<div class="container mx-auto px-4 mt-4">
+    <div class="bg-white rounded-lg shadow-md text-center p-6">
+        <h1 class="text-3xl font-bold text-gray-800">Suministros Informáticos CNCV</h1>
+        <h2 class="text-2xl font-semibold text-gray-700 mt-2">Menú Principal</h2>
+        <p class="text-gray-600 mt-2">Bienvenido al panel de administración. Desde aquí puedes gestionar todos los aspectos de la aplicación.</p>
+    </div>
+
+    <div class="flex flex-wrap -mx-4 mt-8">
+        <!-- Columna de Gestión -->
+        <div class="w-full md:w-1/3 px-4 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 h-full">
+                <h5 class="text-xl font-bold mb-4">Gestión</h5>
+                <div class="space-y-2">
+                    <a href="{{ url_for('proveedores.proveedores') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Proveedores</a>
+                    <a href="{{ url_for('inventario.productos') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Inventario</a>
+                    <a href="{{ url_for('inventario.pedidos') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Pedidos</a>
                 </div>
             </div>
-            {% if alertas_stock_bajo and alertas_stock_bajo > 0 %}
-            <div class="alert alert-warning mt-3 d-flex justify-content-between align-items-center">
-                <span>Stock bajo: {{ alertas_stock_bajo }} productos requieren atención.</span>
-                <a class="btn btn-outline-warning btn-sm" href="{{ url_for('inventario.productos', stock='bajo') }}">Ver inventario filtrado</a>
+        </div>
+        <!-- Columna de Contabilidad y Reportes -->
+        <div class="w-full md:w-1/3 px-4 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 h-full">
+                <h5 class="text-xl font-bold mb-4">Contabilidad y Reportes</h5>
+                <div class="space-y-2">
+                    <a href="{{ url_for('contabilidad.balance') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Balance</a>
+                    <a href="{{ url_for('contabilidad.cuenta_resultados') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Cuenta de Resultados</a>
+                    <a href="{{ url_for('contabilidad.diario') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Diario</a>
+                    <a href="{{ url_for('reportes.graficas') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Gráficos</a>
+                </div>
             </div>
-            {% endif %}
+        </div>
+        <!-- Columna de Exportar Datos -->
+        <div class="w-full md:w-1/3 px-4 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 h-full">
+                <h5 class="text-xl font-bold mb-4">Exportar Datos</h5>
+                <div class="space-y-2">
+                    <a href="{{ url_for('inventario.exportar_productos') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Exportar Inventario</a>
+                    <a href="{{ url_for('proveedores.exportar_proveedores') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Exportar Proveedores</a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <section class="menu-stats">
-        <div class="glass-card p-3">
-            <p class="text-muted mb-1">Stock bajo</p>
-            <h3 class="h4 text-white">{{ alertas_stock_bajo if alertas_stock_bajo is not none else '-' }}</h3>
-            <a class="text-decoration-none small" href="{{ url_for('inventario.productos', stock='bajo') }}">Ver productos</a>
+    {% if alertas_stock_bajo and alertas_stock_bajo > 0 %}
+    <div class="mt-4">
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md flex justify-between items-center" role="alert">
+            <p>Hay {{ alertas_stock_bajo }} productos con stock bajo que requieren atención.</p>
+            <a class="border border-yellow-500 text-yellow-600 hover:bg-yellow-500 hover:text-white font-bold py-1 px-3 rounded text-sm" href="{{ url_for('inventario.productos', stock='bajo') }}">Ver productos</a>
         </div>
-        <div class="glass-card p-3">
-            <p class="text-muted mb-1">Inventario total</p>
-            <h3 class="h4 text-white">{{ total_inventario if total_inventario is not none else '-' }} ítems</h3>
-            <p class="mb-0 text-muted small">Valor: {{ valor_inventario | currency }}</p>
+    </div>
+    {% endif %}
+
+    <div class="flex flex-wrap -mx-2 mt-8">
+        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
+            <div class="bg-white rounded-lg shadow-md text-center p-4">
+                <h6 class="text-sm font-semibold text-gray-500 mb-2">Stock bajo</h6>
+                <p class="text-3xl font-bold">{{ alertas_stock_bajo if alertas_stock_bajo is not none else '-' }}</p>
+            </div>
         </div>
-        <div class="glass-card p-3">
-            <p class="text-muted mb-1">Pedidos pendientes</p>
-            <h3 class="h4 text-white">{{ pedidos_pendientes if pedidos_pendientes is not none else '-' }}</h3>
-            <a class="text-decoration-none small" href="{{ url_for('inventario.pedidos') }}">Ver pedidos</a>
+        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
+            <div class="bg-white rounded-lg shadow-md text-center p-4">
+                <h6 class="text-sm font-semibold text-gray-500 mb-2">Inventario total</h6>
+                <p class="text-3xl font-bold">{{ total_inventario if total_inventario is not none else '-' }} <span class="text-xl">ítems</span></p>
+                <p class="text-xs text-gray-500">Valor: {{ valor_inventario | currency }}</p>
+            </div>
         </div>
-        <div class="glass-card p-3">
-            <p class="text-muted mb-1">Ventas totales</p>
-            <h3 class="h4 text-white">{{ ventas_totales | currency }}</h3>
-            <a class="text-decoration-none small" href="{{ url_for('contabilidad.diario') }}">Ver diario</a>
+        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
+            <div class="bg-white rounded-lg shadow-md text-center p-4">
+                <h6 class="text-sm font-semibold text-gray-500 mb-2">Pedidos pendientes</h6>
+                <p class="text-3xl font-bold">{{ pedidos_pendientes if pedidos_pendientes is not none else '-' }}</p>
+            </div>
         </div>
-        <div class="glass-card p-3">
-            <p class="text-muted mb-1">Proveedores</p>
-            <h3 class="h4 text-white">{{ total_proveedores if total_proveedores is not none else '-' }}</h3>
-            <a class="text-decoration-none small" href="{{ url_for('proveedores.proveedores') }}">Gestionar proveedores</a>
+        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
+            <div class="bg-white rounded-lg shadow-md text-center p-4">
+                <h6 class="text-sm font-semibold text-gray-500 mb-2">Ventas totales</h6>
+                <p class="text-3xl font-bold">{{ ventas_totales | currency }}</p>
+            </div>
         </div>
-        <div class="glass-card p-3">
-            <p class="text-muted mb-1">Usuarios</p>
-            <h3 class="h4 text-white">{{ total_usuarios if total_usuarios is not none else '-' }}</h3>
-            <a class="text-decoration-none small" href="{{ url_for('auth.actividades') }}">Actividad</a>
+        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
+            <div class="bg-white rounded-lg shadow-md text-center p-4">
+                <h6 class="text-sm font-semibold text-gray-500 mb-2">Proveedores</h6>
+                <p class="text-3xl font-bold">{{ total_proveedores if total_proveedores is not none else '-' }}</p>
+            </div>
         </div>
-        <div class="glass-card p-3">
-            <p class="text-muted mb-1">TTL caché reportes</p>
-            <h3 class="h4 text-white">{{ cache_ttl if cache_ttl is not none else '-' }}s</h3>
-            <p class="mb-0 text-muted small">Hits: {{ cache_hits }} | Misses: {{ cache_misses }}</p>
+        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
+            <div class="bg-white rounded-lg shadow-md text-center p-4">
+                <h6 class="text-sm font-semibold text-gray-500 mb-2">Usuarios</h6>
+                <p class="text-3xl font-bold">{{ total_usuarios if total_usuarios is not none else '-' }}</p>
+            </div>
         </div>
-        <div class="glass-card p-3">
-            <p class="text-muted mb-1">Exportaciones</p>
-            <h3 class="h4 text-white">Inventario / Proveedores</h3>
-            <a class="text-decoration-none small" href="{{ url_for('inventario.exportar_productos') }}">Export inventario</a><br>
-            <a class="text-decoration-none small" href="{{ url_for('proveedores.exportar_proveedores') }}">Export proveedores</a>
+        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
+            <div class="bg-white rounded-lg shadow-md text-center p-4">
+                <h6 class="text-sm font-semibold text-gray-500 mb-2">TTL caché reportes</h6>
+                <p class="text-3xl font-bold">{{ cache_ttl if cache_ttl is not none else '-' }}s</p>
+                <p class="text-xs text-gray-500">Hits: {{ cache_hits }} | Misses: {{ cache_misses }}</p>
+            </div>
         </div>
-    </section>
-</main>
+    </div>
+</div>
 {% endblock %}

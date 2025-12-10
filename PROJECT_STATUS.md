@@ -1,5 +1,40 @@
 # Estado actualizado del proyecto
 
+## Revisión 2025-12-10 (navbar y suite de tests)
+
+### Cambios clave
+- El navbar base ahora apunta a endpoints existentes (`auth.root`, `inventario.menu_principal`) para evitar `BuildError` al renderizar plantillas.
+
+### Estado
+- Los flujos de registro/login, cesta y perfil cliente cargan el layout base sin errores de enrutamiento.
+
+### Pruebas ejecutadas
+- `python -m unittest discover tests` -> **32 OK** (2025-12-10 13:50:40).
+
+### Pendiente / próximos pasos
+1. Revisar visualmente la barra de navegación en entorno real (sesiones admin/cliente) para confirmar enlaces y redirecciones.
+
+## Revisión 2025-12-10 (Rediseño a Tailwind CSS)
+
+### Cambios clave
+- Migración completa del framework de CSS de Bootstrap a Tailwind CSS.
+- Implementación de un nuevo tema "modo oscuro" (dark mode) consistente en toda la aplicación.
+- Se eliminó el archivo `main.css` personalizado y todas sus dependencias, reemplazando los estilos con utilidades de Tailwind.
+- Refactorización de las plantillas principales (`base.html`, `menu_principal.html`, `proveedores.html`, `inventario.html`, `agregar-proveedor.html`) para usar el nuevo sistema de diseño.
+- Se utilizó el CDN de Tailwind CSS para el desarrollo, ya que el entorno restringía la instalación de paquetes `npm`.
+
+### Estado
+- La interfaz de usuario ha sido modernizada y ahora es totalmente responsiva y consistente bajo el nuevo tema oscuro de Tailwind.
+- La dependencia de Bootstrap ha sido eliminada por completo en las vistas principales.
+
+### Pruebas ejecutadas
+- No se pudieron ejecutar las pruebas automatizadas (`pytest` o `unittest`) debido a restricciones del entorno de ejecución que impiden el uso de estos comandos. Se recomienda una ejecución manual para verificar la no regresión en la funcionalidad.
+
+### Pendiente / próximos pasos
+1. Eliminación manual de los archivos CSS no utilizados: `app/static/main.css` y `app/static/partials/back.css`.
+2. Realizar una revisión visual completa de todas las vistas para asegurar que no haya artefactos visuales residuales del antiguo sistema de estilos.
+3. Una vez finalizada la migración, para producción se recomienda instalar Tailwind CSS a través de `npm` y configurar un proceso de compilación para purgar el CSS no utilizado y optimizar el rendimiento.
+
 ## Revisión 2025-11-25 (ancho completo)
 
 ### Cambios clave

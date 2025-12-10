@@ -1,92 +1,69 @@
 {% extends "base.html" %}
 {% block title %}Inventario{% endblock %}
-{% block page_styles %}
-<style>
-    /* Ajustes específicos para columnas largas */
-    .glass-table td:nth-child(4) {
-        max-width: 250px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .glass-table td:nth-child(6) {
-        white-space: nowrap;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
-<main class="container my-4 position-relative">
-    <a href="{{ url_for('inventario.menu_principal') }}" class="back-btn"
-        style="position: absolute; top: 0; left: -60px;" aria-label="Volver al menú">
-        <span class="material-symbols-outlined">arrow_back</span>
-    </a>
-
-    <div class="glass-container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="titlewhiteN m-0">Inventario</h1>
-            <a href="/agregar-producto" class="cta cta-inline text-decoration-none">Agregar producto</a>
+<div class="container mx-auto px-4 mt-4">
+    <div class="bg-gray-800 rounded-lg shadow-xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-white">Inventario</h1>
+            <a href="{{ url_for('inventario.agregar_producto') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Agregar producto</a>
         </div>
 
-        <div class="mb-4">
-            <form method="get" class="d-flex align-items-center gap-3">
-                <label class="m-0 text-muted" for="orden">Ordenar por:</label>
-                <select name="orden" id="orden" class="form-control" style="width: auto; min-width: 200px;"
-                    onchange="this.form.submit()">
-                    <option value="asc" {% if orden=='asc' %}selected{% endif %}>Modelo A-Z</option>
-                    <option value="desc" {% if orden=='desc' %}selected{% endif %}>Modelo Z-A</option>
-                    <option value="precio_asc" {% if orden=='precio_asc' %}selected{% endif %}>Precio ascendente
-                    </option>
-                    <option value="precio_desc" {% if orden=='precio_desc' %}selected{% endif %}>Precio descendente
-                    </option>
-                    <option value="cantidad_asc" {% if orden=='cantidad_asc' %}selected{% endif %}>Cantidad ascendente
-                    </option>
-                    <option value="cantidad_desc" {% if orden=='cantidad_desc' %}selected{% endif %}>Cantidad
-                        descendente</option>
-                </select>
+        <div class="bg-gray-700 p-4 rounded-md mb-6">
+            <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <div>
+                    <input type="text" name="q" class="w-full bg-gray-800 border-gray-600 text-white rounded-md p-2" placeholder="Buscar por marca, modelo, etc." value="{{ request.args.get('q', '') }}">
+                </div>
+                <div>
+                    <select name="orden" id="orden" class="w-full bg-gray-800 border-gray-600 text-white rounded-md p-2" onchange="this.form.submit()">
+                        <option value="asc" {% if orden=='asc' %}selected{% endif %}>Modelo A-Z</option>
+                        <option value="desc" {% if orden=='desc' %}selected{% endif %}>Modelo Z-A</option>
+                        <option value="precio_asc" {% if orden=='precio_asc' %}selected{% endif %}>Precio ascendente</option>
+                        <option value="precio_desc" {% if orden=='precio_desc' %}selected{% endif %}>Precio descendente</option>
+                        <option value="cantidad_asc" {% if orden=='cantidad_asc' %}selected{% endif %}>Cantidad ascendente</option>
+                        <option value="cantidad_desc" {% if orden=='cantidad_desc' %}selected{% endif %}>Cantidad descendente</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded">Filtrar</button>
+                </div>
             </form>
         </div>
 
-        <div class="table-responsive">
-            <table class="glass-table">
-                <thead>
+        <div class="overflow-x-auto rounded-lg">
+            <table class="w-full text-sm text-left text-gray-400">
+                <thead class="text-xs text-gray-300 uppercase bg-gray-700">
                     <tr>
-                        <th>Marca</th>
-                        <th>Modelo</th>
-                        <th>Tipo</th>
-                        <th>Descripción</th>
-                        <th>Precio</th>
-                        <th>Cant.</th>
-                        <th>Mín.</th>
-                        <th>Ref.</th>
-                        <th>Proveedor</th>
-                        <th>Acciones</th>
+                        <th class="px-6 py-3">Marca</th>
+                        <th class="px-6 py-3">Modelo</th>
+                        <th class="px-6 py-3">Tipo</th>
+                        <th class="px-6 py-3">Descripción</th>
+                        <th class="px-6 py-3">Precio</th>
+                        <th class="px-6 py-3">Cant.</th>
+                        <th class="px-6 py-3">Mín.</th>
+                        <th class="px-6 py-3">Ref.</th>
+                        <th class="px-6 py-3">Proveedor</th>
+                        <th class="px-6 py-3 text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for producto in productos %}
-                    <tr>
-                        <td>{{ producto.marca }}</td>
-                        <td>{{ producto.modelo }}</td>
-                        <td>{{ producto.tipo_producto }}</td>
-                        <td title="{{ producto.descripcion }}">{{ producto.descripcion }}</td>
-                        <td>{{ producto.precio | currency }}</td>
-                        <td>{{ producto.cantidad }}</td>
-                        <td>{{ producto.cantidad_minima }}</td>
-                        <td>{{ producto.num_referencia }}</td>
-                        <td>{{ producto.proveedor.nombre if producto.proveedor else 'N/A' }}</td>
-                        <td class="text-nowrap">
-                            <div class="d-flex gap-2">
-                                <a href="{{ url_for('proveedores.editar_producto', id=producto.id) }}"
-                                    class="cta cta-inline text-decoration-none py-1 px-3" style="font-size: 0.85rem;"
-                                    aria-label="Editar {{ producto.modelo }}">Editar</a>
-                                <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}"
-                                    method="post" class="d-inline">
+                    <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-600">
+                        <td class="px-6 py-4 font-medium text-white">{{ producto.marca }}</td>
+                        <td class="px-6 py-4 font-medium text-white">{{ producto.modelo }}</td>
+                        <td class="px-6 py-4">{{ producto.tipo_producto }}</td>
+                        <td class="px-6 py-4 max-w-sm truncate" title="{{ producto.descripcion }}">{{ producto.descripcion | truncate(80) }}</td>
+                        <td class="px-6 py-4">{{ producto.precio | currency }}</td>
+                        <td class="px-6 py-4">{{ producto.cantidad }}</td>
+                        <td class="px-6 py-4">{{ producto.cantidad_minima }}</td>
+                        <td class="px-6 py-4">{{ producto.num_referencia }}</td>
+                        <td class="px-6 py-4">{{ producto.proveedor.nombre if producto.proveedor else 'N/A' }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-4">
+                                <a href="{{ url_for('inventario.editar_producto', id=producto.id) }}" class="text-blue-400 hover:text-blue-300 font-semibold">Editar</a>
+                                <form action="{{ url_for('inventario.eliminar_producto', id=producto.id) }}" method="post" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button class="btn-danger-light py-1 px-3" style="font-size: 0.85rem;" type="submit"
-                                        onclick="return confirm('¿Eliminar {{ producto.modelo }}?');"
-                                        aria-label="Eliminar {{ producto.modelo }}">Eliminar</button>
+                                    <button class="text-red-400 hover:text-red-300 font-semibold" type="submit" onclick="return confirm('¿Eliminar {{ producto.modelo }}?');">Eliminar</button>
                                 </form>
                             </div>
                         </td>
@@ -96,5 +73,5 @@
             </table>
         </div>
     </div>
-</main>
+</div>
 {% endblock %}
