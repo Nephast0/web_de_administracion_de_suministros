@@ -2,316 +2,407 @@
 {% block title %}Panel administrativo{% endblock %}
 
 {% block content %}
-<main class="container py-4">
+<main class="container mx-auto my-6 px-4 pb-12">
     {% macro filtros_hidden() -%}
-        <input type="hidden" name="f_usuario" value="{{ filtros.f_usuario }}">
-        <input type="hidden" name="f_modulo" value="{{ filtros.f_modulo }}">
-        <input type="hidden" name="f_desde" value="{{ filtros.f_desde }}">
-        <input type="hidden" name="f_hasta" value="{{ filtros.f_hasta }}">
-        <input type="hidden" name="f_rol" value="{{ filtros.f_rol }}">
-        <input type="hidden" name="f_q" value="{{ filtros.f_q }}">
-        <input type="hidden" name="c_estado" value="{{ filtros.c_estado }}">
-        <input type="hidden" name="c_desde" value="{{ filtros.c_desde }}">
-        <input type="hidden" name="c_hasta" value="{{ filtros.c_hasta }}">
+    <input type="hidden" name="f_usuario" value="{{ filtros.f_usuario }}">
+    <input type="hidden" name="f_modulo" value="{{ filtros.f_modulo }}">
+    <input type="hidden" name="f_desde" value="{{ filtros.f_desde }}">
+    <input type="hidden" name="f_hasta" value="{{ filtros.f_hasta }}">
+    <input type="hidden" name="f_rol" value="{{ filtros.f_rol }}">
+    <input type="hidden" name="f_q" value="{{ filtros.f_q }}">
+    <input type="hidden" name="c_estado" value="{{ filtros.c_estado }}">
+    <input type="hidden" name="c_desde" value="{{ filtros.c_desde }}">
+    <input type="hidden" name="c_hasta" value="{{ filtros.c_hasta }}">
     {%- endmacro %}
 
-    <div class="glass-container">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-            <a class="brand text-decoration-none" href="{{ url_for('inventario.menu_principal') }}" aria-label="Volver al menú principal">Menú principal</a>
-            <div class="d-flex align-items-center gap-3">
-                <form method="get" class="d-flex align-items-center gap-2">
-                    {{ filtros_hidden() }}
-                    <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
-                    <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
-                    <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
-                    <label class="form-label mb-0 text-muted small" for="page_size">Filas por página</label>
-                    <select id="page_size" name="page_size" class="form-select form-select-sm" onchange="this.form.submit()">
-                        {% for size in [10, 20, 30, 50] %}
-                        <option value="{{ size }}" {% if pag_actividades.per_page == size %}selected{% endif %}>{{ size }}</option>
-                        {% endfor %}
-                    </select>
-                </form>
-            </div>
-            <h1 class="titlewhiteN mb-0">Panel administrativo</h1>
+    <!-- Header -->
+    <div
+        class="glass-panel p-6 mb-8 animate-fade-in flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl shadow-canvas-900/5">
+        <div>
+            <h1
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-primary-400">
+                Panel Administrativo
+            </h1>
+            <a href="{{ url_for('inventario.menu_principal') }}"
+                class="text-sm text-primary-400 hover:text-primary-300 flex items-center gap-1 text-decoration-none transition-colors">
+                <span class="material-symbols-outlined text-base">arrow_back</span> Volver al Menú Principal
+            </a>
         </div>
 
-        <section class="mb-5">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-                <h2 class="brand mb-0">Actividades del sistema</h2>
-                <form method="get" class="row g-2 align-items-end w-100 w-lg-auto">
-                    <div class="col-12 col-md-3">
-                        <label class="form-label text-muted small">Usuario</label>
-                        <input type="text" class="form-control" name="f_usuario" value="{{ filtros.f_usuario }}" placeholder="usuario o nombre">
-                    </div>
-                    <div class="col-12 col-md-3">
-                        <label class="form-label text-muted small">Módulo</label>
-                        <input type="text" class="form-control" name="f_modulo" value="{{ filtros.f_modulo }}" placeholder="ej: inventario">
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <label class="form-label text-muted small">Desde</label>
-                        <input type="date" class="form-control" name="f_desde" value="{{ filtros.f_desde }}">
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <label class="form-label text-muted small">Hasta</label>
-                        <input type="date" class="form-control" name="f_hasta" value="{{ filtros.f_hasta }}">
-                    </div>
-                    <div class="col-6 col-md-auto">
-                        <label class="form-label d-block text-muted small">&nbsp;</label>
-                        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-                    </div>
-                    <div class="col-6 col-md-auto">
-                        <label class="form-label d-block text-muted small">&nbsp;</label>
-                        <a class="btn btn-outline-secondary w-100" href="{{ url_for('auth.actividades') }}">Limpiar</a>
-                    </div>
-                    <input type="hidden" name="page_act" value="1">
+        <div class="flex items-center gap-4">
+            <form method="get" class="flex items-center gap-2">
+                {{ filtros_hidden() }}
+                <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
+                <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
+                <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
+                <label class="text-sm text-canvas-400 whitespace-nowrap" for="page_size">Mostrar:</label>
+                <div class="relative">
+                    <select id="page_size" name="page_size"
+                        class="form-input py-1 px-3 appearance-none pr-8 focus:border-primary-500 focus:ring-primary-500"
+                        onchange="this.form.submit()">
+                        {% for size in [10, 20, 30, 50] %}
+                        <option value="{{ size }}" {% if pag_actividades.per_page==size %}selected{% endif %}>{{ size }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <span
+                        class="material-symbols-outlined absolute right-2 top-1.5 text-canvas-500 pointer-events-none text-sm">expand_more</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Activity Log Section -->
+    <section class="glass-panel p-6 mb-8 animate-fade-in shadow-xl shadow-canvas-900/5">
+        <div
+            class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6 border-b border-canvas-700/50 pb-4">
+            <h2 class="text-xl font-bold text-canvas-200 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary-400">history</span>
+                Actividades del Sistema
+            </h2>
+
+            <form method="get"
+                class="w-full xl:w-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:flex gap-3 items-end">
+                <div class="space-y-1">
+                    <label class="block text-xs font-medium text-canvas-400">Usuario</label>
+                    <input type="text" class="form-input text-sm py-1 focus:border-primary-500 focus:ring-primary-500"
+                        name="f_usuario" value="{{ filtros.f_usuario }}" placeholder="Nombre...">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-medium text-canvas-400">Módulo</label>
+                    <input type="text" class="form-input text-sm py-1 focus:border-primary-500 focus:ring-primary-500"
+                        name="f_modulo" value="{{ filtros.f_modulo }}" placeholder="Ej: Inventario">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-medium text-canvas-400">Desde</label>
+                    <input type="date" class="form-input text-sm py-1 focus:border-primary-500 focus:ring-primary-500"
+                        name="f_desde" value="{{ filtros.f_desde }}">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-medium text-canvas-400">Hasta</label>
+                    <input type="date" class="form-input text-sm py-1 focus:border-primary-500 focus:ring-primary-500"
+                        name="f_hasta" value="{{ filtros.f_hasta }}">
+                </div>
+                <div class="flex gap-2 min-w-[140px]">
+                    <button type="submit"
+                        class="btn-elegant btn-primary py-1 px-3 text-sm flex-1 justify-center bg-primary-600 hover:bg-primary-500 border-none shadow-md shadow-primary-500/20">Filtrar</button>
+                    <a class="btn-elegant btn-secondary py-1 px-3 text-sm flex-1 justify-center text-decoration-none hover:bg-canvas-700 hover:text-white"
+                        href="{{ url_for('auth.actividades') }}">Limpiar</a>
+                </div>
+
+                <input type="hidden" name="page_act" value="1">
+                <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
+                <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
+                <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
+            </form>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg">
+            <table class="glass-table w-full text-sm text-left">
+                <thead class="text-xs text-canvas-400 uppercase bg-canvas-900/80 font-heading tracking-wider">
+                    <tr>
+                        <th class="px-4 py-3 font-semibold">ID</th>
+                        <th class="px-4 py-3 font-semibold">Usuario</th>
+                        <th class="px-4 py-3 font-semibold">Acción</th>
+                        <th class="px-4 py-3 font-semibold">Módulo</th>
+                        <th class="px-4 py-3 font-semibold">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-canvas-700/50">
+                    {% for actividad in actividades %}
+                    <tr class="hover:bg-primary-500/5 transition-colors">
+                        <td class="px-4 py-3 font-mono text-canvas-500">#{{ actividad.id }}</td>
+                        <td class="px-4 py-3 font-medium text-canvas-300">{{ actividad.usuario.usuario }}</td>
+                        <td class="px-4 py-3 text-canvas-400">{{ actividad.accion }}</td>
+                        <td class="px-4 py-3">
+                            <span
+                                class="inline-block px-2 py-0.5 rounded text-xs border border-canvas-600 bg-canvas-800 text-canvas-300">
+                                {{ actividad.modulo }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-canvas-400 font-mono text-xs">{{ actividad.fecha.strftime("%Y-%m-%d_
+                            %H:%M") }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-canvas-500">
+                            No hay actividades con los filtros actuales.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Activity -->
+        <div class="flex justify-between items-center mt-4">
+            <small class="text-canvas-500">
+                Pág {{ pag_actividades.page }}/{{ pag_actividades.pages or 1 }} • {{ pag_actividades.total }} regs
+            </small>
+            <div class="flex gap-2">
+                {% if pag_actividades.has_prev %}
+                <form method="get" class="inline">
+                    {{ filtros_hidden() }}
+                    <input type="hidden" name="page_act" value="{{ pag_actividades.prev_num }}">
                     <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
                     <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
                     <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
+                    <button class="btn-elegant btn-secondary py-1 px-3 text-xs hover:bg-canvas-700"
+                        type="submit">Anterior</button>
                 </form>
+                {% endif %}
+                {% if pag_actividades.has_next %}
+                <form method="get" class="inline">
+                    {{ filtros_hidden() }}
+                    <input type="hidden" name="page_act" value="{{ pag_actividades.next_num }}">
+                    <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
+                    <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
+                    <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
+                    <button class="btn-elegant btn-secondary py-1 px-3 text-xs hover:bg-canvas-700"
+                        type="submit">Siguiente</button>
+                </form>
+                {% endif %}
             </div>
-            <div class="table-responsive">
-                <table class="glass-table w-100 align-middle">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Acción</th>
-                            <th>Módulo</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for actividad in actividades %}
-                        <tr>
-                            <td>{{ actividad.id }}</td>
-                            <td>{{ actividad.usuario.usuario }}</td>
-                            <td>{{ actividad.accion }}</td>
-                            <td>{{ actividad.modulo }}</td>
-                            <td>{{ actividad.fecha.strftime("%Y-%m-%d %H:%M") }}</td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">No hay actividades con los filtros actuales.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2">
-                <small class="text-muted">Página {{ pag_actividades.page }} de {{ pag_actividades.pages or 1 }} • {{ pag_actividades.total }} registros</small>
-                <div class="d-flex gap-1">
-                    {% if pag_actividades.has_prev %}
-                    <form method="get" class="d-inline">
-                        {{ filtros_hidden() }}
-                        <input type="hidden" name="page_act" value="{{ pag_actividades.prev_num }}">
-                        <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
-                        <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
-                        <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
-                        <button class="btn btn-outline-secondary btn-sm" type="submit">Anterior</button>
-                    </form>
-                    {% endif %}
-                    {% if pag_actividades.has_next %}
-                    <form method="get" class="d-inline">
-                        {{ filtros_hidden() }}
-                        <input type="hidden" name="page_act" value="{{ pag_actividades.next_num }}">
-                        <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
-                        <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
-                        <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
-                        <button class="btn btn-outline-secondary btn-sm" type="submit">Siguiente</button>
-                    </form>
-                    {% endif %}
-                </div>
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="mb-5">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-                <h2 class="titlewhiteN mb-0">Usuarios</h2>
-                <form method="get" class="row g-2 align-items-end w-100 w-lg-auto">
-                    <div class="col-12 col-md-4">
-                        <label class="form-label text-muted small">Buscar</label>
-                        <input type="text" class="form-control" name="f_q" value="{{ filtros.f_q }}" placeholder="nombre o usuario">
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <label class="form-label text-muted small">Rol</label>
-                        <select class="form-select" name="f_rol">
-                            <option value="">Todos</option>
-                            <option value="admin" {% if filtros.f_rol == 'admin' %}selected{% endif %}>Admin</option>
-                            <option value="cliente" {% if filtros.f_rol == 'cliente' %}selected{% endif %}>Cliente</option>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Users Section -->
+        <section class="glass-panel p-6 animate-fade-in shadow-xl shadow-canvas-900/5" style="animation-delay: 100ms">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-canvas-700/50 pb-4">
+                <h2 class="text-xl font-bold text-canvas-200 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-400">group</span>
+                    Usuarios
+                </h2>
+
+                <form method="get" class="w-full sm:w-auto flex gap-2">
+                    <input type="text"
+                        class="form-input text-sm py-1 w-full sm:w-32 focus:border-primary-500 focus:ring-primary-500"
+                        name="f_q" value="{{ filtros.f_q }}" placeholder="Buscar...">
+                    <div class="relative w-28">
+                        <select
+                            class="form-input text-sm py-1 appearance-none pr-6 focus:border-primary-500 focus:ring-primary-500"
+                            name="f_rol">
+                            <option value="">Todo Rol</option>
+                            <option value="admin" {% if filtros.f_rol=='admin' %}selected{% endif %}>Admin</option>
+                            <option value="cliente" {% if filtros.f_rol=='cliente' %}selected{% endif %}>Cliente
+                            </option>
                         </select>
+                        <span
+                            class="material-symbols-outlined absolute right-1 top-1.5 text-canvas-500 pointer-events-none text-xs">expand_more</span>
                     </div>
-                    <div class="col-6 col-md-auto">
-                        <label class="form-label d-block text-muted small">&nbsp;</label>
-                        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-                    </div>
-                    <div class="col-6 col-md-auto">
-                        <label class="form-label d-block text-muted small">&nbsp;</label>
-                        <a class="btn btn-outline-secondary w-100" href="{{ url_for('auth.actividades', page_user=1, page_act=pag_actividades.page, page_comp=pag_compras.page, page_size=pag_actividades.per_page) }}">Limpiar</a>
-                    </div>
+                    <button type="submit"
+                        class="btn-elegant btn-primary py-1 px-2 text-xs bg-primary-600 hover:bg-primary-500 shadow-md shadow-primary-500/20">
+                        <span class="material-symbols-outlined text-sm">search</span>
+                    </button>
+
                     <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
                     <input type="hidden" name="page_user" value="1">
                     <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
                     <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
                 </form>
             </div>
-            <div class="table-responsive">
-                <table class="glass-table w-100 align-middle">
-                    <thead>
+
+            <div class="overflow-x-auto rounded-lg">
+                <table class="glass-table w-full text-sm text-left">
+                    <thead class="text-xs text-canvas-400 uppercase bg-canvas-900/80 font-heading tracking-wider">
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Usuario</th>
-                            <th>Rol</th>
-                            <th>Fecha de registro</th>
-                            <th>Opciones</th>
+                            <th class="px-4 py-3 font-semibold">Usuario</th>
+                            <th class="px-4 py-3 font-semibold">Rol</th>
+                            <th class="px-4 py-3 font-semibold text-right">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-canvas-700/50">
                         {% for usuario in usuarios %}
-                        <tr>
-                            <td>{{ usuario.id }}</td>
-                            <td>{{ usuario.nombre }}</td>
-                            <td>{{ usuario.usuario }}</td>
-                            <td>
-                                <select class="form-select bg-dark text-light border-secondary" style="min-width: 120px;" onchange="cambiarRol('{{ usuario.id }}', this.value)">
-                                    <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>Admin</option>
-                                    <option value="cliente" {% if usuario.rol == 'cliente' %}selected{% endif %}>Cliente</option>
+                        <tr class="hover:bg-primary-500/5 transition-colors group">
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-canvas-200">{{ usuario.usuario }}</div>
+                                <div class="text-xs text-canvas-500">{{ usuario.nombre }}</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <select
+                                    class="form-input py-1 px-2 text-xs bg-canvas-900 border-canvas-700 focus:border-primary-500 focus:ring-primary-500"
+                                    onchange="cambiarRol('{{ usuario.id }}', this.value)">
+                                    <option value="admin" {% if usuario.rol=='admin' %}selected{% endif %}>Admin
+                                    </option>
+                                    <option value="cliente" {% if usuario.rol=='cliente' %}selected{% endif %}>Cliente
+                                    </option>
                                 </select>
                             </td>
-                            <td>{{ usuario.fecha_registro.strftime("%Y-%m-%d") if usuario.fecha_registro else "" }}</td>
-                            <td>
-                                <button class="btn btn-outline-danger btn-sm" onclick="eliminarUsuario('{{ usuario.id }}')">Eliminar</button>
+                            <td class="px-4 py-3 text-right">
+                                <button class="text-canvas-500 hover:text-red-400 transition-colors p-1"
+                                    onclick="eliminarUsuario('{{ usuario.id }}')" title="Eliminar Usuario">
+                                    <span class="material-symbols-outlined text-lg">delete</span>
+                                </button>
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="6" class="text-center text-muted">No hay usuarios con los filtros aplicados.</td>
+                            <td colspan="3" class="px-4 py-8 text-center text-canvas-500">
+                                Sin usuarios.
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2">
-                <small class="text-muted">Página {{ pag_usuarios.page }} de {{ pag_usuarios.pages or 1 }} • {{ pag_usuarios.total }} registros</small>
-                <div class="d-flex gap-1">
+
+            <!-- Pagination Users -->
+            <div class="flex justify-between items-center mt-4">
+                <small class="text-canvas-500">
+                    Pág {{ pag_usuarios.page }}/{{ pag_usuarios.pages or 1 }}
+                </small>
+                <div class="flex gap-2">
                     {% if pag_usuarios.has_prev %}
-                    <form method="get" class="d-inline">
+                    <form method="get" class="inline">
                         {{ filtros_hidden() }}
                         <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
                         <input type="hidden" name="page_user" value="{{ pag_usuarios.prev_num }}">
                         <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
                         <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
-                        <button class="btn btn-outline-secondary btn-sm" type="submit">Anterior</button>
+                        <button class="btn-elegant btn-secondary py-1 px-2 text-xs hover:bg-canvas-700"
+                            type="submit">Prev</button>
                     </form>
                     {% endif %}
                     {% if pag_usuarios.has_next %}
-                    <form method="get" class="d-inline">
+                    <form method="get" class="inline">
                         {{ filtros_hidden() }}
                         <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
                         <input type="hidden" name="page_user" value="{{ pag_usuarios.next_num }}">
                         <input type="hidden" name="page_comp" value="{{ pag_compras.page }}">
                         <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
-                        <button class="btn btn-outline-secondary btn-sm" type="submit">Siguiente</button>
+                        <button class="btn-elegant btn-secondary py-1 px-2 text-xs hover:bg-canvas-700"
+                            type="submit">Next</button>
                     </form>
                     {% endif %}
                 </div>
             </div>
         </section>
 
-        <section>
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-                <h2 class="titlewhiteN mb-0">Compras</h2>
-                <div class="d-flex gap-2 flex-wrap">
-                    <form method="get" class="row g-2 align-items-end w-100 w-lg-auto">
-                        <div class="col-6 col-md-3">
-                            <label class="form-label text-muted small">Estado</label>
-                            <select class="form-select" name="c_estado">
-                                <option value="">Todos</option>
-                                <option value="Pendiente" {% if filtros.c_estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
-                                <option value="Enviado" {% if filtros.c_estado == 'Enviado' %}selected{% endif %}>Enviado</option>
-                                <option value="Completado" {% if filtros.c_estado == 'Completado' %}selected{% endif %}>Completado</option>
-                                <option value="Cancelado" {% if filtros.c_estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
-                            </select>
-                        </div>
-                        <div class="col-6 col-md-2">
-                            <label class="form-label text-muted small">Desde</label>
-                            <input type="date" class="form-control" name="c_desde" value="{{ filtros.c_desde }}">
-                        </div>
-                        <div class="col-6 col-md-2">
-                            <label class="form-label text-muted small">Hasta</label>
-                            <input type="date" class="form-control" name="c_hasta" value="{{ filtros.c_hasta }}">
-                        </div>
-                        <div class="col-6 col-md-auto">
-                            <label class="form-label d-block text-muted small">&nbsp;</label>
-                            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-                        </div>
-                        <div class="col-6 col-md-auto">
-                            <label class="form-label d-block text-muted small">&nbsp;</label>
-                            <a class="btn btn-outline-secondary w-100" href="{{ url_for('auth.actividades', page_comp=1, page_act=pag_actividades.page, page_user=pag_usuarios.page, page_size=pag_actividades.per_page) }}">Limpiar</a>
-                        </div>
-                        <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
-                        <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
-                        <input type="hidden" name="page_comp" value="1">
-                        <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
-                    </form>
-                    <a class="btn btn-outline-info" href="{{ url_for('auth.exportar_compras_admin', c_estado=filtros.c_estado, c_desde=filtros.c_desde, c_hasta=filtros.c_hasta) }}">Exportar CSV</a>
+        <!-- Purchases Section -->
+        <section class="glass-panel p-6 animate-fade-in shadow-xl shadow-canvas-900/5" style="animation-delay: 200ms">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-canvas-700/50 pb-4">
+                <h2 class="text-xl font-bold text-canvas-200 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-400">shopping_cart</span>
+                    Compras
+                </h2>
+
+                <div class="flex gap-2">
+                    <a class="btn-elegant btn-secondary py-1 px-2 text-xs flex items-center gap-1 text-decoration-none hover:bg-canvas-700"
+                        href="{{ url_for('auth.exportar_compras_admin', c_estado=filtros.c_estado, c_desde=filtros.c_desde, c_hasta=filtros.c_hasta) }}">
+                        <span class="material-symbols-outlined text-sm">download</span> CSV
+                    </a>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="glass-table w-100 align-middle">
-                    <thead>
+
+            <form method="get" class="grid grid-cols-2 gap-2 mb-4">
+                <div class="relative col-span-2">
+                    <select
+                        class="form-input text-sm py-1 appearance-none w-full focus:border-primary-500 focus:ring-primary-500"
+                        name="c_estado">
+                        <option value="">Todos los Estados</option>
+                        <option value="Pendiente" {% if filtros.c_estado=='Pendiente' %}selected{% endif %}>Pendiente
+                        </option>
+                        <option value="Enviado" {% if filtros.c_estado=='Enviado' %}selected{% endif %}>Enviado</option>
+                        <option value="Completado" {% if filtros.c_estado=='Completado' %}selected{% endif %}>Completado
+                        </option>
+                        <option value="Cancelado" {% if filtros.c_estado=='Cancelado' %}selected{% endif %}>Cancelado
+                        </option>
+                    </select>
+                    <span
+                        class="material-symbols-outlined absolute right-2 top-1.5 text-canvas-500 pointer-events-none text-xs">expand_more</span>
+                </div>
+                <input type="date" class="form-input text-sm py-1 focus:border-primary-500 focus:ring-primary-500"
+                    name="c_desde" value="{{ filtros.c_desde }}">
+                <input type="date" class="form-input text-sm py-1 focus:border-primary-500 focus:ring-primary-500"
+                    name="c_hasta" value="{{ filtros.c_hasta }}">
+
+                <div class="col-span-2 flex gap-2">
+                    <button type="submit"
+                        class="btn-elegant btn-primary py-1 px-3 text-xs flex-1 justify-center bg-primary-600 hover:bg-primary-500 border-none shadow-md shadow-primary-500/20">Filtrar</button>
+                    <a class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none hover:bg-canvas-700"
+                        href="{{ url_for('auth.actividades', page_comp=1, page_act=pag_actividades.page, page_user=pag_usuarios.page, page_size=pag_actividades.per_page) }}">Limpiar</a>
+                </div>
+
+                <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
+                <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
+                <input type="hidden" name="page_comp" value="1">
+                <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
+            </form>
+
+            <div class="overflow-x-auto rounded-lg">
+                <table class="glass-table w-full text-sm text-left">
+                    <thead class="text-xs text-canvas-400 uppercase bg-canvas-900/80 font-heading tracking-wider">
                         <tr>
-                            <th>Compra</th>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio unitario</th>
-                            <th>Proveedor</th>
-                            <th>Total</th>
-                            <th>Estado</th>
-                            <th>Fecha</th>
+                            <th class="px-4 py-3 font-semibold">ID</th>
+                            <th class="px-4 py-3 font-semibold">Total</th>
+                            <th class="px-4 py-3 font-semibold">Estado</th>
+                            <th class="px-4 py-3 font-semibold">Fecha</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-canvas-700/50">
                         {% for compra in compras %}
-                        <tr>
-                            <td>{{ compra.id }}</td>
-                            <td>{{ compra.producto_id }}</td>
-                            <td>{{ compra.cantidad }}</td>
-                            <td>{{ compra.precio_unitario | currency }}</td>
-                            <td>{{ compra.proveedor_id }}</td>
-                            <td>{{ compra.total | currency }}</td>
-                            <td>{{ compra.estado }}</td>
-                            <td>{{ compra.fecha.strftime("%Y-%m-%d %H:%M") if compra.fecha else "" }}</td>
+                        <tr class="hover:bg-primary-500/5 transition-colors">
+                            <td class="px-4 py-3 font-mono text-canvas-500">#{{ compra.id }}</td>
+                            <td class="px-4 py-3 font-bold text-emerald-400">{{ compra.total | currency }}</td>
+                            <td class="px-4 py-3">
+                                {% if compra.estado == 'Completado' %}
+                                <span
+                                    class="text-xs text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-1 rounded">Completado</span>
+                                {% elif compra.estado == 'Pendiente' %}
+                                <span
+                                    class="text-xs text-amber-400 border border-amber-500/30 bg-amber-500/10 px-1 rounded">Pendiente</span>
+                                {% elif compra.estado == 'Cancelado' %}
+                                <span
+                                    class="text-xs text-red-400 border border-red-500/30 bg-red-500/10 px-1 rounded">Cancelado</span>
+                                {% else %}
+                                <span
+                                    class="text-xs text-slate-400 border border-slate-500/30 bg-slate-500/10 px-1 rounded">{{
+                                    compra.estado }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-xs text-canvas-400">{{ compra.fecha.strftime("%Y-%m-%d") if
+                                compra.fecha else "" }}</td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="8" class="text-center text-muted">No hay compras con los filtros aplicados.</td>
+                            <td colspan="4" class="px-4 py-8 text-center text-canvas-500">
+                                Sin compras.
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2">
-                <small class="text-muted">Página {{ pag_compras.page }} de {{ pag_compras.pages or 1 }} • {{ pag_compras.total }} registros</small>
-                <div class="d-flex gap-1">
+
+            <!-- Pagination Purchases -->
+            <div class="flex justify-between items-center mt-4">
+                <small class="text-canvas-500">
+                    Pág {{ pag_compras.page }}/{{ pag_compras.pages or 1 }}
+                </small>
+                <div class="flex gap-2">
                     {% if pag_compras.has_prev %}
-                    <form method="get" class="d-inline">
+                    <form method="get" class="inline">
                         {{ filtros_hidden() }}
                         <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
                         <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
                         <input type="hidden" name="page_comp" value="{{ pag_compras.prev_num }}">
                         <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
-                        <button class="btn btn-outline-secondary btn-sm" type="submit">Anterior</button>
+                        <button class="btn-elegant btn-secondary py-1 px-2 text-xs hover:bg-canvas-700"
+                            type="submit">Prev</button>
                     </form>
                     {% endif %}
                     {% if pag_compras.has_next %}
-                    <form method="get" class="d-inline">
+                    <form method="get" class="inline">
                         {{ filtros_hidden() }}
                         <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
                         <input type="hidden" name="page_user" value="{{ pag_usuarios.page }}">
                         <input type="hidden" name="page_comp" value="{{ pag_compras.next_num }}">
                         <input type="hidden" name="page_size" value="{{ pag_actividades.per_page }}">
-                        <button class="btn btn-outline-secondary btn-sm" type="submit">Siguiente</button>
+                        <button class="btn-elegant btn-secondary py-1 px-2 text-xs hover:bg-canvas-700"
+                            type="submit">Next</button>
                     </form>
                     {% endif %}
                 </div>
@@ -326,6 +417,9 @@
     const csrfToken = "{{ csrf_token() }}";
 
     function cambiarRol(usuarioId, nuevoRol) {
+        // Show loading state implicitly by maybe disabling the select? 
+        // For now, simpler implementation is fine.
+
         fetch(`/cambiar_rol/${usuarioId}`, {
             method: 'POST',
             headers: {
@@ -336,13 +430,14 @@
         })
             .then(response => response.json())
             .then(data => {
-                const params = new URLSearchParams();
+                const params = new URLSearchParams(window.location.search);
                 if (data.success) {
-                    params.set('flash_success', data.message);
+                    // Refresh carefully or show toast
+                    alert(data.message); // Simple alert for now, could be improved to toast
+                    window.location.reload();
                 } else {
-                    params.set('flash_error', data.message || 'No se pudo cambiar el rol.');
+                    alert(data.message || 'No se pudo cambiar el rol.');
                 }
-                window.location.href = `/actividades?${params.toString()}`;
             })
             .catch(error => {
                 alert(`Error al cambiar el rol: ${error}`);
@@ -350,7 +445,7 @@
     }
 
     function eliminarUsuario(usuarioId) {
-        if (!confirm('¿Estás seguro de eliminar este usuario?')) {
+        if (!confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
             return;
         }
         fetch(`/eliminar_usuario/${usuarioId}`, {

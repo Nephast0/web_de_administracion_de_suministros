@@ -2,102 +2,182 @@
 {% block title %}Menú Principal{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 mt-4">
-    <div class="bg-white rounded-lg shadow-md text-center p-6">
-        <h1 class="text-3xl font-bold text-gray-800">Suministros Informáticos CNCV</h1>
-        <h2 class="text-2xl font-semibold text-gray-700 mt-2">Menú Principal</h2>
-        <p class="text-gray-600 mt-2">Bienvenido al panel de administración. Desde aquí puedes gestionar todos los aspectos de la aplicación.</p>
+<div class="space-y-8 animate-fade-in">
+    <!-- Header -->
+    <div class="glass-panel p-8 text-center relative overflow-hidden shadow-2xl shadow-primary-500/10">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 via-primary-300 to-primary-500">
+        </div>
+        <h1
+            class="text-4xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-primary-400 mb-2">
+            Suministros Informáticos CNCV
+        </h1>
+        <h2 class="text-xl text-canvas-400 font-light mb-4 tracking-wide uppercase text-sm font-sans">Panel de
+            Administración</h2>
+        <p class="text-canvas-400 max-w-2xl mx-auto font-light">
+            Bienvenido. Gestiona inventario, proveedores y contabilidad desde este centro de control unificado.
+        </p>
     </div>
 
-    <div class="flex flex-wrap -mx-4 mt-8">
-        <!-- Columna de Gestión -->
-        <div class="w-full md:w-1/3 px-4 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 h-full">
-                <h5 class="text-xl font-bold mb-4">Gestión</h5>
-                <div class="space-y-2">
-                    <a href="{{ url_for('proveedores.proveedores') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Proveedores</a>
-                    <a href="{{ url_for('inventario.productos') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Inventario</a>
-                    <a href="{{ url_for('inventario.pedidos') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Pedidos</a>
-                </div>
-            </div>
-        </div>
-        <!-- Columna de Contabilidad y Reportes -->
-        <div class="w-full md:w-1/3 px-4 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 h-full">
-                <h5 class="text-xl font-bold mb-4">Contabilidad y Reportes</h5>
-                <div class="space-y-2">
-                    <a href="{{ url_for('contabilidad.balance') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Balance</a>
-                    <a href="{{ url_for('contabilidad.cuenta_resultados') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Cuenta de Resultados</a>
-                    <a href="{{ url_for('contabilidad.diario') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Diario</a>
-                    <a href="{{ url_for('reportes.graficas') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Gráficos</a>
-                </div>
-            </div>
-        </div>
-        <!-- Columna de Exportar Datos -->
-        <div class="w-full md:w-1/3 px-4 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 h-full">
-                <h5 class="text-xl font-bold mb-4">Exportar Datos</h5>
-                <div class="space-y-2">
-                    <a href="{{ url_for('inventario.exportar_productos') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Exportar Inventario</a>
-                    <a href="{{ url_for('proveedores.exportar_proveedores') }}" class="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded">Exportar Proveedores</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Stock Alert -->
     {% if alertas_stock_bajo and alertas_stock_bajo > 0 %}
-    <div class="mt-4">
-        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md flex justify-between items-center" role="alert">
-            <p>Hay {{ alertas_stock_bajo }} productos con stock bajo que requieren atención.</p>
-            <a class="border border-yellow-500 text-yellow-600 hover:bg-yellow-500 hover:text-white font-bold py-1 px-3 rounded text-sm" href="{{ url_for('inventario.productos', stock='bajo') }}">Ver productos</a>
+    <div
+        class="bg-amber-900/30 border border-amber-500/30 p-4 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 text-amber-100 shadow-lg shadow-amber-900/10 backdrop-blur-sm">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-amber-400">warning</span>
+            <p><span class="font-bold text-amber-400">{{ alertas_stock_bajo }}</span> productos tienen stock bajo.</p>
         </div>
+        <a class="btn-elegant border border-amber-500/50 text-amber-300 hover:bg-amber-500/10 hover:text-amber-200 text-sm py-1.5 px-4 rounded-full transition-all"
+            href="{{ url_for('inventario.productos', stock='bajo') }}">
+            Revisar Inventario
+        </a>
     </div>
     {% endif %}
 
-    <div class="flex flex-wrap -mx-2 mt-8">
-        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
-            <div class="bg-white rounded-lg shadow-md text-center p-4">
-                <h6 class="text-sm font-semibold text-gray-500 mb-2">Stock bajo</h6>
-                <p class="text-3xl font-bold">{{ alertas_stock_bajo if alertas_stock_bajo is not none else '-' }}</p>
+    <!-- Navigation Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Gestión -->
+        <div
+            class="glass-panel p-6 flex flex-col h-full hover:border-primary-500/30 transition-colors duration-300 group">
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-canvas-700/50">
+                <span
+                    class="material-symbols-outlined text-primary-400 text-3xl group-hover:scale-110 transition-transform">inventory_2</span>
+                <h3 class="text-xl font-heading font-semibold text-canvas-100 italic">Gestión</h3>
+            </div>
+            <div class="space-y-3 flex-grow">
+                <a href="{{ url_for('proveedores.proveedores') }}"
+                    class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
+                    <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Proveedores</span>
+                    <span
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                </a>
+                <a href="{{ url_for('inventario.productos') }}"
+                    class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
+                    <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Inventario</span>
+                    <span
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                </a>
+                <a href="{{ url_for('inventario.pedidos') }}"
+                    class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
+                    <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Pedidos</span>
+                    <span
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                </a>
             </div>
         </div>
-        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
-            <div class="bg-white rounded-lg shadow-md text-center p-4">
-                <h6 class="text-sm font-semibold text-gray-500 mb-2">Inventario total</h6>
-                <p class="text-3xl font-bold">{{ total_inventario if total_inventario is not none else '-' }} <span class="text-xl">ítems</span></p>
-                <p class="text-xs text-gray-500">Valor: {{ valor_inventario | currency }}</p>
+
+        <!-- Contabilidad -->
+        <div
+            class="glass-panel p-6 flex flex-col h-full hover:border-primary-500/30 transition-colors duration-300 group">
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-canvas-700/50">
+                <span
+                    class="material-symbols-outlined text-primary-400 text-3xl group-hover:scale-110 transition-transform">account_balance</span>
+                <h3 class="text-xl font-heading font-semibold text-canvas-100 italic">Contabilidad</h3>
+            </div>
+            <div class="space-y-3 flex-grow">
+                <a href="{{ url_for('contabilidad.balance') }}"
+                    class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
+                    <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Balance</span>
+                    <span
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                </a>
+                <a href="{{ url_for('contabilidad.cuenta_resultados') }}"
+                    class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
+                    <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Resultados</span>
+                    <span
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                </a>
+                <a href="{{ url_for('contabilidad.diario') }}"
+                    class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
+                    <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Diario</span>
+                    <span
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                </a>
+                <a href="{{ url_for('reportes.graficas') }}"
+                    class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
+                    <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Gráficos</span>
+                    <span
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                </a>
             </div>
         </div>
-        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
-            <div class="bg-white rounded-lg shadow-md text-center p-4">
-                <h6 class="text-sm font-semibold text-gray-500 mb-2">Pedidos pendientes</h6>
-                <p class="text-3xl font-bold">{{ pedidos_pendientes if pedidos_pendientes is not none else '-' }}</p>
+
+        <!-- Acciones -->
+        <div
+            class="glass-panel p-6 flex flex-col h-full hover:border-primary-500/30 transition-colors duration-300 group">
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-canvas-700/50">
+                <span
+                    class="material-symbols-outlined text-primary-400 text-3xl group-hover:scale-110 transition-transform">cloud_download</span>
+                <h3 class="text-xl font-heading font-semibold text-canvas-100 italic">Exportar</h3>
+            </div>
+            <div class="space-y-3 flex-grow">
+                <a href="{{ url_for('inventario.exportar_productos') }}"
+                    class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
+                    <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Inventario
+                        CSV</span>
+                    <span
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">file_download</span>
+                </a>
+                <a href="{{ url_for('proveedores.exportar_proveedores') }}"
+                    class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
+                    <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Proveedores
+                        CSV</span>
+                    <span
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">file_download</span>
+                </a>
             </div>
         </div>
-        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
-            <div class="bg-white rounded-lg shadow-md text-center p-4">
-                <h6 class="text-sm font-semibold text-gray-500 mb-2">Ventas totales</h6>
-                <p class="text-3xl font-bold">{{ ventas_totales | currency }}</p>
-            </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8">
+        <!-- Stock Bajo -->
+        <div class="glass-panel p-4 text-center hover:bg-canvas-800/50 transition-colors">
+            <h6 class="text-xs font-bold text-canvas-500 uppercase mb-2">Stock Bajo</h6>
+            <p
+                class="text-2xl font-bold font-heading {{ 'text-amber-500' if alertas_stock_bajo and alertas_stock_bajo > 0 else 'text-primary-400' }}">
+                {{ alertas_stock_bajo if alertas_stock_bajo is not none else '-' }}
+            </p>
         </div>
-        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
-            <div class="bg-white rounded-lg shadow-md text-center p-4">
-                <h6 class="text-sm font-semibold text-gray-500 mb-2">Proveedores</h6>
-                <p class="text-3xl font-bold">{{ total_proveedores if total_proveedores is not none else '-' }}</p>
-            </div>
+
+        <!-- Inventario Total -->
+        <div class="glass-panel p-4 text-center hover:bg-canvas-800/50 transition-colors">
+            <h6 class="text-xs font-bold text-canvas-500 uppercase mb-2">Total Ítems</h6>
+            <p class="text-2xl font-bold font-heading text-canvas-200">
+                {{ total_inventario if total_inventario is not none else '-' }}
+            </p>
+            <p class="text-[10px] text-canvas-500 mt-1">{{ valor_inventario | currency }}</p>
         </div>
-        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
-            <div class="bg-white rounded-lg shadow-md text-center p-4">
-                <h6 class="text-sm font-semibold text-gray-500 mb-2">Usuarios</h6>
-                <p class="text-3xl font-bold">{{ total_usuarios if total_usuarios is not none else '-' }}</p>
-            </div>
+
+        <!-- Pedidos -->
+        <div class="glass-panel p-4 text-center hover:bg-canvas-800/50 transition-colors">
+            <h6 class="text-xs font-bold text-canvas-500 uppercase mb-2">Pedidos</h6>
+            <p class="text-2xl font-bold font-heading text-canvas-200">
+                {{ pedidos_pendientes if pedidos_pendientes is not none else '-' }}
+            </p>
         </div>
-        <div class="w-full md:w-1/2 lg:w-1/4 p-2">
-            <div class="bg-white rounded-lg shadow-md text-center p-4">
-                <h6 class="text-sm font-semibold text-gray-500 mb-2">TTL caché reportes</h6>
-                <p class="text-3xl font-bold">{{ cache_ttl if cache_ttl is not none else '-' }}s</p>
-                <p class="text-xs text-gray-500">Hits: {{ cache_hits }} | Misses: {{ cache_misses }}</p>
-            </div>
+
+        <!-- Ventas -->
+        <div class="glass-panel p-4 text-center hover:bg-canvas-800/50 transition-colors">
+            <h6 class="text-xs font-bold text-canvas-500 uppercase mb-2">Ventas</h6>
+            <p class="text-2xl font-bold font-heading text-green-400">
+                {{ ventas_totales | currency }}
+            </p>
+        </div>
+
+        <!-- Proveedores -->
+        <div class="glass-panel p-4 text-center hover:bg-canvas-800/50 transition-colors">
+            <h6 class="text-xs font-bold text-canvas-500 uppercase mb-2">Proveedores</h6>
+            <p class="text-2xl font-bold font-heading text-canvas-200">
+                {{ total_proveedores if total_proveedores is not none else '-' }}
+            </p>
+        </div>
+
+        <!-- Usuarios -->
+        <div class="glass-panel p-4 text-center hover:bg-canvas-800/50 transition-colors">
+            <h6 class="text-xs font-bold text-canvas-500 uppercase mb-2">Usuarios</h6>
+            <p class="text-2xl font-bold font-heading text-canvas-200">
+                {{ total_usuarios if total_usuarios is not none else '-' }}
+            </p>
         </div>
     </div>
 </div>

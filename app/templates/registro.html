@@ -2,53 +2,98 @@
 {% block title %}Registro{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h1 class="text-center">Registro de Nuevo Usuario</h1>
-            </div>
-            <div class="card-body">
-                <form action="{{ url_for('auth.registro') }}" method="post">
-                    {{ form.hidden_tag() }}
+<main class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md animate-fade-in relative">
+        <!-- Decorative Glow -->
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none">
+        </div>
 
-                    <div class="form-group mb-3">
-                        <label for="nombre" class="form-label">Nombre y Apellido</label>
-                        <input type="text" name="nombre" class="form-control" id="nombre" placeholder="Nombre Completo">
+        <div class="glass-panel p-8 relative z-10 shadow-2xl shadow-primary-500/10">
+            <h1
+                class="text-3xl font-bold text-center font-heading italic mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-primary-400">
+                Crear Cuenta
+            </h1>
+            <p class="text-center text-canvas-400 text-sm mb-8">Únete a Suministros Informáticos CNCV</p>
+
+            <form action="{{ url_for('auth.registro') }}" method="post" class="space-y-5">
+                {{ form.hidden_tag() }}
+
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-canvas-300 mb-1">Nombre y Apellido</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500">person</span>
+                        <input type="text" name="nombre" id="nombre"
+                            class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500"
+                            placeholder="Nombre completo" required>
                     </div>
+                </div>
 
-                    <div class="form-group mb-3">
-                        <label for="usuario" class="form-label">Nombre de Usuario</label>
-                        <input type="text" name="usuario" class="form-control" id="usuario" placeholder="Usuario">
+                <div>
+                    <label for="usuario" class="block text-sm font-medium text-canvas-300 mb-1">Nombre de
+                        Usuario</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500">alternate_email</span>
+                        <input type="text" name="usuario" id="usuario"
+                            class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500"
+                            placeholder="Usuario único" required>
                     </div>
+                </div>
 
-                    <div class="form-group mb-3">
-                        <label for="direccion" class="form-label">Dirección de Usuario</label>
-                        <input type="text" name="direccion" class="form-control" id="direccion" placeholder="Dirección">
+                <div>
+                    <label for="direccion" class="block text-sm font-medium text-canvas-300 mb-1">Dirección de
+                        Envío</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500">home</span>
+                        <input type="text" name="direccion" id="direccion"
+                            class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500"
+                            placeholder="Calle, Número, Ciudad..." required>
                     </div>
+                </div>
 
-                    <div class="form-group mb-3">
-                        <label for="contrasenya" class="form-label">Contraseña deseada</label>
-                        <input type="password" name="contrasenya" class="form-control" id="contrasenya" placeholder="Contraseña">
+                <div>
+                    <label for="contrasenya" class="block text-sm font-medium text-canvas-300 mb-1">Contraseña</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500">lock</span>
+                        <input type="password" name="contrasenya" id="contrasenya"
+                            class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500"
+                            placeholder="••••••••" required>
                     </div>
+                </div>
 
-                    <div class="form-group mb-3">
-                        <label for="contrasenya2" class="form-label">Confirmar contraseña</label>
-                        <input type="password" name="contrasenya2" class="form-control" id="contrasenya2" placeholder="Confirmar contraseña">
+                <div>
+                    <label for="contrasenya2" class="block text-sm font-medium text-canvas-300 mb-1">Confirmar
+                        Contraseña</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500">lock_reset</span>
+                        <input type="password" name="contrasenya2" id="contrasenya2"
+                            class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500"
+                            placeholder="••••••••" required>
                     </div>
+                </div>
 
-                    <p class="text-muted small mt-3 mb-4">Las nuevas cuentas se registran como clientes. Si necesitas un rol administrativo, contacta con un administrador existente.</p>
+                <div
+                    class="text-xs text-canvas-500 text-center px-4 bg-canvas-900/30 py-2 rounded border border-canvas-700/30">
+                    <span class="material-symbols-outlined text-sm align-middle mr-1">info</span>
+                    Las nuevas cuentas se crean con perfil de cliente.
+                </div>
 
-                    <div class="d-grid">
-                        <button class="btn btn-primary" type="submit">Registrar</button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer text-center">
-                <a href="{{ url_for('auth.login') }}">¿Ya tienes una cuenta? Inicia sesión</a>
+                <button type="submit"
+                    class="btn-elegant btn-primary w-full justify-center text-lg py-3 mt-4 bg-primary-600 hover:bg-primary-500 shadow-primary-500/20">
+                    Registrarse
+                </button>
+            </form>
+
+            <div class="mt-8 text-center pt-6 border-t border-canvas-700/30">
+                <p class="text-canvas-400 text-sm">¿Ya tienes una cuenta?</p>
+                <a href="{{ url_for('auth.login') }}"
+                    class="text-primary-400 hover:text-primary-300 font-medium hover:underline mt-1 inline-block">
+                    Iniciar sesión
+                </a>
             </div>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}
-

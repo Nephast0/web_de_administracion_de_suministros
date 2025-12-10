@@ -1,89 +1,126 @@
 {% extends "base.html" %}
-
 {% block title %}Libro Diario{% endblock %}
 
-{% block body_class %}menu-body{% endblock %}
-
 {% block content %}
-<div class="glass-container">
-    <h2 class="text-center mb-4" style="color: #fff;">Libro Diario</h2>
-
-    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
-        <a href="{{ url_for('menu.menu_principal') }}" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Volver
-        </a>
-        <div class="d-flex gap-2">
-             <a href="{{ url_for('contabilidad.exportar_diario', fecha_inicio=filtros.fecha_inicio, fecha_fin=filtros.fecha_fin) }}" class="cta">
-                <i class="fas fa-file-csv"></i> Exportar CSV
+<main class="container mx-auto my-6 px-4 pb-12">
+    <!-- Header -->
+    <div
+        class="glass-panel p-6 mb-8 animate-fade-in flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl shadow-indigo-900/5">
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('menu.menu_principal') }}"
+                class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-400 transition-all bg-slate-900/50"
+                aria-label="Volver">
+                <span class="material-symbols-outlined">arrow_back</span>
             </a>
-            <a href="{{ url_for('contabilidad.nuevo_asiento') }}" class="cta">
-                <i class="fas fa-plus"></i> Nuevo Asiento
+            <h1
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-indigo-400">
+                Libro Diario
+            </h1>
+        </div>
+        <div class="flex gap-3">
+            <a href="{{ url_for('contabilidad.exportar_diario', fecha_inicio=filtros.fecha_inicio, fecha_fin=filtros.fecha_fin) }}"
+                class="btn-elegant btn-secondary flex items-center gap-2 hover:bg-slate-700">
+                <span class="material-symbols-outlined text-lg">download</span> Exportar CSV
+            </a>
+            <a href="{{ url_for('contabilidad.nuevo_asiento') }}"
+                class="btn-elegant btn-primary flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/20">
+                <span class="material-symbols-outlined text-lg">add_circle</span> Nuevo Asiento
             </a>
         </div>
     </div>
 
-    <form class="glass p-3 mb-4" method="get">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label text-white">Fecha desde</label>
-                <input type="date" name="fecha_inicio" class="form-control" value="{{ filtros.fecha_inicio }}">
+    <!-- Filter Form -->
+    <div class="glass-panel p-6 mb-8 animate-fade-in shadow-lg shadow-indigo-900/5">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+            <div class="space-y-2">
+                <label for="fecha_inicio" class="block text-sm font-medium text-slate-300">Fecha desde</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ filtros.fecha_inicio }}"
+                    class="form-input focus:border-indigo-500 focus:ring-indigo-500">
             </div>
-            <div class="col-md-4">
-                <label class="form-label text-white">Fecha hasta</label>
-                <input type="date" name="fecha_fin" class="form-control" value="{{ filtros.fecha_fin }}">
+            <div class="space-y-2">
+                <label for="fecha_fin" class="block text-sm font-medium text-slate-300">Fecha hasta</label>
+                <input type="date" id="fecha_fin" name="fecha_fin" value="{{ filtros.fecha_fin }}"
+                    class="form-input focus:border-indigo-500 focus:ring-indigo-500">
             </div>
-            <div class="col-md-2 d-grid">
-                <button class="cta" type="submit">Filtrar</button>
+            <div>
+                <button type="submit" class="w-full btn-elegant btn-secondary justify-center hover:bg-slate-700">
+                    <span class="material-symbols-outlined mr-2">filter_alt</span> Filtrar
+                </button>
             </div>
-        </div>
-    </form>
-
-    <div class="table-responsive">
-        <table class="glass-table table table-borderless text-white">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Descripción / Cuenta</th>
-                    <th class="text-end">Debe</th>
-                    <th class="text-end">Haber</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for asiento in asientos %}
-                <tr class="table-active" style="background-color: rgba(255, 255, 255, 0.1);">
-                    <td>{{ asiento.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td colspan="3"><strong>{{ asiento.descripcion }}</strong> <small class="text-muted">(Ref: {{
-                            asiento.referencia_id or 'N/A' }}) - Usuario: {{ asiento.usuario.nombre }}</small></td>
-                </tr>
-                {% for apunte in asiento.apuntes %}
-                <tr>
-                    <td></td>
-                    <td style="padding-left: 2rem;">
-                        {{ apunte.cuenta.codigo }} - {{ apunte.cuenta.nombre }}
-                    </td>
-                    <td class="text-end">
-                        {% if apunte.debe > 0 %}
-                        {{ "%.2f"|format(apunte.debe) }} €
-                        {% endif %}
-                    </td>
-                    <td class="text-end">
-                        {% if apunte.haber > 0 %}
-                        {{ "%.2f"|format(apunte.haber) }} €
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-                <!-- Spacer row -->
-                <tr>
-                    <td colspan="4" style="height: 10px;"></td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="4" class="text-center">No hay asientos registrados.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        </form>
     </div>
-</div>
+
+    <!-- Diario Table -->
+    <div class="glass-panel p-1 overflow-hidden animate-fade-in shadow-xl shadow-indigo-900/5">
+        <div class="overflow-x-auto rounded-lg">
+            <table class="w-full text-sm text-left text-slate-300">
+                <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 font-heading tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">Fecha</th>
+                        <th class="px-6 py-4 font-semibold">Descripción / Cuenta</th>
+                        <th class="px-6 py-4 font-semibold text-right">Debe</th>
+                        <th class="px-6 py-4 font-semibold text-right">Haber</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/50">
+                    {% for asiento in asientos %}
+                    <!-- Asiento Header Row -->
+                    <tr class="bg-indigo-500/5 border-t-2 border-indigo-500/10">
+                        <td class="px-6 py-3 font-mono text-indigo-300 font-bold">
+                            {{ asiento.fecha.strftime('%d-%m-%Y') }} <br>
+                            <span class="text-xs font-normal text-slate-400">{{ asiento.fecha.strftime('%H:%M')
+                                }}</span>
+                        </td>
+                        <td colspan="3" class="px-6 py-3">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-slate-200 text-base">{{ asiento.descripcion }}</span>
+                                <div class="flex gap-4 text-xs text-slate-500 mt-1">
+                                    <span>Ref: {{ asiento.referencia_id or 'N/A' }}</span>
+                                    <span>Usuario: {{ asiento.usuario.nombre }}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Apuntes Rows -->
+                    {% for apunte in asiento.apuntes %}
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-6 py-2"></td>
+                        <td class="px-6 py-2 pl-12 text-slate-300">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-slate-500">{{ apunte.cuenta.codigo }}</span>
+                                <span>{{ apunte.cuenta.nombre }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-2 text-right font-mono text-slate-200">
+                            {% if apunte.debe > 0 %}
+                            {{ "%.2f"|format(apunte.debe) }} €
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-2 text-right font-mono text-slate-200">
+                            {% if apunte.haber > 0 %}
+                            {{ "%.2f"|format(apunte.haber) }} €
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- Spacer -->
+                    <tr>
+                        <td colspan="4" class="h-2"></td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-slate-500">
+                            <span class="material-symbols-outlined text-4xl mb-2 opacity-50">menu_book</span>
+                            <p>No hay asientos registrados en el rango seleccionado.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
 {% endblock %}

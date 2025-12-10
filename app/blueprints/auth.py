@@ -84,7 +84,7 @@ def registro():
             )
 
             flash("¡Tu cuenta ha sido creada con éxito! Ahora puedes iniciar sesión.", "success")
-            return redirect(url_for("auth.login"))
+            return redirect(url_for("auth.login", usuario=nuevo_usuario.usuario))
 
         except Exception:
             app.logger.exception("Error al intentar guardar el usuario en la base de datos")
@@ -103,8 +103,16 @@ def registro():
 @auth_bp.route("/login", methods=["POST", "GET"])
 def login():
     form = Login_form()
+    
+    # Pre-fill username if passed from registration
+    if request.method == 'GET' and not form.usuario.data:
+        usuario_arg = request.args.get('usuario')
+        if usuario_arg:
+            form.usuario.data = usuario_arg
     app.logger.debug("Datos recibidos del formulario: %s", {**form.data, "contrasenya": "[omitted]"})
 
+    print("DEBUG: Entered login route")
+    print(f"DEBUG: Form data: {form.data}")
     if form.validate_on_submit():
         usuario = Usuario.query.filter_by(usuario=form.usuario.data).first()
 

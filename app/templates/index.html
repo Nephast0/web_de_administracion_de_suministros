@@ -1,33 +1,56 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h1 class="text-center">Suministros Informáticos CNCV</h1>
+<div class="min-h-[75vh] flex items-center justify-center">
+    <div class="glass-panel w-full max-w-md p-8 md:p-10 animate-fade-in shadow-2xl shadow-primary-500/10">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold font-heading italic text-primary-400 mb-2 tracking-wide">Suministros CNCV</h1>
+            <p class="text-canvas-400 text-sm font-light">Ingresa a tu cuenta para gestionar el inventario</p>
+        </div>
+
+        <form action="{{ url_for('auth.login') }}" method="post" class="space-y-6">
+            {{ form.hidden_tag() }}
+
+            <div class="space-y-2">
+                <label for="usuario" class="block text-sm font-medium text-canvas-300">Usuario</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-canvas-500">
+                        <span class="material-symbols-outlined text-[20px]">person</span>
+                    </span>
+                    <input type="text" name="usuario" id="usuario"
+                        class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500" placeholder="Ej. admin"
+                        autofocus autocomplete="off">
+                </div>
             </div>
-            <div class="card-body">
-                <h2 class="card-title text-center">Login</h2>
-                <form action="{{ url_for('auth.login') }}" method="post" class="login-form">
-                    {{ form.hidden_tag() }}
-                    <div class="form-group mb-3">
-                        <label for="usuario" class="form-label">Usuario</label>
-                        <input type="text" name="usuario" class="form-control" id="usuario" placeholder="Tu usuario" autofocus autocomplete="off">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="contrasenya" class="form-label">Contraseña</label>
-                        <input type="password" name="contrasenya" class="form-control" id="contrasenya" placeholder="••••••••" autocomplete="off">
-                    </div>
-                    <div class="d-grid">
-                        <button class="btn btn-primary" type="submit">Iniciar sesión</button>
-                    </div>
-                </form>
+
+            <div class="space-y-2">
+                <label for="contrasenya" class="block text-sm font-medium text-canvas-300">Contraseña</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-canvas-500">
+                        <span class="material-symbols-outlined text-[20px]">lock</span>
+                    </span>
+                    <input type="password" name="contrasenya" id="contrasenya"
+                        class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500" placeholder="••••••••"
+                        autocomplete="off">
+                </div>
             </div>
-            <div class="card-footer text-center">
-                <a href="{{ url_for('auth.registro') }}">Registrarse</a>
+
+            <div class="pt-2">
+                <button
+                    class="w-full btn-elegant bg-primary-600 hover:bg-primary-500 text-white justify-center text-lg shadow-lg shadow-primary-500/20"
+                    type="submit">
+                    Iniciar Sesión
+                </button>
             </div>
+        </form>
+
+        <div class="mt-8 text-center text-sm">
+            <p class="text-canvas-500">¿No tienes cuenta?</p>
+            <a href="{{ url_for('auth.registro') }}"
+                class="text-primary-400 hover:text-primary-300 font-medium transition-colors">
+                Regístrate aquí
+            </a>
         </div>
     </div>
 </div>

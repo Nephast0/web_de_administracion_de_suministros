@@ -1,181 +1,273 @@
 {% extends "base.html" %}
-{% block title %}Gráficas{% endblock %}
+{% block title %}Gráficas Administrativas{% endblock %}
 
 {% block content %}
-<main class="container py-4">
-    <div class="d-flex align-items-center mb-3">
-        <a class="back-btn" href="{{ url_for('inventario.menu_principal') }}" aria-label="Volver al menú">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <h1 class="ms-3 titlewhiteN mb-0">Gráficas</h1>
+<main class="container mx-auto my-6 px-4 pb-12">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('inventario.menu_principal') }}"
+                class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-400 transition-all bg-slate-900/50"
+                aria-label="Volver al menú">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <h1
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-indigo-400">
+                Gráficas y Análisis
+            </h1>
+        </div>
+
+        <!-- Time Interval Selector -->
+        <div class="flex items-center gap-3 bg-slate-800/80 p-2 rounded-lg border border-slate-700/50 shadow-lg">
+            <label for="intervaloTiempo" class="text-sm text-slate-400 pl-2">Intervalo:</label>
+            <div class="relative">
+                <select id="intervaloTiempo"
+                    class="form-input py-1 px-8 pl-3 text-sm appearance-none border-0 bg-transparent focus:ring-0 text-slate-200 font-medium">
+                    <option value="dia">Diario</option>
+                    <option value="semana">Semanal</option>
+                    <option value="mes" selected>Mensual</option>
+                    <option value="trimestre">Trimestral</option>
+                    <option value="anio">Anual</option>
+                </select>
+                <span
+                    class="material-symbols-outlined absolute right-2 top-1.5 text-slate-500 pointer-events-none text-sm">expand_more</span>
+            </div>
+        </div>
     </div>
 
-    <div class="text-center mb-4">
-        <label for="intervaloTiempo" class="form-label titlewhiteN">Seleccione el intervalo de tiempo:</label>
-        <select id="intervaloTiempo" class="form-select w-50 mx-auto bg-dark text-light border-secondary">
-            <option value="dia">Diario</option>
-            <option value="semana">Semanal</option>
-            <option value="mes" selected>Mensual</option>
-            <option value="trimestre">Trimestral</option>
-            <option value="anio">Anual</option>
-        </select>
-    </div>
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Distribution Chart -->
+        <div
+            class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50">
+            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-indigo-400">pie_chart</span>
+                Distribución de Productos
+            </h3>
+            <div class="relative flex-grow min-h-[300px]">
+                <canvas id="distribucionProductos" role="img" aria-label="Distribución de productos"></canvas>
+            </div>
+            <p id="summary-distribucion_productos" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+                <a id="summary-download-distribucion_productos"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                </a>
+                <a id="export-distribucion_productos"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                </a>
+            </div>
+        </div>
 
-    <!-- Tarjetas de gráficas protegidas por rol admin -->
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="glass-card">
-                <h3 class="titlewhiteN mb-3">Distribución de Productos por Tipo</h3>
-                <canvas id="distribucionProductos" role="img" aria-labelledby="distribucionDescripcion"></canvas>
-                <p id="distribucionDescripcion" class="visually-hidden">Cantidad de productos disponibles por tipo en
-                    inventario.</p>
-                <p id="summary-distribucion_productos" class="text-muted small mt-2" aria-live="polite"></p>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                    <a id="summary-download-distribucion_productos" class="btn btn-outline-light btn-sm"
-                        data-chart="distribucion_productos" download="distribucion_productos_resumen.txt" href="#">
-                        Descargar resumen
-                    </a>
-                    <a id="export-distribucion_productos" class="btn btn-secondary btn-sm export-link"
-                        data-chart="distribucion_productos" download="distribucion_productos.csv" href="#">
-                        Descargar CSV
-                    </a>
-                </div>
+        <!-- Total Sales Chart -->
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
+            style="animation-delay: 50ms">
+            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-indigo-400">show_chart</span>
+                Ventas Totales
+            </h3>
+            <div class="relative flex-grow min-h-[300px]">
+                <canvas id="ventasTotales" role="img" aria-label="Ventas totales"></canvas>
+            </div>
+            <p id="summary-ventas_totales" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+                <a id="summary-download-ventas_totales"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                </a>
+                <a id="export-ventas_totales"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                </a>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="glass-card">
-                <h3 class="titlewhiteN mb-3">Ventas Totales</h3>
-                <canvas id="ventasTotales" role="img" aria-labelledby="ventasDescripcion"></canvas>
-                <p id="ventasDescripcion" class="visually-hidden">Ventas totales agregadas según el intervalo
-                    seleccionado.</p>
-                <p id="summary-ventas_totales" class="text-muted small mt-2" aria-live="polite"></p>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                    <a id="summary-download-ventas_totales" class="btn btn-outline-light btn-sm"
-                        data-chart="ventas_totales" download="ventas_totales_resumen.txt" href="#">
-                        Descargar resumen
-                    </a>
-                    <a id="export-ventas_totales" class="btn btn-secondary btn-sm export-link"
-                        data-chart="ventas_totales" download="ventas_totales.csv" href="#">
-                        Descargar CSV
-                    </a>
-                </div>
+
+        <!-- Best Sellers Chart -->
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
+            style="animation-delay: 100ms">
+            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-amber-400">star</span>
+                Productos Más Vendidos
+            </h3>
+            <div class="relative flex-grow min-h-[300px]">
+                <canvas id="productosMasVendidos" role="img" aria-label="Productos más vendidos"></canvas>
+            </div>
+            <p id="summary-productos_mas_vendidos" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+                <a id="summary-download-productos_mas_vendidos"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                </a>
+                <a id="export-productos_mas_vendidos"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                </a>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="glass-card">
-                <h3 class="titlewhiteN mb-3">Productos Más Vendidos</h3>
-                <canvas id="productosMasVendidos" role="img" aria-labelledby="masVendidosDescripcion"></canvas>
-                <p id="masVendidosDescripcion" class="visually-hidden">Listado de productos con mayor volumen de ventas.
-                </p>
-                <p id="summary-productos_mas_vendidos" class="text-muted small mt-2" aria-live="polite"></p>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                    <a id="summary-download-productos_mas_vendidos" class="btn btn-outline-light btn-sm"
-                        data-chart="productos_mas_vendidos" download="productos_mas_vendidos_resumen.txt" href="#">
-                        Descargar resumen
-                    </a>
-                    <a id="export-productos_mas_vendidos" class="btn btn-secondary btn-sm export-link"
-                        data-chart="productos_mas_vendidos" download="productos_mas_vendidos.csv" href="#">
-                        Descargar CSV
-                    </a>
-                </div>
+
+        <!-- Registered Users Chart -->
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
+            style="animation-delay: 150ms">
+            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-blue-400">group_add</span>
+                Usuarios Registrados
+            </h3>
+            <div class="relative flex-grow min-h-[300px]">
+                <canvas id="usuariosRegistrados" role="img" aria-label="Usuarios registrados"></canvas>
+            </div>
+            <p id="summary-usuarios_registrados" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+                <a id="summary-download-usuarios_registrados"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                </a>
+                <a id="export-usuarios_registrados"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                </a>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="glass-card">
-                <h3 class="titlewhiteN mb-3">Usuarios Registrados</h3>
-                <canvas id="usuariosRegistrados" role="img" aria-labelledby="usuariosDescripcion"></canvas>
-                <p id="usuariosDescripcion" class="visually-hidden">Usuarios registrados por periodo.</p>
-                <p id="summary-usuarios_registrados" class="text-muted small mt-2" aria-live="polite"></p>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                    <a id="summary-download-usuarios_registrados" class="btn btn-outline-light btn-sm"
-                        data-chart="usuarios_registrados" download="usuarios_registrados_resumen.txt" href="#">
-                        Descargar resumen
-                    </a>
-                    <a id="export-usuarios_registrados" class="btn btn-secondary btn-sm export-link"
-                        data-chart="usuarios_registrados" download="usuarios_registrados.csv" href="#">
-                        Descargar CSV
-                    </a>
-                </div>
+
+        <!-- Revenue by User Chart -->
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
+            style="animation-delay: 200ms">
+            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-purple-400">person</span>
+                Ingresos por Usuario
+            </h3>
+            <div class="relative flex-grow min-h-[300px]">
+                <canvas id="ingresosPorUsuario" role="img" aria-label="Ingresos por usuario"></canvas>
+            </div>
+            <p id="summary-ingresos_por_usuario" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+                <a id="summary-download-ingresos_por_usuario"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                </a>
+                <a id="export-ingresos_por_usuario"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                </a>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="glass-card">
-                <h3 class="titlewhiteN mb-3">Ingresos por Usuario</h3>
-                <canvas id="ingresosPorUsuario" role="img" aria-labelledby="ingresosDescripcion"></canvas>
-                <p id="ingresosDescripcion" class="visually-hidden">Ingresos generados por usuario.</p>
-                <p id="summary-ingresos_por_usuario" class="text-muted small mt-2" aria-live="polite"></p>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                    <a id="summary-download-ingresos_por_usuario" class="btn btn-outline-light btn-sm"
-                        data-chart="ingresos_por_usuario" download="ingresos_por_usuario_resumen.txt" href="#">
-                        Descargar resumen
-                    </a>
-                    <a id="export-ingresos_por_usuario" class="btn btn-secondary btn-sm export-link"
-                        data-chart="ingresos_por_usuario" download="ingresos_por_usuario.csv" href="#">
-                        Descargar CSV
-                    </a>
-                </div>
+
+        <!-- Revenue vs Expenses Chart -->
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
+            style="animation-delay: 250ms">
+            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-pink-400">compare_arrows</span>
+                Ingresos vs Gastos
+            </h3>
+            <div class="relative flex-grow min-h-[300px]">
+                <canvas id="ingresosGastos" role="img" aria-label="Ingresos vs Gastos"></canvas>
+            </div>
+            <p id="summary-ingresos_gastos" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+                <a id="summary-download-ingresos_gastos"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                </a>
+                <a id="export-ingresos_gastos"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    href="#" download>
+                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                </a>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="glass-card">
-                <h3 class="titlewhiteN mb-3">Ingresos vs Gastos</h3>
-                <canvas id="ingresosGastos" role="img" aria-labelledby="ingresosGastosDescripcion"></canvas>
-                <p id="ingresosGastosDescripcion" class="visually-hidden">Comparativa de ingresos y gastos en el tiempo.</p>
-                <p id="summary-ingresos_gastos" class="text-muted small mt-2" aria-live="polite"></p>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                    <a id="summary-download-ingresos_gastos" class="btn btn-outline-light btn-sm"
-                        data-chart="ingresos_gastos" download="ingresos_gastos_resumen.txt" href="#">
-                        Descargar resumen
-                    </a>
-                    <a id="export-ingresos_gastos" class="btn btn-secondary btn-sm export-link"
-                        data-chart="ingresos_gastos" download="ingresos_gastos.csv" href="#">
-                        Descargar CSV
-                    </a>
+
+        <!-- Cache Status -->
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full md:col-span-2 shadow-xl shadow-indigo-900/5 border border-slate-700/50"
+            style="animation-delay: 300ms">
+            <h3 class="text-lg font-bold text-slate-200 mb-6 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-cyan-400">memory</span>
+                Estado del Sistema (Caché)
+            </h3>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
+                    <span class="block text-slate-400 text-xs uppercase tracking-wider mb-1">Entradas</span>
+                    <span class="text-2xl font-bold text-slate-100" id="cacheEntries">0</span>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
+                    <span class="block text-slate-400 text-xs uppercase tracking-wider mb-1">Hits</span>
+                    <span class="text-2xl font-bold text-emerald-400" id="cacheHits">0</span>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
+                    <span class="block text-slate-400 text-xs uppercase tracking-wider mb-1">Misses</span>
+                    <span class="text-2xl font-bold text-rose-400" id="cacheMisses">0</span>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
+                    <span class="block text-slate-400 text-xs uppercase tracking-wider mb-1">TTL (seg)</span>
+                    <span class="text-2xl font-bold text-blue-400" id="cacheTtl">0</span>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="glass-card">
-                <h3 class="titlewhiteN mb-3">Estado de la caché</h3>
-                <dl class="row text-white small">
-                    <dt class="col-6">Entradas</dt>
-                    <dd class="col-6 mb-1" id="cacheEntries">0</dd>
-                    <dt class="col-6">Hits</dt>
-                    <dd class="col-6 mb-1" id="cacheHits">0</dd>
-                    <dt class="col-6">Misses</dt>
-                    <dd class="col-6 mb-1" id="cacheMisses">0</dd>
-                    <dt class="col-6">TTL actual (s)</dt>
-                    <dd class="col-6 mb-1" id="cacheTtl">0</dd>
-                </dl>
-                <form id="ttlForm" class="d-flex flex-wrap gap-2" autocomplete="off">
-                    <label class="form-label titlewhiteN w-100" for="ttlInput">Actualizar TTL (segundos)</label>
-                    <input type="number" min="5" step="5" id="ttlInput"
-                        class="form-control bg-dark text-light border-secondary flex-grow-1" required>
-                    <button class="cta cta-inline" type="submit">Aplicar</button>
-                </form>
-                <small class="text-muted d-block mt-2">Cambiar el TTL limpia la caché en memoria.</small>
-                <div id="ttlFeedback" class="small mt-2 d-none"></div>
-                <h4 class="titlewhiteN mt-4">Histórico</h4>
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                    <label class="form-label titlewhiteN mb-0" for="historyFilter">Filtrar eventos:</label>
-                    <select id="historyFilter" class="form-select bg-dark text-light border-secondary w-auto">
-                        <option value="all">Todos</option>
-                        <option value="hit">Hits</option>
-                        <option value="miss">Misses</option>
-                        <option value="ttl_update">Actualizaciones de TTL</option>
-                    </select>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- TTL Config -->
+                <div>
+                    <h4 class="text-slate-300 font-semibold mb-4 font-heading">Configuración</h4>
+                    <form id="ttlForm" class="space-y-4" autocomplete="off">
+                        <div>
+                            <label class="block text-sm text-slate-400 mb-1" for="ttlInput">Actualizar TTL
+                                (segundos)</label>
+                            <div class="flex gap-2">
+                                <input type="number" min="5" step="5" id="ttlInput"
+                                    class="form-input focus:border-indigo-500" required>
+                                <button
+                                    class="btn-elegant bg-indigo-600 hover:bg-indigo-500 text-white whitespace-nowrap px-4"
+                                    type="submit">Aplicar</button>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">Cambiar el TTL limpiará la caché actual.</p>
+                            <div id="ttlFeedback" class="text-sm mt-2 hidden"></div>
+                        </div>
+                    </form>
                 </div>
-                <ul id="cacheHistory" class="list-group list-group-flush bg-transparent"></ul>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a id="cacheHistoryDownload" href="{{ url_for('reportes.cache_history_export') }}"
-                        class="btn btn-secondary btn-sm" download>
-                        Descargar historial actual
-                    </a>
-                    <a id="cacheHistoryDownloadAll"
-                        href="{{ url_for('reportes.cache_history_export', include_archives=1) }}"
-                        class="btn btn-outline-light btn-sm" download>
-                        Descargar historial completo
-                    </a>
+
+                <!-- History Log -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-slate-300 font-semibold font-heading">Historial de Eventos</h4>
+                        <div class="relative w-40">
+                            <select id="historyFilter"
+                                class="form-input py-1 text-xs appearance-none pr-6 bg-slate-800/50 border-slate-700">
+                                <option value="all">Todos</option>
+                                <option value="hit">Hits</option>
+                                <option value="miss">Misses</option>
+                                <option value="ttl_update">Cambios de TTL</option>
+                            </select>
+                            <span
+                                class="material-symbols-outlined absolute right-2 top-1.5 text-slate-500 pointer-events-none text-xs">expand_more</span>
+                        </div>
+                    </div>
+
+                    <ul id="cacheHistory"
+                        class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar p-2 bg-slate-900/30 rounded-lg border border-slate-800">
+                        <!-- Items injected by JS -->
+                    </ul>
+
+                    <div class="flex gap-2 mt-4 pt-2 border-t border-slate-800">
+                        <a id="cacheHistoryDownload" href="{{ url_for('reportes.cache_history_export') }}" download
+                            class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700">
+                            Descargar actual
+                        </a>
+                        <a id="cacheHistoryDownloadAll"
+                            href="{{ url_for('reportes.cache_history_export', include_archives=1) }}" download
+                            class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700">
+                            Descargar todo (ZIP)
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -186,7 +278,33 @@
 {% block page_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Reutilizamos la capa de presentación base y mantenemos las gráficas encapsuladas en este bloque.
+    // Theme Colors (Updated for Elegant Dark / Indigo)
+    const themeColors = {
+        primary: '#6366f1',   // Indigo 500
+        secondary: '#f59e0b', // Amber 500
+        danger: '#ef4444',    // Red 500
+        success: '#10b981',   // Emerald 500
+        info: '#3b82f6',      // Blue 500
+        purple: '#a855f7',    // Purple 500
+        pink: '#ec4899',      // Pink 500
+        text: '#f8fafc',      // Slate 50
+        textMuted: '#94a3b8', // Slate 400
+        grid: '#334155',      // Slate 700
+        background: 'rgba(15, 23, 42, 0.7)' // Slate 900 with opacity
+    };
+
+    // Chart.js Global Defaults
+    Chart.defaults.color = themeColors.textMuted;
+    Chart.defaults.borderColor = themeColors.grid;
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    function getGradient(ctx, colorStart, colorEnd) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, colorStart);
+        gradient.addColorStop(1, colorEnd);
+        return gradient;
+    }
+
     async function fetchChartData(url) {
         const response = await fetch(url);
         if (!response.ok) {
@@ -195,8 +313,10 @@
         return response.json();
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
         const intervaloTiempo = document.getElementById('intervaloTiempo');
+
+        // Cache Elements
         const cacheEntries = document.getElementById('cacheEntries');
         const cacheHits = document.getElementById('cacheHits');
         const cacheMisses = document.getElementById('cacheMisses');
@@ -206,398 +326,385 @@
         const ttlFeedback = document.getElementById('ttlFeedback');
         const cacheHistoryList = document.getElementById('cacheHistory');
         const historyFilter = document.getElementById('historyFilter');
+
+        // Config data
         const currencySymbol = {{ (currency_symbol or '€') | tojson }};
-        const currencyLocale = {{ (currency_locale or 'es-ES')| tojson }};
-        const currencyCode = {{ (currency_code or 'EUR')| tojson }};
-        const csrfToken = {{ csrf_token() | tojson }};
-        
-        const summaryElements = {
-            distribucion_productos: document.getElementById('summary-distribucion_productos'),
-            ventas_totales: document.getElementById('summary-ventas_totales'),
-            productos_mas_vendidos: document.getElementById('summary-productos_mas_vendidos'),
-            usuarios_registrados: document.getElementById('summary-usuarios_registrados'),
-            ingresos_por_usuario: document.getElementById('summary-ingresos_por_usuario'),
-            ingresos_gastos: document.getElementById('summary-ingresos_gastos'),
-        };
-        const summaryDownloadLinks = {
-            distribucion_productos: document.getElementById('summary-download-distribucion_productos'),
-            ventas_totales: document.getElementById('summary-download-ventas_totales'),
-            productos_mas_vendidos: document.getElementById('summary-download-productos_mas_vendidos'),
-            usuarios_registrados: document.getElementById('summary-download-usuarios_registrados'),
-            ingresos_por_usuario: document.getElementById('summary-download-ingresos_por_usuario'),
-            ingresos_gastos: document.getElementById('summary-download-ingresos_gastos'),
-        };
-        const summaryDownloadUrls = {};
-        const exportLinks = document.querySelectorAll('.export-link');
-        let cacheHistoryEvents = [];
-        const currencyFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
-            style: 'currency',
-            currency: currencyCode || 'EUR'
+    const currencyLocale = {{ (currency_locale or 'es-ES')| tojson }};
+    const currencyCode = {{ (currency_code or 'EUR')| tojson }};
+    const csrfToken = {{ csrf_token() | tojson }};
+
+    const summaryElements = {
+        distribucion_productos: document.getElementById('summary-distribucion_productos'),
+        ventas_totales: document.getElementById('summary-ventas_totales'),
+        productos_mas_vendidos: document.getElementById('summary-productos_mas_vendidos'),
+        usuarios_registrados: document.getElementById('summary-usuarios_registrados'),
+        ingresos_por_usuario: document.getElementById('summary-ingresos_por_usuario'),
+        ingresos_gastos: document.getElementById('summary-ingresos_gastos'),
+    };
+    const summaryDownloadLinks = {
+        distribucion_productos: document.getElementById('summary-download-distribucion_productos'),
+        ventas_totales: document.getElementById('summary-download-ventas_totales'),
+        productos_mas_vendidos: document.getElementById('summary-download-productos_mas_vendidos'),
+        usuarios_registrados: document.getElementById('summary-download-usuarios_registrados'),
+        ingresos_por_usuario: document.getElementById('summary-download-ingresos_por_usuario'),
+        ingresos_gastos: document.getElementById('summary-download-ingresos_gastos'),
+    };
+    const summaryDownloadUrls = {};
+    const exportLinks = document.querySelectorAll('.export-link');
+    let cacheHistoryEvents = [];
+
+    const currencyFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
+        style: 'currency',
+        currency: currencyCode || 'EUR'
+    });
+    const numberFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
+        maximumFractionDigits: 0
+    });
+
+    const chartConfigs = [
+        {
+            chartName: 'distribucion_productos',
+            ctx: document.getElementById('distribucionProductos'),
+            endpoint: '/data/distribucion_productos',
+            type: 'doughnut', // Changed to doughnut for variety and aesthetic
+            dataKey: 'cantidades',
+            labelKey: 'tipos',
+            chartLabel: 'Cantidad',
+            valueType: 'quantity',
+            suffix: ' uds',
+            requiresInterval: false,
+            colorScheme: [themeColors.primary, themeColors.secondary, themeColors.danger, themeColors.info, themeColors.purple]
+        },
+        {
+            chartName: 'ventas_totales',
+            ctx: document.getElementById('ventasTotales'),
+            endpoint: '/data/ventas_totales',
+            type: 'line',
+            dataKey: 'totales',
+            labelKey: 'periodos',
+            chartLabel: `Ventas Totales`,
+            valueType: 'currency',
+            requiresInterval: true,
+            colorScheme: themeColors.primary,
+            fill: true
+        },
+        {
+            chartName: 'productos_mas_vendidos',
+            ctx: document.getElementById('productosMasVendidos'),
+            endpoint: '/data/productos_mas_vendidos',
+            type: 'bar',
+            dataKey: 'cantidades',
+            labelKey: 'productos',
+            chartLabel: 'Cantidad Vendida',
+            valueType: 'quantity',
+            suffix: ' uds',
+            requiresInterval: false,
+            colorScheme: themeColors.secondary
+        },
+        {
+            chartName: 'usuarios_registrados',
+            ctx: document.getElementById('usuariosRegistrados'),
+            endpoint: '/data/usuarios_registrados',
+            type: 'bar', // Changed for better visual of distinct periods
+            dataKey: 'totales',
+            labelKey: 'periodos',
+            chartLabel: 'Usuarios Registrados',
+            valueType: 'quantity',
+            requiresInterval: true,
+            colorScheme: themeColors.info
+        },
+        {
+            chartName: 'ingresos_por_usuario',
+            ctx: document.getElementById('ingresosPorUsuario'),
+            endpoint: '/data/ingresos_por_usuario',
+            type: 'bar',
+            dataKey: 'ingresos',
+            labelKey: 'usuarios',
+            chartLabel: `Ingresos`,
+            valueType: 'currency',
+            requiresInterval: true,
+            indexAxis: 'y', // Horizontal Layout
+            colorScheme: themeColors.purple
+        },
+        {
+            chartName: 'ingresos_gastos',
+            ctx: document.getElementById('ingresosGastos'),
+            endpoint: '/data/ingresos_gastos',
+            type: 'bar',
+            labelKey: 'periodos',
+            requiresInterval: true,
+            multiDataset: true,
+            datasets: [
+                { label: 'Ingresos', dataKey: 'ingresos', color: themeColors.success, bgColor: themeColors.success + '40' }, // '40' is hex opacity
+                { label: 'Gastos', dataKey: 'gastos', color: themeColors.danger, bgColor: themeColors.danger + '40' }
+            ],
+            valueType: 'currency'
+        }
+    ];
+
+    // Format and render helpers similar to original but enhanced
+    const formatValue = (value, valueType, suffix = '') => {
+        if (valueType === 'currency') return currencyFormatter.format(value);
+        if (valueType === 'quantity') return `${numberFormatter.format(value)}${suffix}`;
+        return `${value}${suffix}`;
+    };
+
+    // Reuse original summary logic largely, just ensuring text content is set correctly
+    const summaryBuilders = {
+        distribucion_productos: (data) => {
+            if (!data.tipos.length) return 'No hay productos registrados.';
+            let maxIndex = 0;
+            data.cantidades.forEach((cantidad, idx) => { if (cantidad > data.cantidades[maxIndex]) maxIndex = idx; });
+            return `Hay ${data.tipos.length} tipos. Mayor: ${data.tipos[maxIndex]} (${numberFormatter.format(data.cantidades[maxIndex])} uds).`;
+        },
+        ventas_totales: (data) => {
+            if (!data.periodos.length) return 'No hay ventas registradas.';
+            let maxIndex = 0;
+            data.totales.forEach((total, idx) => { if (total > data.totales[maxIndex]) maxIndex = idx; });
+            return `${data.periodos.length} periodos. Máximo: ${data.periodos[maxIndex]} (${currencyFormatter.format(data.totales[maxIndex])}).`;
+        },
+        productos_mas_vendidos: (data) => {
+            if (!data.productos.length) return 'No hay ventas.';
+            return `Top 1: ${data.productos[0]} (${numberFormatter.format(data.cantidades[0])} uds).`;
+        },
+        usuarios_registrados: (data) => {
+            const total = data.totales.reduce((acc, value) => acc + value, 0);
+            return total ? `Total registrados: ${numberFormatter.format(total)} usuarios.` : 'Sin nuevos registros.';
+        },
+        ingresos_por_usuario: (data) => {
+            if (!data.usuarios.length) return 'Sin ingresos.';
+            let maxIndex = 0;
+            data.ingresos.forEach((total, idx) => { if (total > data.ingresos[maxIndex]) maxIndex = idx; });
+            return `Top cliente: ${data.usuarios[maxIndex]} (${currencyFormatter.format(data.ingresos[maxIndex])}).`;
+        },
+        ingresos_gastos: (data) => {
+            if (!data.periodos.length) return 'Sin datos.';
+            const totalIngresos = data.ingresos.reduce((a, b) => a + b, 0);
+            const totalGastos = data.gastos.reduce((a, b) => a + b, 0);
+            return `Ingresos: ${currencyFormatter.format(totalIngresos)} | Gastos: ${currencyFormatter.format(totalGastos)} | Balance: ${currencyFormatter.format(totalIngresos - totalGastos)}`;
+        }
+    };
+
+    const summaryDownloadUrlsCleanup = (chartName) => {
+        if (summaryDownloadUrls[chartName]) URL.revokeObjectURL(summaryDownloadUrls[chartName]);
+    };
+
+    const updateSummary = (chartName, data) => {
+        const summaryEl = summaryElements[chartName];
+        if (!summaryEl) return;
+        const builder = summaryBuilders[chartName];
+        const summaryText = builder ? builder(data) : 'Sin datos.';
+        summaryEl.textContent = summaryText;
+
+        const downloadLink = summaryDownloadLinks[chartName];
+        if (downloadLink) {
+            summaryDownloadUrlsCleanup(chartName);
+            const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            summaryDownloadUrls[chartName] = url;
+            downloadLink.href = url;
+        }
+    };
+
+    const updateExportLinks = (interval) => {
+        exportLinks.forEach((link) => {
+            if (!link.id || !link.id.startsWith('export-')) return;
+            const chart = link.id.replace('export-', '');
+            let href = `/data/chart_export/${chart}`;
+            if (interval) href += `?interval=${encodeURIComponent(interval)}`;
+            link.href = href;
         });
-        const numberFormatter = new Intl.NumberFormat(currencyLocale || 'es-ES', {
-            maximumFractionDigits: 0
+    };
+
+    const renderCacheHistory = () => {
+        cacheHistoryList.innerHTML = '';
+        const selectedType = historyFilter.value;
+        const filtered = cacheHistoryEvents.filter((event) => selectedType === 'all' || event.type === selectedType);
+
+        if (!filtered.length) {
+            cacheHistoryList.innerHTML = '<li class="text-slate-500 text-xs italic text-center py-2">Sin eventos recientes.</li>';
+            return;
+        }
+
+        filtered.forEach((event) => {
+            const li = document.createElement('li');
+            li.className = 'text-xs text-slate-300 py-1 border-b border-slate-700/50 last:border-0 flex gap-2';
+
+            const date = new Date(event.timestamp);
+            const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            let icon = 'info';
+            let colorClass = 'text-slate-400';
+
+            if (event.type === 'hit') { icon = 'check_circle'; colorClass = 'text-emerald-400'; }
+            else if (event.type === 'miss') { icon = 'cancel'; colorClass = 'text-rose-400'; }
+            else if (event.type === 'ttl_update') { icon = 'update'; colorClass = 'text-blue-400'; }
+
+            let desc = event.type === 'ttl_update'
+                ? `TTL actualizado a <span class="font-bold">${event.ttl_seconds}s</span>`
+                : `Cache ${event.type.toUpperCase()} → <span class="font-mono text-slate-400">${event.key}</span>`;
+
+            li.innerHTML = `
+                    <span class="material-symbols-outlined text-[14px] ${colorClass}">${icon}</span>
+                    <span class="text-slate-500 font-mono text-[10px] w-14">${timeStr}</span>
+                    <span class="flex-1">${desc}</span>
+                `;
+            cacheHistoryList.appendChild(li);
         });
+    };
 
-        const chartConfigs = [
-            {
-                chartName: 'distribucion_productos',
-                ctx: document.getElementById('distribucionProductos'),
-                endpoint: '/data/distribucion_productos',
-                type: 'bar',
-                dataKey: 'cantidades',
-                labelKey: 'tipos',
-                chartLabel: 'Cantidad',
-                valueType: 'quantity',
-                suffix: ' uds',
-                requiresInterval: false,
-            },
-            {
-                chartName: 'ventas_totales',
-                ctx: document.getElementById('ventasTotales'),
-                endpoint: '/data/ventas_totales',
-                type: 'line',
-                dataKey: 'totales',
-                labelKey: 'periodos',
-                chartLabel: `Ventas Totales (${currencySymbol})`,
-                valueType: 'currency',
-                requiresInterval: true,
-            },
-            {
-                chartName: 'productos_mas_vendidos',
-                ctx: document.getElementById('productosMasVendidos'),
-                endpoint: '/data/productos_mas_vendidos',
-                type: 'bar',
-                dataKey: 'cantidades',
-                labelKey: 'productos',
-                chartLabel: 'Cantidad Vendida',
-                valueType: 'quantity',
-                suffix: ' uds',
-                requiresInterval: false,
-            },
-            {
-                chartName: 'usuarios_registrados',
-                ctx: document.getElementById('usuariosRegistrados'),
-                endpoint: '/data/usuarios_registrados',
-                type: 'line',
-                dataKey: 'totales',
-                labelKey: 'periodos',
-                chartLabel: 'Usuarios Registrados',
-                valueType: 'quantity',
-                requiresInterval: true,
-            },
-            {
-                chartName: 'ingresos_por_usuario',
-                ctx: document.getElementById('ingresosPorUsuario'),
-                endpoint: '/data/ingresos_por_usuario',
-                type: 'bar',
-                dataKey: 'ingresos',
-                labelKey: 'usuarios',
-                chartLabel: `Ingresos (${currencySymbol})`,
-                valueType: 'currency',
-                requiresInterval: true,
-            },
-            {
-                chartName: 'ingresos_gastos',
-                ctx: document.getElementById('ingresosGastos'),
-                endpoint: '/data/ingresos_gastos',
-                type: 'bar',
-                labelKey: 'periodos',
-                requiresInterval: true,
-                multiDataset: true,
-                datasets: [
-                    { label: 'Ingresos', dataKey: 'ingresos', color: 'rgba(75, 192, 192, 1)', bgColor: 'rgba(75, 192, 192, 0.2)' },
-                    { label: 'Gastos', dataKey: 'gastos', color: 'rgba(255, 99, 132, 1)', bgColor: 'rgba(255, 99, 132, 0.2)' }
-                ],
-                valueType: 'currency'
+    const chartUrl = (config, interval) => config.requiresInterval ? `${config.endpoint}?interval=${interval}` : config.endpoint;
+
+    const createChartForConfig = async (config, interval) => {
+        // Destroy existing chart if it exists to allow update
+        const existingChart = Chart.getChart(config.ctx);
+        if (existingChart) existingChart.destroy();
+
+        try {
+            const url = chartUrl(config, interval);
+            const data = await fetchChartData(url);
+
+            let datasets = [];
+            if (config.multiDataset) {
+                datasets = config.datasets.map(ds => ({
+                    label: ds.label,
+                    data: data[ds.dataKey],
+                    backgroundColor: ds.bgColor,
+                    borderColor: ds.color,
+                    borderWidth: 2,
+                    borderRadius: 4
+                }));
+            } else {
+                const color = config.colorScheme || themeColors.primary;
+                const bg = Array.isArray(color) ? color : `${color}40`; // Add opacity if single color
+                datasets = [{
+                    label: config.chartLabel,
+                    data: data[config.dataKey],
+                    backgroundColor: bg,
+                    borderColor: Array.isArray(color) ? themeColors.grid : color, // If colorful doughnut, use grid color for border
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    fill: config.fill || false,
+                    tension: 0.4
+                }];
             }
-        ];
 
-        const formatValue = (value, valueType, suffix = '') => {
-            if (valueType === 'currency') {
-                return currencyFormatter.format(value);
-            }
-            if (valueType === 'quantity') {
-                return `${numberFormatter.format(value)}${suffix}`;
-            }
-            return `${value}${suffix}`;
-        };
-
-        const summaryBuilders = {
-            distribucion_productos: (data) => {
-                if (!data.tipos.length) {
-                    return 'No hay productos registrados.';
-                }
-                let maxIndex = 0;
-                data.cantidades.forEach((cantidad, idx) => {
-                    if (cantidad > data.cantidades[maxIndex]) {
-                        maxIndex = idx;
-                    }
-                });
-                return `Se registran ${data.tipos.length} tipos. El mayor es ${data.tipos[maxIndex]} con ${numberFormatter.format(data.cantidades[maxIndex])} uds.`;
-            },
-            ventas_totales: (data) => {
-                if (!data.periodos.length) {
-                    return 'No hay ventas registradas.';
-                }
-                let maxIndex = 0;
-                data.totales.forEach((total, idx) => {
-                    if (total > data.totales[maxIndex]) {
-                        maxIndex = idx;
-                    }
-                });
-                return `Se registraron ${data.periodos.length} periodos. El máximo fue ${data.periodos[maxIndex]} con ${currencyFormatter.format(data.totales[maxIndex])}.`;
-            },
-            productos_mas_vendidos: (data) => {
-                if (!data.productos.length) {
-                    return 'No hay productos vendidos.';
-                }
-                return `El producto más vendido es ${data.productos[0]} con ${numberFormatter.format(data.cantidades[0])} uds.`;
-            },
-            usuarios_registrados: (data) => {
-                const total = data.totales.reduce((acc, value) => acc + value, 0);
-                return total ? `Se registraron ${numberFormatter.format(total)} usuarios en total.` : 'No hay nuevos registros en este intervalo.';
-            },
-            ingresos_por_usuario: (data) => {
-                if (!data.usuarios.length) {
-                    return 'No hay ingresos registrados.';
-                }
-                let maxIndex = 0;
-                data.ingresos.forEach((total, idx) => {
-                    if (total > data.ingresos[maxIndex]) {
-                        maxIndex = idx;
-                    }
-                });
-                return `El mayor ingreso provino de ${data.usuarios[maxIndex]} con ${currencyFormatter.format(data.ingresos[maxIndex])}.`;
-            },
-            ingresos_gastos: (data) => {
-                if (!data.periodos.length) return 'No hay datos contables.';
-                const totalIngresos = data.ingresos.reduce((a, b) => a + b, 0);
-                const totalGastos = data.gastos.reduce((a, b) => a + b, 0);
-                return `Ingresos totales: ${currencyFormatter.format(totalIngresos)}. Gastos totales: ${currencyFormatter.format(totalGastos)}. Resultado: ${currencyFormatter.format(totalIngresos - totalGastos)}.`;
-            }
-        };
-
-        const summaryDownloadUrlsCleanup = (chartName) => {
-            if (summaryDownloadUrls[chartName]) {
-                URL.revokeObjectURL(summaryDownloadUrls[chartName]);
-            }
-        };
-
-        const updateSummary = (chartName, data) => {
-            const summaryEl = summaryElements[chartName];
-            if (!summaryEl) {
-                return;
-            }
-            const builder = summaryBuilders[chartName];
-            const summaryText = builder ? builder(data) : 'Sin datos disponibles.';
-            summaryEl.textContent = summaryText;
-            const downloadLink = summaryDownloadLinks[chartName];
-            if (downloadLink) {
-                summaryDownloadUrlsCleanup(chartName);
-                const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                summaryDownloadUrls[chartName] = url;
-                downloadLink.href = url;
-            }
-        };
-
-        const updateExportLinks = (interval) => {
-            exportLinks.forEach((link) => {
-                const chart = link.dataset.chart;
-                let href = `/data/chart_export/${chart}`;
-                if (interval) {
-                    href += `?interval=${encodeURIComponent(interval)}`;
-                }
-                link.href = href;
-            });
-        };
-
-        const renderCacheHistory = () => {
-            cacheHistoryList.innerHTML = '';
-            const selectedType = historyFilter.value;
-            const filtered = cacheHistoryEvents.filter((event) => selectedType === 'all' || event.type === selectedType);
-            if (!filtered.length) {
-                const emptyItem = document.createElement('li');
-                emptyItem.className = 'list-group-item bg-transparent text-muted';
-                emptyItem.textContent = 'Sin eventos registrados.';
-                cacheHistoryList.appendChild(emptyItem);
-                return;
-            }
-            filtered.forEach((event) => {
-                const li = document.createElement('li');
-                li.className = 'list-group-item bg-transparent titlewhite small';
-                const date = new Date(event.timestamp);
-                const readableDate = date.toLocaleString(currencyLocale || navigator.language || 'es-ES');
-                let description = '';
-                if (event.type === 'hit' || event.type === 'miss') {
-                    description = `Cache ${event.type} → ${event.key}`;
-                } else if (event.type === 'ttl_update') {
-                    description = `TTL actualizado a ${event.ttl_seconds}s`;
-                } else {
-                    description = event.type;
-                }
-                li.textContent = `${readableDate}: ${description}`;
-                cacheHistoryList.appendChild(li);
-            });
-        };
-
-        const chartUrl = (config, interval) => {
-            if (config.requiresInterval) {
-                return `${config.endpoint}?interval=${interval}`;
-            }
-            return config.endpoint;
-        };
-
-        const createChartForConfig = async (config, interval) => {
-            try {
-                const url = chartUrl(config, interval);
-                const data = await fetchChartData(url);
-                
-                let datasets = [];
-                if (config.multiDataset) {
-                    datasets = config.datasets.map(ds => ({
-                        label: ds.label,
-                        data: data[ds.dataKey],
-                        backgroundColor: ds.bgColor,
-                        borderColor: ds.color,
-                        borderWidth: 2
-                    }));
-                } else {
-                    datasets = [{
-                        label: config.chartLabel,
-                        data: data[config.dataKey],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 2
-                    }];
-                }
-
-                const chartData = {
+            new Chart(config.ctx, {
+                type: config.type,
+                data: {
                     labels: data[config.labelKey],
                     datasets: datasets
-                };
-
-                const options = {
+                },
+                options: {
                     responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
+                    maintainAspectRatio: false,
+                    indexAxis: config.indexAxis || 'x',
                     plugins: {
-                        tooltip: {}
-                    }
-                };
-
-                if (config.valueType) {
-                    options.scales.y.ticks = options.scales.y.ticks || {};
-                    options.scales.y.ticks.callback = (value) => formatValue(value, config.valueType, config.suffix);
-                    options.plugins.tooltip.callbacks = {
-                        label: (context) => {
-                            const label = context.dataset.label || '';
-                            return `${label}: ${formatValue(context.parsed.y, config.valueType, config.suffix)}`;
+                        legend: {
+                            labels: { color: themeColors.text }
+                        },
+                        tooltip: {
+                            backgroundColor: themeColors.background,
+                            titleColor: themeColors.text,
+                            bodyColor: themeColors.text,
+                            borderColor: themeColors.grid,
+                            borderWidth: 1,
+                            callbacks: config.valueType ? {
+                                label: (context) => `${context.dataset.label}: ${formatValue(context.parsed[config.indexAxis === 'y' ? 'x' : 'y'], config.valueType, config.suffix)}`
+                            } : {}
                         }
-                    };
-                }
-
-                new Chart(config.ctx, {
-                    type: config.type,
-                    data: chartData,
-                    options
-                });
-                updateSummary(config.chartName, data);
-            } catch (error) {
-                console.error('Error al obtener los datos:', error);
-            }
-        };
-
-        const updateCharts = () => {
-            const interval = intervaloTiempo.value;
-            chartConfigs.forEach((cfg) => createChartForConfig(cfg, interval));
-            updateExportLinks(interval);
-        };
-
-        async function refreshCacheStats() {
-            try {
-                const data = await fetchChartData('/data/cache_stats');
-                cacheEntries.textContent = data.entries;
-                cacheHits.textContent = data.hits;
-                cacheMisses.textContent = data.misses;
-                cacheTtl.textContent = data.ttl_seconds;
-                ttlInput.value = data.ttl_seconds;
-            } catch (error) {
-                console.error('Error al obtener las métricas de caché:', error);
-            }
-        }
-
-        async function refreshCacheHistory() {
-            try {
-                const data = await fetchChartData('/data/cache_history');
-                cacheHistoryEvents = data.events;
-                renderCacheHistory();
-            } catch (error) {
-                console.error('Error al obtener el histórico de caché:', error);
-            }
-        }
-
-        ttlForm.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            const ttlSeconds = parseInt(ttlInput.value, 10);
-            if (!Number.isFinite(ttlSeconds) || ttlSeconds < 5) {
-                ttlFeedback.textContent = 'El TTL debe ser mayor o igual a 5 segundos.';
-                ttlFeedback.classList.remove('d-none', 'text-success');
-                ttlFeedback.classList.add('text-warning');
-                return;
-            }
-
-            try {
-                const response = await fetch('/data/cache_ttl', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
                     },
-                    body: JSON.stringify({ ttl_seconds: ttlSeconds })
-                });
-
-                const payload = await response.json().catch(() => ({}));
-                if (!response.ok) {
-                    throw new Error(payload.error || 'No se pudo actualizar el TTL.');
+                    scales: config.type !== 'doughnut' ? {
+                        x: {
+                            grid: { color: themeColors.grid },
+                            ticks: { color: themeColors.textMuted }
+                        },
+                        y: {
+                            grid: { color: themeColors.grid },
+                            ticks: {
+                                color: themeColors.textMuted,
+                                callback: config.valueType ? (val) => formatValue(val, config.valueType, config.suffix) : undefined
+                            }
+                        }
+                    } : {} // No scales for doughnut
                 }
+            });
+            updateSummary(config.chartName, data);
+        } catch (error) {
+            console.error(`Error loading ${config.chartName}:`, error);
+            const p = config.ctx.parentElement;
+            p.innerHTML = `<div class="flex items-center justify-center h-full text-rose-400 text-sm"><span class="material-symbols-outlined mr-2">error</span>Error cargando datos</div>`;
+        }
+    };
 
-                ttlFeedback.textContent = payload.message || 'TTL actualizado correctamente.';
-                ttlFeedback.classList.remove('d-none', 'text-warning', 'text-danger');
-                ttlFeedback.classList.add('text-success');
-                await refreshCacheStats();
-                await refreshCacheHistory();
-            } catch (error) {
-                ttlFeedback.textContent = error.message;
-                ttlFeedback.classList.remove('d-none', 'text-success', 'text-warning');
-                ttlFeedback.classList.add('text-danger');
-            }
-        });
+    const updateCharts = () => {
+        const interval = intervaloTiempo.value;
+        chartConfigs.forEach((cfg) => createChartForConfig(cfg, interval));
+        updateExportLinks(interval);
+    };
 
-        historyFilter.addEventListener('change', renderCacheHistory);
-        intervaloTiempo.addEventListener('change', updateCharts);
-        updateCharts();
-        refreshCacheStats();
-        refreshCacheHistory();
+    // Cache Functions
+    async function refreshCacheStats() {
+        try {
+            const data = await fetchChartData('/data/cache_stats');
+            cacheEntries.textContent = data.entries;
+            cacheHits.textContent = data.hits;
+            cacheMisses.textContent = data.misses;
+            cacheTtl.textContent = data.ttl_seconds;
+            ttlInput.value = data.ttl_seconds;
+        } catch (error) { console.error('Error cache metrics:', error); }
+    }
+
+    async function refreshCacheHistory() {
+        try {
+            const data = await fetchChartData('/data/cache_history');
+            cacheHistoryEvents = data.events;
+            renderCacheHistory();
+        } catch (error) { console.error('Error cache history:', error); }
+    }
+
+    ttlForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const ttlSeconds = parseInt(ttlInput.value, 10);
+        const feedback = document.getElementById('ttlFeedback');
+
+        if (!Number.isFinite(ttlSeconds) || ttlSeconds < 5) {
+            feedback.textContent = 'Mínimo 5 segundos.';
+            feedback.className = 'text-sm mt-2 text-amber-400';
+            feedback.classList.remove('hidden');
+            return;
+        }
+
+        try {
+            const response = await fetch('/data/cache_ttl', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify({ ttl_seconds: ttlSeconds })
+            });
+
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.error || 'Error al actualizar.');
+
+            feedback.textContent = 'Actualizado correctamente.';
+            feedback.className = 'text-sm mt-2 text-emerald-400';
+            feedback.classList.remove('hidden');
+            await refreshCacheStats();
+            await refreshCacheHistory();
+
+            setTimeout(() => feedback.classList.add('hidden'), 3000);
+        } catch (error) {
+            feedback.textContent = error.message;
+            feedback.className = 'text-sm mt-2 text-rose-400';
+            feedback.classList.remove('hidden');
+        }
+    });
+
+    // Initial Loads
+    historyFilter.addEventListener('change', renderCacheHistory);
+    intervaloTiempo.addEventListener('change', updateCharts);
+    await updateCharts(); // await to ensure charts load
+    refreshCacheStats();
+    refreshCacheHistory();
     });
 </script>
-{% endblock %}
-
-{% block page_styles %}
-<style>
-    .visually-hidden {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-    }
-</style>
 {% endblock %}

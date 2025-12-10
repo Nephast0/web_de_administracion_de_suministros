@@ -8,7 +8,7 @@ from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from io import StringIO
 from pathlib import Path
-from flask import Blueprint, Response, abort, current_app, jsonify, render_template, request
+from flask import Blueprint, Response, abort, current_app, jsonify, render_template, request, redirect, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import func, case
 
@@ -256,6 +256,18 @@ def _cached_json(key: str, builder):
     _cache_set(key, payload)
     _logger.info("cache-miss endpoint=%s hits=%s misses=%s", key, _CACHE_STATS["hits"], _CACHE_STATS["misses"])
     return jsonify(payload)
+
+
+
+@reportes_bp.route("")
+@reportes_bp.route("/")
+@login_required
+def index():
+    if current_user.role == 'admin':
+        return redirect(url_for('reportes.graficas'))
+    elif current_user.role == 'cliente':
+        return redirect(url_for('reportes.graficas_cliente'))
+    return redirect(url_for('main.index'))
 
 
 @reportes_bp.route("/data/cache_stats")

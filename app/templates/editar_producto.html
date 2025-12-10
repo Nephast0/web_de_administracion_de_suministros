@@ -2,118 +2,88 @@
 {% block title %}Editar producto{% endblock %}
 
 {% block content %}
-<main class="container my-4 position-relative">
-    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn" style="position: absolute; top: 0; left: -60px;"
-        aria-label="Volver a proveedores">
-        <span class="material-symbols-outlined">arrow_back</span>
-    </a>
+<main class="container mx-auto my-8 px-4 flex justify-center pb-12">
+    <div class="glass-panel w-full max-w-4xl p-8 relative animate-fade-in shadow-2xl shadow-primary-900/10">
+        <!-- Back Button -->
+        <a href="{{ url_for('inventario.productos') }}"
+            class="absolute top-8 left-8 flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
+            aria-label="Volver">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
+        </a>
 
-    <div class="glass-container" style="max-width: 800px; margin: 0 auto;">
-        <h2 class="text-center titlewhiteN mb-4">Editar producto</h2>
+        <div class="text-center mb-8 mt-4">
+            <h2
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-primary-400 mb-2">
+                Editar Producto
+            </h2>
+            <p class="text-canvas-400 text-sm">Modifique los detalles del producto seleccionado.</p>
+        </div>
 
-        <form method="post">
+        <form method="post" class="space-y-6">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="marca">Marca</label>
-                        <input type="text" class="form-control" id="marca" name="marca" value="{{ producto.marca }}"
-                            required>
+            <!-- Basic Info -->
+            <div class="bg-canvas-900/40 border border-canvas-700/50 rounded-xl p-6">
+                <h3
+                    class="text-sm font-bold text-primary-400 uppercase tracking-wider mb-4 border-b border-canvas-700/50 pb-2">
+                    Información Básica</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label for="marca" class="block text-sm font-medium text-canvas-300">Marca</label>
+                        <input type="text" class="form-input focus:border-primary-500 focus:ring-primary-500" id="marca"
+                            name="marca" value="{{ producto.marca }}" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="modelo" class="block text-sm font-medium text-canvas-300">Modelo</label>
+                        <input type="text" class="form-input focus:border-primary-500 focus:ring-primary-500"
+                            id="modelo" name="modelo" value="{{ producto.modelo }}" required>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="modelo">Modelo</label>
-                        <input type="text" class="form-control" id="modelo" name="modelo" value="{{ producto.modelo }}"
-                            required>
+
+                <div class="space-y-2 mt-4">
+                    <label for="descripcion" class="block text-sm font-medium text-canvas-300">Descripción</label>
+                    <textarea class="form-input focus:border-primary-500 focus:ring-primary-500" id="descripcion"
+                        name="descripcion" rows="3" required>{{ producto.descripcion }}</textarea>
+                </div>
+            </div>
+
+            <!-- Stock and Pricing -->
+            <div class="bg-canvas-900/40 border border-canvas-700/50 rounded-xl p-6">
+                <h3
+                    class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-4 border-b border-canvas-700/50 pb-2">
+                    Inventario y Precios</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <label for="precio" class="block text-sm font-medium text-canvas-300">Precio</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-canvas-500">€</span>
+                            <input type="number" step="0.01"
+                                class="form-input pl-8 focus:border-primary-500 focus:ring-primary-500" id="precio"
+                                name="precio" value="{{ producto.precio }}" required>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="cantidad" class="block text-sm font-medium text-canvas-300">Stock Actual</label>
+                        <input type="number" class="form-input focus:border-primary-500 focus:ring-primary-500"
+                            id="cantidad" name="cantidad" value="{{ producto.cantidad }}" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="cantidad_minima" class="block text-sm font-medium text-canvas-300">Stock
+                            Mínimo</label>
+                        <input type="number" class="form-input focus:border-primary-500 focus:ring-primary-500"
+                            id="cantidad_minima" name="cantidad_minima" value="{{ producto.cantidad_minima }}" required>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="descripcion">Descripción</label>
-                <textarea class="form-control" id="descripcion" name="descripcion" rows="3"
-                    required>{{ producto.descripcion }}</textarea>
-            </div>
-
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="precio">Precio</label>
-                        <input type="number" step="0.01" class="form-control" id="precio" name="precio"
-                            value="{{ producto.precio }}" required>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="cantidad">Cantidad</label>
-                        <input type="number" class="form-control" id="cantidad" name="cantidad"
-                            value="{{ producto.cantidad }}" required>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="cantidad_minima">Cantidad mínima</label>
-                        <input type="number" class="form-control" id="cantidad_minima" name="cantidad_minima"
-                            value="{{ producto.cantidad_minima }}" required>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-4">
-                <button class="cta" type="submit">Actualizar</button>
+            <div class="pt-4">
+                <button
+                    class="w-full btn-elegant btn-primary justify-center text-lg bg-primary-600 hover:bg-primary-500 shadow-primary-500/20"
+                    type="submit">
+                    <span class="material-symbols-outlined mr-2">update</span> Actualizar Producto
+                </button>
             </div>
         </form>
-    </div>
-</main>
-{% endblock %}
-{% block title %}Editar producto{% endblock %}
-{% block content %}
-<main class="container p-5 position-relative">
-    <a href="{{ url_for('proveedores.proveedores') }}" class="back-btn material-symbols-outlined"
-        style="position: absolute; top: 40px; left: 70px;" aria-label="Volver a proveedores">
-        arrow_back
-    </a>
-
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <h2 class="text-center titlewhiteN mb-4">Editar producto</h2>
-            <form method="post">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div class="form-group">
-                    <label class="titlewhite" for="marca">Marca</label>
-                    <input type="text" class="form-control fondo titlewhite" id="marca" name="marca"
-                        value="{{ producto.marca }}" required>
-                </div>
-                <div class="form-group">
-                    <label class="titlewhite" for="modelo">Modelo</label>
-                    <input type="text" class="form-control fondo titlewhite" id="modelo" name="modelo"
-                        value="{{ producto.modelo }}" required>
-                </div>
-                <div class="form-group">
-                    <label class="titlewhite" for="descripcion">Descripción</label>
-                    <textarea class="form-control fondo titlewhite" id="descripcion" name="descripcion" rows="3"
-                        required>{{ producto.descripcion }}</textarea>
-                </div>
-                <div class="form-group">
-                    <label class="titlewhite" for="precio">Precio</label>
-                    <input type="number" step="0.01" class="form-control fondo titlewhite" id="precio" name="precio"
-                        value="{{ producto.precio }}" required>
-                </div>
-                <div class="form-group">
-                    <label class="titlewhite" for="cantidad">Cantidad</label>
-                    <input type="number" class="form-control fondo titlewhite" id="cantidad" name="cantidad"
-                        value="{{ producto.cantidad }}" required>
-                </div>
-                <div class="form-group">
-                    <label class="titlewhite" for="cantidad_minima">Cantidad mínima</label>
-                    <input type="number" class="form-control fondo titlewhite" id="cantidad_minima"
-                        name="cantidad_minima" value="{{ producto.cantidad_minima }}" required>
-                </div>
-                <button class="btn-block neon-link titlewhite fondo" type="submit">Actualizar</button>
-            </form>
-        </div>
     </div>
 </main>
 {% endblock %}

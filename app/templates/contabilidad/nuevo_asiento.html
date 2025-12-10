@@ -1,83 +1,110 @@
 {% extends "base.html" %}
-
 {% block title %}Nuevo Asiento{% endblock %}
 
-{% block body_class %}menu-body{% endblock %}
-
 {% block content %}
-<div class="glass-container">
-    <h2 class="text-center mb-4" style="color: #fff;">Nuevo Asiento Manual</h2>
+<main class="container mx-auto my-8 px-4 flex justify-center pb-12">
+    <div class="glass-panel w-full max-w-5xl p-8 relative animate-fade-in shadow-2xl shadow-indigo-900/10">
+        <!-- Back Button -->
+        <div class="flex items-center gap-4 mb-8">
+            <a href="{{ url_for('contabilidad.diario') }}"
+                class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-400 transition-all bg-slate-900/50"
+                aria-label="Volver al Diario">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <h1
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-indigo-400">
+                Nuevo Asiento Manual
+            </h1>
+        </div>
 
-    <div class="d-flex justify-content-between mb-3">
-        <a href="{{ url_for('contabilidad.diario') }}" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Volver al Diario
-        </a>
+        <form method="POST" action="{{ url_for('contabilidad.nuevo_asiento') }}" class="space-y-8">
+            {{ form.hidden_tag() }}
+
+            <!-- Header Info -->
+            <div
+                class="bg-slate-900/40 border border-slate-700/50 rounded-xl p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2 space-y-2">
+                    {{ form.descripcion.label(class="block text-sm font-medium text-slate-300") }}
+                    {{ form.descripcion(class="form-input focus:border-indigo-500 focus:ring-indigo-500",
+                    placeholder="Descripción del asiento") }}
+                </div>
+                <div class="space-y-2">
+                    {{ form.fecha.label(class="block text-sm font-medium text-slate-300") }}
+                    {{ form.fecha(class="form-input focus:border-indigo-500 focus:ring-indigo-500", type="date") }}
+                </div>
+            </div>
+
+            <!-- Apuntes Table -->
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-slate-200 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-indigo-400">list</span> Apuntes
+                    </h3>
+                    <button type="button"
+                        class="btn-elegant btn-secondary text-sm flex items-center gap-1 hover:bg-slate-700"
+                        id="add-row-btn">
+                        <span class="material-symbols-outlined text-base">add</span> Añadir Línea
+                    </button>
+                </div>
+
+                <div class="glass-panel p-1 overflow-hidden shadow-lg shadow-indigo-900/5">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-300" id="apuntes-table">
+                            <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 font-heading tracking-wider">
+                                <tr>
+                                    <th class="px-4 py-3 font-semibold">Cuenta</th>
+                                    <th class="px-4 py-3 font-semibold w-40 text-right">Debe</th>
+                                    <th class="px-4 py-3 font-semibold w-40 text-right">Haber</th>
+                                    <th class="px-4 py-3 font-semibold w-12"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="apuntes-body" class="divide-y divide-slate-700/30">
+                                {% for apunte in form.apuntes %}
+                                <tr class="apunte-row hover:bg-indigo-500/5 transition-colors">
+                                    <td class="px-4 py-2">
+                                        {{ apunte.cuenta_codigo(class="form-input w-full font-mono text-sm h-9
+                                        focus:border-indigo-500 focus:ring-indigo-500",
+                                        list="cuentas-list", placeholder="Código de Cuenta") }}
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        {{ apunte.debe(class="form-input w-full text-right font-mono text-sm h-9
+                                        focus:border-indigo-500 focus:ring-indigo-500",
+                                        step="0.01") }}
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        {{ apunte.haber(class="form-input w-full text-right font-mono text-sm h-9
+                                        focus:border-indigo-500 focus:ring-indigo-500",
+                                        step="0.01") }}
+                                    </td>
+                                    <td class="px-4 py-2 text-center">
+                                        <button type="button"
+                                            class="text-slate-500 hover:text-red-400 transition-colors p-1"
+                                            onclick="this.closest('tr').remove()" title="Eliminar línea">
+                                            <span class="material-symbols-outlined text-lg">delete</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+                {{ form.submit(class="btn-elegant btn-primary px-8 text-lg bg-indigo-600 hover:bg-indigo-500
+                shadow-indigo-500/20") }}
+            </div>
+        </form>
     </div>
 
-    <form method="POST" action="{{ url_for('contabilidad.nuevo_asiento') }}">
-        {{ form.hidden_tag() }}
-
-        <div class="row mb-3">
-            <div class="col-md-8">
-                <div class="form-group">
-                    {{ form.descripcion.label(class="form-label text-white") }}
-                    {{ form.descripcion(class="form-control", placeholder="Descripción del asiento") }}
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    {{ form.fecha.label(class="form-label text-white") }}
-                    {{ form.fecha(class="form-control", type="date") }}
-                </div>
-            </div>
-        </div>
-
-        <h4 class="text-white mt-4 mb-3">Apuntes</h4>
-        <div class="table-responsive">
-            <table class="glass-table table table-borderless text-white" id="apuntes-table">
-                <thead>
-                    <tr>
-                        <th>Cuenta</th>
-                        <th>Debe</th>
-                        <th>Haber</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="apuntes-body">
-                    {% for apunte in form.apuntes %}
-                    <tr class="apunte-row">
-                        <td>
-                            {{ apunte.cuenta_codigo(class="form-control", list="cuentas-list", placeholder="Código") }}
-                        </td>
-                        <td>
-                            {{ apunte.debe(class="form-control text-end", step="0.01") }}
-                        </td>
-                        <td>
-                            {{ apunte.haber(class="form-control text-end", step="0.01") }}
-                        </td>
-                        <td>
-                            <!-- Placeholder for delete button if needed -->
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div class="d-flex justify-content-between mt-3">
-            <button type="button" class="btn btn-secondary" id="add-row-btn">
-                <i class="fas fa-plus"></i> Añadir Línea
-            </button>
-            {{ form.submit(class="cta") }}
-        </div>
-    </form>
-
+    <!-- Datalist for Accounts -->
     <datalist id="cuentas-list">
         {% for cuenta in cuentas %}
         <option value="{{ cuenta.codigo }}">{{ cuenta.codigo }} - {{ cuenta.nombre }}</option>
         {% endfor %}
     </datalist>
-</div>
+</main>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -86,20 +113,28 @@
 
         addBtn.addEventListener('click', function () {
             const rows = tbody.querySelectorAll('.apunte-row');
+            if (rows.length === 0) return;
+
             const lastRow = rows[rows.length - 1];
             const newRow = lastRow.cloneNode(true);
 
             // Update indices
             const newIndex = rows.length;
-            const inputs = newRow.querySelectorAll('input');
+            const inputs = newRow.querySelectorAll('input, select, textarea');
 
             inputs.forEach(input => {
                 // Update name: apuntes-0-cuenta_codigo -> apuntes-1-cuenta_codigo
                 const name = input.getAttribute('name');
                 if (name) {
+                    // This regex replaces the index number inside the name attribute
                     const newName = name.replace(/apuntes-\d+-/, `apuntes-${newIndex}-`);
                     input.setAttribute('name', newName);
-                    input.setAttribute('id', newName);
+                    // Also update ID
+                    const id = input.getAttribute('id');
+                    if (id) {
+                        const newId = id.replace(/apuntes-\d+-/, `apuntes-${newIndex}-`);
+                        input.setAttribute('id', newId);
+                    }
                 }
                 // Clear value
                 input.value = '';

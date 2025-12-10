@@ -1,68 +1,86 @@
 {% extends "base.html" %}
-
 {% block title %}Balance de Situación{% endblock %}
 
-{% block body_class %}menu-body{% endblock %}
-
 {% block content %}
-<div class="glass-container">
-    <h2 class="text-center mb-4" style="color: #fff;">Balance de Situación</h2>
-
-    <div class="d-flex justify-content-between mb-3">
-        <a href="{{ url_for('menu.menu_principal') }}" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Volver
-        </a>
-        <div class="d-flex gap-2">
-             <a href="{{ url_for('contabilidad.exportar_balance') }}" class="cta">
-                <i class="fas fa-file-csv"></i> Exportar CSV
+<main class="container mx-auto my-6 px-4 pb-12">
+    <!-- Header -->
+    <div
+        class="glass-panel p-6 mb-8 animate-fade-in flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl shadow-primary-900/5">
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('menu.menu_principal') }}"
+                class="flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
+                aria-label="Volver">
+                <span class="material-symbols-outlined">arrow_back</span>
             </a>
-            <a href="{{ url_for('contabilidad.diario') }}" class="cta">
-                <i class="fas fa-book"></i> Ver Diario
+            <h1
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-primary-400">
+                Balance de Situación
+            </h1>
+        </div>
+        <div class="flex gap-3">
+            <a href="{{ url_for('contabilidad.exportar_balance') }}"
+                class="btn-elegant btn-secondary flex items-center gap-2 hover:bg-canvas-700">
+                <span class="material-symbols-outlined text-lg">download</span> Exportar CSV
+            </a>
+            <a href="{{ url_for('contabilidad.diario') }}"
+                class="btn-elegant btn-primary flex items-center gap-2 bg-primary-600 hover:bg-primary-500 shadow-primary-500/20">
+                <span class="material-symbols-outlined text-lg">book</span> Ver Diario
             </a>
         </div>
     </div>
 
-    <!-- Resumen -->
-    <div class="row mb-4">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         {% for tipo, total in totales.items() %}
-        <div class="col-md-2">
-            <div class="glass-card p-3 text-center">
-                <h5 class="text-white">{{ tipo }}</h5>
-                <p class="h4 {% if total < 0 %}text-danger{% else %}text-success{% endif %}">
-                    {{ "%.2f"|format(total) }} €
-                </p>
-            </div>
+        <div class="glass-panel p-4 flex flex-col items-center justify-center text-center animate-fade-in shadow-lg shadow-primary-900/5"
+            style="animation-delay: {{ loop.index0 * 100 }}ms">
+            <h3 class="text-xs uppercase tracking-widest text-canvas-400 mb-2 font-bold">{{ tipo }}</h3>
+            <p class="text-xl font-mono font-bold {% if total < 0 %}text-red-400{% else %}text-emerald-400{% endif %}">
+                {{ "%.2f"|format(total) }} €
+            </p>
         </div>
         {% endfor %}
     </div>
 
-    <div class="table-responsive">
-        <table class="glass-table table table-borderless text-white">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Cuenta</th>
-                    <th>Tipo</th>
-                    <th class="text-end">Saldo</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cuenta in cuentas %}
-                <tr>
-                    <td>{{ cuenta.codigo }}</td>
-                    <td>{{ cuenta.nombre }}</td>
-                    <td><span class="badge bg-secondary">{{ cuenta.tipo }}</span></td>
-                    <td class="text-end font-monospace">
-                        {{ "%.2f"|format(saldos[cuenta.id]) }} €
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="4" class="text-center">No hay cuentas registradas.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Balance Table -->
+    <div class="glass-panel p-1 overflow-hidden animate-fade-in shadow-xl shadow-primary-900/5">
+        <div class="overflow-x-auto rounded-lg">
+            <table class="w-full text-sm text-left text-canvas-300">
+                <thead class="text-xs text-canvas-400 uppercase bg-canvas-900/80 font-heading tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">Código</th>
+                        <th class="px-6 py-4 font-semibold">Cuenta</th>
+                        <th class="px-6 py-4 font-semibold text-center">Tipo</th>
+                        <th class="px-6 py-4 font-semibold text-right">Saldo</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-canvas-700/50">
+                    {% for cuenta in cuentas %}
+                    <tr class="hover:bg-primary-500/5 transition-colors">
+                        <td class="px-6 py-3 font-mono text-canvas-500">{{ cuenta.codigo }}</td>
+                        <td class="px-6 py-3 font-medium text-canvas-200">{{ cuenta.nombre }}</td>
+                        <td class="px-6 py-3 text-center">
+                            <span
+                                class="bg-canvas-800 text-canvas-400 px-2 py-1 rounded text-xs border border-canvas-700">
+                                {{ cuenta.tipo }}
+                            </span>
+                        </td>
+                        <td
+                            class="px-6 py-3 text-right font-mono {% if saldos[cuenta.id] < 0 %}text-red-400{% else %}text-emerald-400{% endif %}">
+                            {{ "%.2f"|format(saldos[cuenta.id]) }} €
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-canvas-500">
+                            <span class="material-symbols-outlined text-4xl mb-2 opacity-50">account_balance</span>
+                            <p>No hay cuentas registradas en el balance.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+</main>
 {% endblock %}

@@ -1,116 +1,409 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Suministros{% endblock %}</title>
+    <title>{% block title %}Suministros{% endblock %} - CNCV</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Grenze:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        // Semantic Colors (Mapped to CSS Variables)
+                        primary: {
+                            50: 'rgb(var(--color-primary-50) / <alpha-value>)',
+                            100: 'rgb(var(--color-primary-100) / <alpha-value>)',
+                            200: 'rgb(var(--color-primary-200) / <alpha-value>)',
+                            300: 'rgb(var(--color-primary-300) / <alpha-value>)',
+                            400: 'rgb(var(--color-primary-400) / <alpha-value>)',
+                            500: 'rgb(var(--color-primary-500) / <alpha-value>)',
+                            600: 'rgb(var(--color-primary-600) / <alpha-value>)',
+                            700: 'rgb(var(--color-primary-700) / <alpha-value>)',
+                            800: 'rgb(var(--color-primary-800) / <alpha-value>)',
+                            900: 'rgb(var(--color-primary-900) / <alpha-value>)',
+                            950: 'rgb(var(--color-primary-950) / <alpha-value>)',
+                        },
+                        canvas: {
+                            50: 'rgb(var(--color-canvas-50) / <alpha-value>)',
+                            100: 'rgb(var(--color-canvas-100) / <alpha-value>)',
+                            200: 'rgb(var(--color-canvas-200) / <alpha-value>)',
+                            300: 'rgb(var(--color-canvas-300) / <alpha-value>)',
+                            400: 'rgb(var(--color-canvas-400) / <alpha-value>)',
+                            500: 'rgb(var(--color-canvas-500) / <alpha-value>)',
+                            600: 'rgb(var(--color-canvas-600) / <alpha-value>)',
+                            700: 'rgb(var(--color-canvas-700) / <alpha-value>)',
+                            800: 'rgb(var(--color-canvas-800) / <alpha-value>)',
+                            900: 'rgb(var(--color-canvas-900) / <alpha-value>)',
+                            950: 'rgb(var(--color-canvas-950) / <alpha-value>)',
+                        },
+                        // Keep legacy for safety during migration, but aim to remove
+                        slate: {
+                            800: '#1e293b', 900: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Playfair Display', 'serif'],
+                        mono: ['Fira Code', 'monospace'], // Added for tech vibes
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* --- Themes --- */
+        :root,
+        [data-theme="elegant"] {
+            /* Elegant Dark (Default) - Indigo / Slate */
+            --color-primary-50: 238 242 255;
+            --color-primary-100: 224 231 255;
+            --color-primary-200: 199 210 254;
+            --color-primary-300: 165 180 252;
+            --color-primary-400: 129 140 248;
+            --color-primary-500: 99 102 241;
+            --color-primary-600: 79 70 229;
+            --color-primary-700: 67 56 202;
+            --color-primary-800: 55 48 163;
+            --color-primary-900: 49 46 129;
+            --color-primary-950: 30 27 75;
+
+            --color-canvas-50: 248 250 252;
+            --color-canvas-100: 241 245 249;
+            --color-canvas-200: 226 232 240;
+            --color-canvas-300: 203 213 225;
+            --color-canvas-400: 148 163 184;
+            --color-canvas-500: 100 116 139;
+            --color-canvas-600: 71 85 105;
+            --color-canvas-700: 51 65 85;
+            --color-canvas-800: 30 41 59;
+            --color-canvas-900: 15 23 42;
+            --color-canvas-950: 2 6 23;
+        }
+
+        [data-theme="cyberpunk"] {
+            /* Cyberpunk - Fuchsia / Black */
+            --color-primary-50: 253 244 255;
+            --color-primary-100: 250 232 255;
+            --color-primary-200: 245 208 254;
+            --color-primary-300: 240 171 252;
+            --color-primary-400: 232 121 249;
+            --color-primary-500: 217 70 239;
+            --color-primary-600: 192 38 211;
+            --color-primary-700: 162 27 180;
+            --color-primary-800: 134 25 143;
+            --color-primary-900: 112 26 117;
+            --color-primary-950: 74 4 78;
+
+            --color-canvas-50: 250 250 250;
+            --color-canvas-100: 245 245 245;
+            --color-canvas-200: 229 229 229;
+            --color-canvas-300: 212 212 212;
+            --color-canvas-400: 163 163 163;
+            --color-canvas-500: 115 115 115;
+            --color-canvas-600: 82 82 82;
+            --color-canvas-700: 64 64 64;
+            --color-canvas-800: 38 38 38;
+            --color-canvas-900: 23 23 23;
+            /* Neutral black */
+            --color-canvas-950: 10 10 10;
+        }
+
+        [data-theme="corporate"] {
+            /* Corporate - Sky Blue / Navy */
+            --color-primary-50: 240 249 255;
+            --color-primary-100: 224 242 254;
+            --color-primary-200: 186 230 253;
+            --color-primary-300: 125 211 252;
+            --color-primary-400: 56 189 248;
+            --color-primary-500: 14 165 233;
+            --color-primary-600: 2 132 199;
+            --color-primary-700: 3 105 161;
+            --color-primary-800: 7 89 133;
+            --color-primary-900: 12 74 110;
+            --color-primary-950: 8 47 73;
+
+            --color-canvas-50: 239 246 255;
+            --color-canvas-100: 219 234 254;
+            --color-canvas-200: 191 219 254;
+            --color-canvas-300: 147 197 253;
+            --color-canvas-400: 96 165 250;
+            --color-canvas-500: 59 130 246;
+            --color-canvas-600: 37 99 235;
+            --color-canvas-700: 29 78 216;
+            --color-canvas-800: 30 64 175;
+            --color-canvas-900: 30 58 138;
+            /* Blue-heavy background */
+            --color-canvas-950: 23 37 84;
+        }
+
+        [data-theme="emerald"] {
+            /* Emerald - Emerald / Zinc */
+            --color-primary-50: 236 253 245;
+            --color-primary-100: 209 250 229;
+            --color-primary-200: 167 243 208;
+            --color-primary-300: 110 231 183;
+            --color-primary-400: 52 211 153;
+            --color-primary-500: 16 185 129;
+            --color-primary-600: 5 150 105;
+            --color-primary-700: 4 120 87;
+            --color-primary-800: 6 95 70;
+            --color-primary-900: 6 78 59;
+            --color-primary-950: 2 44 34;
+
+            --color-canvas-50: 250 250 250;
+            --color-canvas-100: 244 244 245;
+            --color-canvas-200: 228 228 231;
+            --color-canvas-300: 212 212 216;
+            --color-canvas-400: 161 161 170;
+            --color-canvas-500: 113 113 122;
+            --color-canvas-600: 82 82 91;
+            --color-canvas-700: 63 63 70;
+            --color-canvas-800: 39 39 42;
+            --color-canvas-900: 24 24 27;
+            /* Zinc background */
+            --color-canvas-950: 9 9 11;
+        }
+    </style>
+    <!-- Main CSS (Custom) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <!-- Material Icons -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
     {% block page_styles %}{% endblock %}
 </head>
-<body class="bg-gray-900 text-gray-200 {% block body_class %}{% endblock %}">
 
-    <nav class="bg-gray-800 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <a class="text-xl font-bold" href="{{ url_for('auth.root') }}">Suministros CNCV</a>
+<body class="antialiased selection:bg-primary-500 selection:text-white bg-canvas-900 text-canvas-200">
+
+    <!-- Navigation -->
+    <nav
+        class="sticky top-0 z-50 w-full glass-panel rounded-none border-x-0 border-t-0 mb-8 border-b border-canvas-200/10 bg-canvas-900/80 backdrop-blur-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Brand -->
+            <a class="text-3xl font-bold font-heading italic tracking-wide text-primary-400 hover:text-primary-300 transition-colors"
+                href="{{ url_for('auth.root') }}">
+                Suministros <span class="text-canvas-100 not-italic font-light">CNCV</span>
+            </a>
+
+            <!-- Mobile Menu Button -->
             <div class="block lg:hidden">
-                <button id="nav-toggle" class="flex items-center px-3 py-2 border rounded text-gray-200 border-gray-400 hover:text-white hover:border-white">
-                    <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+                <button id="nav-toggle"
+                    class="flex items-center px-3 py-2 border rounded text-canvas-300 border-canvas-600 hover:text-white hover:border-white transition">
+                    <span class="material-symbols-outlined">menu</span>
                 </button>
             </div>
-            <div id="nav-content" class="w-full hidden lg:flex lg:items-center lg:w-auto">
-                <ul class="lg:flex-grow lg:flex lg:items-center">
-                    {% if g.user %}
-                        <li>
-                            <a class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4" href="{{ url_for('inventario.menu_principal') }}">Menú Principal</a>
-                        </li>
-                        <li>
-                            <a class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4" href="{{ url_for('proveedores.proveedores') }}">Proveedores</a>
-                        </li>
-                        <li>
-                            <a class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4" href="{{ url_for('inventario.productos') }}">Inventario</a>
-                        </li>
-                        <li>
-                            <a class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4" href="{{ url_for('reportes.graficas') }}">Gráficos</a>
-                        </li>
-                        <li>
-                            <a class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white" href="{{ url_for('contabilidad.balance') }}">Contabilidad</a>
-                        </li>
-                    {% endif %}
-                </ul>
-                <ul class="lg:flex lg:items-center">
-                    {% if g.user %}
-                        <li class="mt-4 lg:mt-0">
-                            <span class="text-gray-400 mr-4">
-                                Bienvenido, {{ g.user.username }}
-                            </span>
-                        </li>
-                        <li>
-                            <a class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white" href="{{ url_for('auth.logout') }}">Logout</a>
-                        </li>
+
+            <!-- Desktop Menu -->
+            <div id="nav-content" class="w-full hidden lg:flex lg:items-center lg:w-auto pt-4 lg:pt-0">
+                <ul class="lg:flex lg:justify-end lg:items-center gap-8">
+                    <!-- Theme Switcher -->
+                    <li>
+                        <div class="relative group">
+                            <button
+                                class="flex items-center gap-2 text-canvas-400 hover:text-primary-400 transition-colors">
+                                <span class="material-symbols-outlined text-xl">palette</span>
+                                <span class="lg:hidden">Tema</span>
+                            </button>
+                            <div
+                                class="absolute right-0 mt-2 w-48 py-2 bg-canvas-800 border border-canvas-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                                <button onclick="setTheme('elegant')"
+                                    class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-[#6366f1]"></span> Elegant
+                                </button>
+                                <button onclick="setTheme('cyberpunk')"
+                                    class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-[#d946ef]"></span> Cyberpunk
+                                </button>
+                                <button onclick="setTheme('corporate')"
+                                    class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-[#0ea5e9]"></span> Corporate
+                                </button>
+                                <button onclick="setTheme('emerald')"
+                                    class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-[#10b981]"></span> Emerald
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    {% if current_user.rol == 'admin' %}
+                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                            href="{{ url_for('inventario.menu_principal') }}">Inicio</a></li>
+                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                            href="{{ url_for('proveedores.proveedores') }}">Proveedores</a></li>
+                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                            href="{{ url_for('inventario.productos') }}">Inventario</a></li>
+                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                            href="{{ url_for('reportes.graficas') }}">Reportes</a></li>
+                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                            href="{{ url_for('contabilidad.balance') }}">Contabilidad</a></li>
                     {% else %}
-                        <li>
-                            <a class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4" href="{{ url_for('auth.login') }}">Login</a>
-                        </li>
-                        <li>
-                            <a class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white" href="{{ url_for('auth.registro') }}">Registro</a>
-                        </li>
+                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                            href="{{ url_for('inventario.menu_cliente') }}">Mi Cuenta</a></li>
+                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                            href="{{ url_for('inventario.productos_cliente') }}">Catálogo</a></li>
+                    {% endif %}
+
+                    <!-- User Dropdown / Info -->
+                    <li
+                        class="border-t lg:border-none border-canvas-700 pt-4 lg:pt-0 mt-4 lg:mt-0 lg:ml-6 flex items-center gap-4">
+                        <span class="text-canvas-400 text-sm hidden xl:inline-block font-serif italic">Hola, <span
+                                class="text-canvas-200 font-semibold not-italic font-sans">{{ current_user.usuario
+                                }}</span></span>
+                        <a class="btn-elegant bg-red-900/20 border border-red-500/30 text-red-200 hover:bg-red-900/40 hover:text-red-100 py-1.5 px-4 text-sm rounded-full transition-all"
+                            href="{{ url_for('auth.logout') }}">
+                            <span class="material-symbols-outlined text-[16px] align-middle mr-1">logout</span> Salir
+                        </a>
+                    </li>
+                    {% else %}
+                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                            href="{{ url_for('auth.login') }}">Iniciar Sesión</a></li>
+                    <li>
+                        <a class="bg-primary-600 hover:bg-primary-500 text-white py-2 px-6 rounded-full shadow-lg shadow-primary-500/20 transition-all font-heading tracking-wide"
+                            href="{{ url_for('auth.registro') }}">
+                            Registrate
+                        </a>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="fixed top-5 right-5 w-full max-w-xs z-50">
+    <!-- Flash Messages (Toast Style) -->
+    <div class="fixed top-24 right-5 w-full max-w-sm z-50 pointer-events-none px-4 md:px-0">
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    {% set color_map = {
-                        'success': 'bg-green-100 border-green-400 text-green-700',
-                        'danger': 'bg-red-100 border-red-400 text-red-700',
-                        'warning': 'bg-yellow-100 border-yellow-400 text-yellow-700',
-                        'info': 'bg-blue-100 border-blue-400 text-blue-700'
-                    } %}
-                    {% set alert_classes = color_map.get(category, 'bg-gray-100 border-gray-400 text-gray-700') %}
-                    <div role="alert" class="alert-dismissible p-4 rounded-lg shadow-md mb-4 flex justify-between items-start border {{ alert_classes }}">
-                        <div class="flex items-start">
-                            <p>{{ message }}</p>
-                        </div>
-                        <button type="button" class="ml-4 p-1.5 -mt-1.5 -mr-1.5" onclick="this.parentElement.style.display='none';">
-                            <span class="sr-only">Dismiss</span>
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        {% set color_classes = {
+        'success': 'bg-canvas-800/90 border-primary-500 text-primary-100 shadow-primary-900/20',
+        'danger': 'bg-canvas-800/90 border-red-500 text-red-100 shadow-red-900/20',
+        'warning': 'bg-canvas-800/90 border-amber-500 text-amber-100 shadow-amber-900/20',
+        'info': 'bg-canvas-800/90 border-canvas-500 text-canvas-100 shadow-canvas-900/20'
+        } %}
+        {% set active_class = color_classes.get(category, 'bg-canvas-800/90 border-canvas-500 text-canvas-100') %}
+
+        <div
+            class="pointer-events-auto alert-dismissible transform transition-all duration-500 hover:scale-[1.02] p-4 rounded-r-xl rounded-l-sm shadow-2xl mb-4 border-l-4 backdrop-blur-md flex justify-between items-start {{ active_class }}">
+            <div class="flex items-center gap-4">
+                <span class="material-symbols-outlined text-2xl opacity-80">
+                    {% if category == 'success' %}check_circle
+                    {% elif category == 'danger' %}error
+                    {% elif category == 'warning' %}warning
+                    {% else %}info{% endif %}
+                </span>
+                <div>
+                    <h4 class="font-heading font-bold text-sm uppercase tracking-wider opacity-70 mb-0.5">{{ category }}
+                    </h4>
+                    <p class="font-light text-sm leading-snug">{{ message }}</p>
+                </div>
+            </div>
+            <button type="button" class="ml-4 opacity-50 hover:opacity-100 transition-opacity p-1"
+                onclick="this.parentElement.style.opacity='0'; setTimeout(()=>this.parentElement.remove(), 300);">
+                <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+        </div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
     </div>
 
-    <div class="container mx-auto mt-4 px-4">
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 pb-12 animate-fade-in min-h-[80vh]">
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
+    <!-- Scripts -->
     <script>
+        // Theme Switcher Logic
+        function setTheme(themeName) {
+            localStorage.setItem('theme', themeName);
+            document.documentElement.setAttribute('data-theme', themeName);
+            applyThemeBackground(themeName);
+        }
+
+        function applyThemeBackground(theme) {
+            // Optional: Adjust radial gradients slightly per theme if desired
+            // For now, relies on CSS vars updating bg-canvas-900
+        }
+
+        (function () {
+            // Immediate theme apply on load
+            const savedTheme = localStorage.getItem('theme') || 'elegant';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+
         document.addEventListener("DOMContentLoaded", function () {
-            // Auto-ocultar alertas
+            // Auto-hide alerts
             setTimeout(() => {
                 const alerts = document.querySelectorAll(".alert-dismissible");
                 alerts.forEach(alert => {
-                    alert.style.display = 'none';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
                 });
-            }, 5000);
+            }, 6000);
 
-            // Toggle mobile nav
-            document.getElementById('nav-toggle').addEventListener('click', function() {
-                document.getElementById('nav-content').classList.toggle('hidden');
-            });
+            // Mobile Nav
+            const btn = document.getElementById('nav-toggle');
+            const nav = document.getElementById('nav-content');
+            if (btn && nav) {
+                btn.addEventListener('click', () => {
+                    nav.classList.toggle('hidden');
+                });
+            }
         });
     </script>
+    <style>
+        /* Simple Fade In Animation */
+        .animate-fade-in {
+            animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-panel {
+            background: rgb(var(--color-canvas-800) / 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgb(var(--color-canvas-200) / 0.08);
+            border-radius: 1rem;
+        }
+
+        body {
+            background-color: rgb(var(--color-canvas-900));
+            /* Dynamic gradient using primary color with low opacity */
+            background-image: radial-gradient(at 0% 0%, rgb(var(--color-primary-900) / 0.3) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgb(var(--color-canvas-800) / 0.3) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .btn-elegant {
+            transition: all 0.3s ease;
+        }
+
+        .btn-elegant:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
     {% block page_scripts %}{% endblock %}
 </body>
+
 </html>

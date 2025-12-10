@@ -2,71 +2,113 @@
 {% block title %}Agregar proveedor{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-8 px-4 relative">
-    <div class="max-w-3xl mx-auto bg-gray-800 rounded-lg shadow-xl p-8">
-        <a href="{{ url_for('proveedores.proveedores') }}" class="absolute top-0 -left-4 z-10 flex items-center justify-center w-10 h-10 bg-gray-700 rounded-full hover:bg-gray-600" aria-label="Volver a proveedores">
-            <span class="material-symbols-outlined text-white">arrow_back</span>
+<main class="container mx-auto my-8 px-4 flex justify-center pb-12">
+    <div class="glass-panel w-full max-w-3xl p-8 relative animate-fade-in shadow-2xl shadow-primary-900/10">
+        <!-- Back Button -->
+        <a href="{{ url_for('proveedores.proveedores') }}"
+            class="absolute top-8 left-8 flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
+            aria-label="Volver">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
         </a>
 
-        <h2 class="text-center text-2xl font-bold text-white mb-6">Introduzca los datos del proveedor</h2>
+        <div class="text-center mb-8 mt-4">
+            <h2
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-primary-400 mb-2">
+                Nuevo Proveedor
+            </h2>
+            <p class="text-canvas-400 text-sm">Ingrese los datos para registrar un nuevo proveedor en el sistema.</p>
+        </div>
 
         <form action="{{ url_for('proveedores.agregar_proveedor') }}" method="post" class="space-y-6">
             {{ form.hidden_tag() }}
 
-            <div>
-                <label for="nombre" class="block text-sm font-medium text-gray-300">Nombre</label>
-                {{ form.nombre(class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm p-2", placeholder="Ingrese el nombre") }}
+            <div class="space-y-2">
+                <label for="nombre" class="block text-sm font-medium text-canvas-300">Nombre de la Empresa</label>
+                {{ form.nombre(class="form-input focus:border-primary-500 focus:ring-primary-500", placeholder="Ingrese
+                el
+                nombre comercial") }}
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="telefono" class="block text-sm font-medium text-gray-300">Teléfono</label>
-                    {{ form.telefono(class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm p-2", placeholder="Ingrese el teléfono", pattern="[0-9]+") }}
-                </div>
-                <div>
-                    <label for="cif" class="block text-sm font-medium text-gray-300">CIF</label>
-                    {{ form.cif(class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm p-2", placeholder="Ingrese el CIF") }}
-                </div>
-            </div>
-
-            <div>
-                <label for="direccion" class="block text-sm font-medium text-gray-300">Dirección</label>
-                {{ form.direccion(class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm p-2", placeholder="Ingrese la dirección") }}
-            </div>
-
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-300">Email</label>
-                {{ form.email(class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm p-2", placeholder="ejemplo@correo.com") }}
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-300">{{ form.productos.label }}</label>
-                <div class="mt-2 bg-gray-900/50 border border-gray-700 rounded-md p-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {% for subfield in form.productos %}
-                    <div class="flex items-center">
-                        {{ subfield(class="h-4 w-4 bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500 rounded") }}
-                        <label class="ml-3 text-sm text-gray-300" for="{{ subfield.id }}">
-                            {{ subfield.label.text }}
-                        </label>
+                <div class="space-y-2">
+                    <label for="telefono" class="block text-sm font-medium text-canvas-300">Teléfono</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500 text-[20px]">call</span>
+                        {{ form.telefono(class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500",
+                        placeholder="Ingrese teléfono de contacto",
+                        pattern="[0-9]+") }}
                     </div>
+                </div>
+                <div class="space-y-2">
+                    <label for="cif" class="block text-sm font-medium text-canvas-300">CIF / Identificación
+                        Fiscal</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500 text-[20px]">badge</span>
+                        {{ form.cif(class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500",
+                        placeholder="G-XXXXXXX") }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label for="direccion" class="block text-sm font-medium text-canvas-300">Dirección Completa</label>
+                <div class="relative">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500 text-[20px]">location_on</span>
+                    {{ form.direccion(class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500",
+                    placeholder="Calle, Número, C.P., Ciudad...") }}
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label for="email" class="block text-sm font-medium text-canvas-300">Email de Contacto</label>
+                <div class="relative">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500 text-[20px]">mail</span>
+                    {{ form.email(class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500",
+                    placeholder="contacto@empresa.com") }}
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-canvas-300">{{ form.productos.label }}</label>
+                <div
+                    class="bg-canvas-900/40 border border-canvas-700/50 rounded-lg p-5 grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {% for subfield in form.productos %}
+                    <label class="inline-flex items-center cursor-pointer group">
+                        {{ subfield(class="form-checkbox h-4 w-4 text-primary-500 border-canvas-600 rounded
+                        bg-canvas-800
+                        focus:ring-primary-500 transition") }}
+                        <span class="ml-2 text-sm text-canvas-400 group-hover:text-canvas-200 transition-colors">{{
+                            subfield.label.text }}</span>
+                    </label>
                     {% endfor %}
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="tasa_de_descuento" class="block text-sm font-medium text-gray-300">Tasa de Descuento (%)</label>
-                    {{ form.tasa_de_descuento(class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm p-2", min="0", max="100", step="0.01") }}
+                <div class="space-y-2">
+                    <label for="tasa_de_descuento" class="block text-sm font-medium text-canvas-300">Tasa de Descuento
+                        (%)</label>
+                    {{ form.tasa_de_descuento(class="form-input border-canvas-700 focus:border-primary-500
+                    focus:ring-primary-500",
+                    min="0", max="100", step="0.01") }}
                 </div>
-                <div>
-                    <label for="iva" class="block text-sm font-medium text-gray-300">IVA (%)</label>
-                    {{ form.iva(class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm p-2", min="0", max="100", step="0.01") }}
+                <div class="space-y-2">
+                    <label for="iva" class="block text-sm font-medium text-canvas-300">IVA Aplicable (%)</label>
+                    {{ form.iva(class="form-input border-canvas-700 focus:border-primary-500 focus:ring-primary-500",
+                    min="0", max="100",
+                    step="0.01") }}
                 </div>
             </div>
 
-            <div class="pt-4">
-                <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md" type="submit">
-                    Agregar proveedor
+            <div class="pt-6">
+                <button
+                    class="w-full btn-elegant btn-primary justify-center text-lg bg-primary-600 hover:bg-primary-500 shadow-primary-500/20"
+                    type="submit">
+                    <span class="material-symbols-outlined mr-2">save</span> Guardar Proveedor
                 </button>
             </div>
         </form>

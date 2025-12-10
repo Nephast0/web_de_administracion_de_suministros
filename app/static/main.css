@@ -1,774 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
 :root {
-    --bg-1: #0c0c0c;
-    --bg-2: #1b1b1b;
-    --card: rgba(32, 32, 34, 0.9);
-    --text: #e7edf3;
-    --muted: #b6becb;
-    --accent: #8ef0ff;
-    --accent-2: #6d9cf6;
-    --stroke: rgba(142, 240, 255, 0.25);
-    --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    /* --- Palette: Elegant Dark (Slate + Teal + Amber) --- */
+    --bg-primary: #0f172a;   /* Slate 900 */
+    --bg-secondary: #1e293b; /* Slate 800 */
+    --bg-tertiary: #334155;  /* Slate 700 */
+
+    --text-main: #f8fafc;    /* Slate 50 */
+    --text-muted: #94a3b8;   /* Slate 400 */
+    
+    --accent-primary: #14b8a6; /* Teal 500 */
+    --accent-hover: #0d9488;   /* Teal 600 */
+    
+    --accent-secondary: #f59e0b; /* Amber 500 - for highlights/gold touches */
+    
+    --danger: #ef4444;       /* Red 500 */
+    --success: #10b981;      /* Emerald 500 */
+
+    /* --- Glassmorphism --- */
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+    /* --- Fonts --- */
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
 }
 
+/* --- Base --- */
 body {
-    color: var(--text);
-    background: radial-gradient(circle at 20% 20%, rgba(77, 208, 225, 0.08), transparent 25%),
-        radial-gradient(circle at 80% 0%, rgba(99, 102, 241, 0.12), transparent 30%),
-        linear-gradient(135deg, #111 0%, #1b1b1b 45%, #0c0c0c 100%);
-    background-size: cover;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%);
     background-attachment: fixed;
+    min-height: 100vh;
 }
 
-.layout-shell {
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: grid;
-    grid-template-columns: 1fr minmax(680px, 1.2fr) 1fr;
-    gap: 24px;
+h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--font-heading);
 }
 
-@media (max-width: 576px) {
-    .layout-shell {
-        padding: 0 16px;
-    }
+/* --- Utilities --- */
+
+/* Glass Panel / Card */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 1rem; /* Tailwind 'rounded-2xl' equivalent approx */
 }
 
-.layout-shell > * {
-    grid-column: 2;
-    width: 100%;
-}
-
-.span-all {
-    grid-column: 1 / -1 !important;
-}
-
-.layout-shell > main,
-.layout-shell > .span-all,
-.layout-shell > form {
-    grid-column: 1 / -1;
-}
-
-.container {
-    max-width: 1500px;
-}
-
-.title-container {
-    display: flex;
-    /* Activar flexbox */
-    justify-content: center;
-    /* Centrar horizontalmente */
+/* Elegant Button Base */
+.btn-elegant {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    letter-spacing: 0.025em;
+    display: inline-flex;
     align-items: center;
-    /* Centrar verticalmente (opcional si tiene altura fija) */
-    text-align: center;
-    /* Asegura que el texto esté centrado */
-    width: 100%;
-    /* Ocupar todo el ancho disponible */
-    margin: 0 auto;
-    /* Asegura que no tenga márgenes inesperados */
-}
-
-/* Contenedores Glass */
-.glass-container {
-    background: rgba(32, 32, 34, 0.9);
-    border: 1px solid var(--stroke);
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(6px);
-    margin-bottom: 24px;
-    width: 100%;
-}
-
-/* Tarjetas Glass */
-.glass-card {
-    background: rgba(32, 32, 34, 0.9);
-    border: 1px solid var(--stroke);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(6px);
-    height: 100%;
-    width: 100%;
-}
-
-/* Tablas Glass */
-.glass-table {
-    width: 100%;
-    border-collapse: separate;
-    /* Permite border-radius en th/td si se desea */
-    border-spacing: 0;
-    width: 100%;
-}
-
-.glass-table th {
-    background: rgba(12, 12, 12, 0.95);
-    color: var(--accent);
-    font-family: "Grenze", serif;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    padding: 16px;
-    border-bottom: 2px solid var(--stroke);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.glass-table td {
-    background: transparent;
-    /* Fondo transparente para ver el gradiente/glass */
-    color: var(--text);
-    padding: 14px 16px;
-    border-bottom: 1px solid rgba(142, 240, 255, 0.08);
-    vertical-align: middle;
-}
-
-.glass-table tr:last-child td {
-    border-bottom: none;
-}
-
-.glass-table tr:hover td {
-    background: rgba(142, 240, 255, 0.05);
-    transition: background 0.2s ease;
-}
-
-input,
-select,
-textarea,
-.form-control {
-    background: #151517;
-    border: 1px solid var(--stroke);
-    color: var(--text);
-    border-radius: 10px;
-    padding: 10px 12px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-input:focus,
-select:focus,
-textarea:focus,
-.form-control:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(142, 240, 255, 0.18);
-    background: #131314;
-    outline: none;
-}
-
-label {
-    color: var(--muted);
-}
-
-/* Estética consistente de formularios */
-form .form-group {
-    margin-bottom: 14px;
-}
-
-form label {
-    font-size: 0.9rem;
-    letter-spacing: 0.5px;
-    color: #d6d6d8;
-    margin-bottom: 6px;
-    display: block;
-}
-
-form .form-control {
-    background: #151517;
-    border: 1px solid rgba(142, 240, 255, 0.25);
-    color: #f5f5f5;
-    border-radius: 10px;
-    padding: 12px 14px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-form .form-control:focus {
-    border-color: #8ef0ff;
-    box-shadow: 0 0 0 3px rgba(142, 240, 255, 0.18);
-    background: #131314;
-    outline: none;
-}
-
-/* Estética de títulos tipo brand */
-.brand {
-    text-align: center;
-    margin-bottom: 24px;
-}
-
-.brand h1 {
-    font-family: "Playfair Display", serif;
-    letter-spacing: 2px;
-    font-size: clamp(28px, 4vw, 36px);
-    margin-bottom: 6px;
-    text-shadow: 0 0 12px rgba(255, 255, 255, 0.445);
-}
-
-.brand h2 {
-    font-family: "Playfair Display", serif;
-    font-size: clamp(22px, 3.4vw, 28px);
-    letter-spacing: 3px;
-    color: #8ef0ff;
-    text-shadow: 0 0 10px rgba(142, 240, 255, 0.4);
-}
-
-/* Botones CTA */
-.cta {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: none;
-    background: linear-gradient(135deg, #8ef0ff, #6d9cf6);
-    color: #0b0c0f;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    box-shadow: 0 10px 30px rgba(109, 156, 246, 0.35);
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.cta:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 32px rgba(109, 156, 246, 0.45);
-}
-
-.cta:active {
-    transform: translateY(0);
-}
-
-.cta-inline {
-    width: auto;
-    min-width: 140px;
-    padding-inline: 14px;
-}
-
-.btn-danger-light {
-    background: rgba(255, 107, 107, 0.12);
-    border: 1px solid #ff6b6b;
-    color: #ff9a9a;
-    border-radius: 10px;
-    padding: 8px 12px;
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.btn-danger-light:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(255, 107, 107, 0.3);
-}
-
-/* Estilo para navegadores basados en WebKit (Chrome, Edge, Safari) */
-::-webkit-scrollbar {
-    width: 8px;
-    /* Hace la scrollbar más delgada */
-}
-
-/* Track (fondo de la scrollbar) */
-::-webkit-scrollbar-track {
-    background: #222;
-    /* Color del fondo de la scrollbar */
-    border-radius: 5px;
-}
-
-/* Handle (barra que se mueve) */
-::-webkit-scrollbar-thumb {
-    background: #555;
-    /* Color del scrollbar */
-    border-radius: 5px;
-}
-
-/* Hover sobre el scrollbar */
-::-webkit-scrollbar-thumb:hover {
-    background: #777;
-    /* Color cuando el usuario pasa el cursor */
-}
-
-tr {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-th,
-td {
-    font-family: 'Grenze', serif;
-    /* O usa Google Fonts */
-    letter-spacing: 1px;
-    color: var(--text);
-}
-
-th,
-td {
-    border-radius: 6px;
-}
-
-.material-symbols-outlined-p {
-    font-variation-settings:
-        'FILL' 0,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 24
-}
-
-tr:hover {
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    background-color: rgba(142, 240, 255, 0.06);
-    transform: scale(1.005);
-    /* Zoom ligero */
-}
-
-.titletransp {
-    font-family: "Grenze", serif;
-    font-style: italic;
-    background: -webkit-linear-gradient(#eee, #333);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.custom-search-btn {
-    padding: 4px;
-    height: 40px;
-    width: 30px;
-    border-width: 1px;
-    line-height: 1;
-    background-color: #fff;
-    /* Opcional: para ajustar fondo */
-}
-
-.btn-back {
-    position: absolute;
-    /* Permite colocar el botón fuera del flujo normal */
-    top: 20px;
-    /* Ajusta la distancia desde arriba */
-    left: 10px;
-    /* Mueve el botón más a la izquierda */
-    font-size: 24px;
-    /* Tamaño del ícono */
-    background-color: transparent;
-    /* Sin fondo */
-    border: none;
-    /* Sin bordes */
-    color: white;
-    /* Color del ícono */
-    cursor: pointer;
-    /* Cambia el cursor al pasar sobre el botón */
-}
-
-/* Limitar la altura de la tabla y agregar scroll */
-.table-container {
-    margin: 20px auto;
-    /* Centra horizontalmente y ajusta el espacio superior */
-    max-height: 400px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    width: 80%;
-    border: 1px solid var(--stroke);
-    text-align: center;
-    /* Centra el contenido de la tabla si es necesario */
-}
-
-.custom-search-input {
-    height: 40px;
-    font-size: 14px;
-    padding: 4px;
-    border-radius: 0;
-}
-
-.titleblack {
-    font-family: "Grenze", serif;
-    font-weight: 900;
-    font-style: italic;
-    background: -webkit-linear-gradient(#eee, #333);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: black;
-}
-
-.titlewhite {
-    font-family: "Grenze", serif;
-    font-weight: 900;
-    font-style: italic;
-    background: -webkit-linear-gradient(#c8f1ff, #7cc4f3);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.titlewhiteN {
-    font-family: "Grenze", serif;
-    font-weight: 800;
-    font-style: italic;
-    /* Aplica un degradado de color */
-    background: -webkit-linear-gradient(#c8f1ff, #7cc4f3);
-    -webkit-background-clip: text;
-    background-clip: text;
-    /* Mantiene el texto blanco pero permite el brillo */
-    -webkit-text-fill-color: transparent;
-    /* Agrega un efecto de neón con resplandor */
-    text-shadow:
-        0 0 6px rgba(142, 240, 255, 0.45),
-        /* Brillo suave alrededor */
-        0 0 10px rgba(109, 156, 246, 0.4);
-    /* Efecto de neón más extendido */
-}
-
-.titlegrey {
-    font-family: "Grenze", serif;
-    font-weight: 300;
-    font-style: italic;
-    background: -webkit-linear-gradient(#c8f1ff, #7cc4f3);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.fondo {
-    background: linear-gradient(135deg, #131416, #1c1f24);
-}
-
-.mx-2 {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-}
-
-.btn {
-    background-color: transparent;
-    border: 2px solid var(--stroke);
-    color: var(--text);
-    padding: 10px 20px;
-    border-radius: 10px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
-}
-
-.btn:hover {
-    border-color: var(--accent);
-    box-shadow: 0 8px 22px rgba(142, 240, 255, 0.2);
-    color: var(--text);
-    transform: translateY(-1px);
-}
-
-.btn-primary,
-.btn-outline-light {
-    border-color: var(--stroke);
-    color: var(--text);
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    color: #0b0c0f;
-    border: none;
-    box-shadow: 0 10px 28px rgba(109, 156, 246, 0.35);
-}
-
-.btn-outline-danger {
-    border-color: #ff6b6b;
-    color: #ff6b6b;
-}
-
-.btn-outline-danger:hover {
-    background: rgba(255, 107, 107, 0.1);
-}
-
-.container-menu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 70vh;
-    /* Mantener todo centrado en pantalla */
-}
-
-.row-menu {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
-    width: 90%;
-    /* Ajusta el ancho del contenedor */
-}
-
-.col-md-4 {
-    text-align: center;
-}
-
-.neon-link {
-    padding: 10px 10px;
-    transition: 0.3s;
-    background-color: transparent;
-    color: var(--accent);
-}
-
-.neon-link:hover {
-    color: var(--text);
-    /* Cambia el color del texto */
-    text-shadow: 0 0 8px rgba(142, 240, 255, 0.4);
-    /* Efecto de neón */
-}
-
-.alert-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    max-width: 300px;
-}
-
-.modern-alert {
-    padding: 15px;
-    border-radius: 12px;
-    font-weight: bold;
-    color: white !important;
-    text-shadow: none;
-    margin-bottom: 10px;
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
-}
-
-.modern-alert.snackbar {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    min-width: 260px;
-    z-index: 2000;
-}
-
-/* 🔹 Agregada animación de parpadeo sutil */
-@keyframes flicker {
-    0% {
-        opacity: 1;
-        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #fff;
-    }
-
-    100% {
-        opacity: 0.8;
-        text-shadow: 0 0 5px #ccc, 0 0 10px #ccc, 0 0 15px #ccc, 0 0 20px #ccc;
-    }
-}
-
-.alert-success {
-    background: linear-gradient(135deg, #5be7a9, #2f9d69);
-}
-
-.alert-danger {
-    background: linear-gradient(135deg, #ff6b6b, #c0392b);
-}
-
-.alert-warning {
-    background: linear-gradient(135deg, #f7c948, #c99a0b);
-    color: #161616;
-}
-
-.alert-info {
-    background: linear-gradient(135deg, #8ef0ff, #6d9cf6);
-    color: #0c0c0c;
-}
-
-.close-alert {
-    background: transparent;
-    border: none;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
     color: white;
-    font-size: 16px;
-    cursor: pointer;
+    box-shadow: 0 4px 14px 0 rgba(20, 184, 166, 0.39);
 }
 
-/* Menú admin */
-.menu-body {
-    min-height: 100vh;
-    padding: 32px 24px;
-}
-
-.menu-layout {
-    width: 100%;
-    max-width: 1600px;
-    display: grid;
-    grid-template-columns: 1fr minmax(560px, 1.15fr) 1fr;
-    gap: 24px;
-    align-items: start;
-    margin: 0 auto;
-    grid-column: 1 / -1;
-}
-
-.menu-hero {
-    position: relative;
-    min-height: 70vh;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-    grid-column: 2;
-}
-
-.menu-stats {
-    grid-column: 1 / 4;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 16px;
-    align-content: start;
-}
-
-.icon-btn {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    border: none;
-    border-radius: 12px;
-    color: #0b0c0f;
-    padding: 10px 16px;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 10px 26px rgba(109, 156, 246, 0.35);
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.icon-btn:hover {
+.btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 12px 30px rgba(109, 156, 246, 0.45);
+    box-shadow: 0 6px 20px 0 rgba(20, 184, 166, 0.23);
 }
 
-.menu-actions-abs {
-    position: absolute;
-    top: 16px;
-    z-index: 5;
-}
-
-.menu-actions-left {
-    left: 16px;
-}
-
-.menu-actions-right {
-    right: 16px;
-}
-
-.menu-card {
+.btn-secondary {
     background: transparent;
-    border: none;
-    border-radius: 0;
-    padding: 24px 16px 10px;
-    box-shadow: none;
-    backdrop-filter: none;
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+}
+
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: var(--text-muted);
+}
+
+.btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+/* Form Controls */
+.form-input {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
     width: 100%;
-    max-width: 1100px;
+    transition: all 0.2s;
 }
 
-.menu-title h1,
-.menu-title h2 {
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2);
 }
 
-.menu-title h1 {
-    font-size: clamp(30px, 4.6vw, 42px);
-    margin-bottom: 6px;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-primary); 
+}
+::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary); 
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted); 
 }
 
-.menu-title h2 {
-    font-size: clamp(22px, 3.4vw, 32px);
+/* --- Legacy Bootstrap Overrides / Compat Clean-up --- */
+/* Removing conflicting styles, using utility classes instead. */
+a {
+    transition: color 0.2s;
 }
-
-.menu-links {
-    margin-top: 28px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
-    width: 100%;
-}
-
-.menu-links a {
-    width: 100%;
-    font-size: clamp(18px, 2.4vw, 22px);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px solid transparent;
-    transition: border-color 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
-}
-
-.menu-links a:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    text-shadow: 0 0 12px rgba(142, 240, 255, 0.25);
-}
-
-@media (max-width: 992px) {
-    .menu-layout {
-        grid-template-columns: 1fr;
-    }
-    .menu-hero {
-        grid-column: 1;
-    }
-    .menu-stats {
-        grid-column: 1;
-    }
-    .menu-links {
-        grid-template-columns: 1fr;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    to {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-}
-
-.modern-alert {
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-.modern-alert.hide {
-    animation: fadeOut 0.5s ease-in-out forwards;
-}
-
-/* Botón de regreso unificado */
-.back-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    border: 1px solid var(--stroke);
-    background: rgba(19, 20, 22, 0.85);
-    color: #c8f1ff;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-    transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.back-btn:hover {
-    transform: translateY(-1px);
-    border-color: var(--accent);
-    box-shadow: 0 12px 30px rgba(109, 156, 246, 0.3);
-}
-
-.back-btn .material-symbols-outlined {
-    font-size: 28px;
-    color: inherit;
-    line-height: 1;
-}
-
-.back-btn.material-symbols-outlined {
-    font-size: 28px;
-    color: inherit;
-    line-height: 1;
+a:hover {
+    color: var(--accent-primary);
 }

@@ -2,78 +2,147 @@
 {% block title %}Perfil{% endblock %}
 
 {% block content %}
-<main class="container py-4">
-    <div class="d-flex align-items-center mb-4 flex-wrap gap-2">
-        <a class="back-btn" href="{{ url_for('inventario.menu_cliente') }}" aria-label="Volver al menú del cliente">
-            <span class="material-symbols-outlined">arrow_back</span>
+<main class="container mx-auto my-6 px-4 pb-12">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('inventario.menu_cliente') }}"
+                class="flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
+                aria-label="Volver al menú del cliente">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <h1
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-canvas-100 to-canvas-400">
+                Perfil de Usuario
+            </h1>
+        </div>
+        <a href="{{ url_for('inventario.pedidos') }}"
+            class="btn-elegant btn-secondary flex items-center gap-2 text-decoration-none">
+            <span class="material-symbols-outlined">list_alt</span>
+            <span class="hidden sm:inline">Ver Pedidos</span>
         </a>
-        <h1 class="ms-3 titlewhiteN mb-0">Perfil de {{ usuario.usuario }}</h1>
-        <div class="ms-auto d-flex gap-2 flex-wrap">
-            <a class="cta cta-inline" href="{{ url_for('inventario.pedidos') }}">Ver pedidos</a>
-        </div>
     </div>
 
-    <div class="glass-container mb-4">
-        <form method="POST" action="{{ url_for('inventario.perfil_cliente', page=pagina) }}">
-            {{ form.hidden_tag() }}
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label titlewhite">Nombre</label>
-                    {{ form.nombre_usuario(class_="form-control") }}
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label titlewhite">Usuario</label>
-                    <input type="text" class="form-control" value="{{ usuario.usuario }}" disabled>
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label titlewhite">Dirección</label>
-                    {{ form.direccion(class_="form-control") }}
-                </div>
-            </div>
-            <hr class="text-white-50 my-4">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label titlewhite">Idioma/moneda</label>
-                    {{ form.currency_locale(class_="form-select") }}
-                </div>
-            </div>
-            <hr class="text-white-50 my-4">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label titlewhite">Contraseña actual</label>
-                    {{ form.current_password(class_="form-control", autocomplete="current-password") }}
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label titlewhite">Nueva contraseña</label>
-                    {{ form.new_password(class_="form-control", autocomplete="new-password") }}
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label titlewhite">Confirmar nueva contraseña</label>
-                    {{ form.new_password2(class_="form-control", autocomplete="new-password") }}
-                </div>
-            </div>
-            <div class="d-grid mt-4">
-                <button type="submit" class="cta">Guardar cambios</button>
-            </div>
-        </form>
-    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Profile Form (Left Column, spans 2) -->
+        <div class="lg:col-span-2">
+            <div class="glass-panel p-8 animate-fade-in">
+                <h2
+                    class="text-xl font-bold text-canvas-200 mb-6 flex items-center gap-2 border-b border-canvas-700/50 pb-4">
+                    <span class="material-symbols-outlined text-primary-400">edit_square</span>
+                    Editar Información
+                </h2>
 
-    <div class="glass-container">
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <h2 class="titlewhiteN h4 m-0">Actividad reciente</h2>
-            <small class="text-muted">Mostrando {{ actividades|length }} de {{ total_actividades }}</small>
+                <form method="POST" action="{{ url_for('inventario.perfil_cliente', page=pagina) }}" class="space-y-6">
+                    {{ form.hidden_tag() }}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-canvas-400">Nombre Completo</label>
+                            {{ form.nombre_usuario(class_="form-input") }}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-canvas-400">Usuario</label>
+                            <input type="text" class="form-input opacity-60 cursor-not-allowed"
+                                value="{{ usuario.usuario }}" disabled>
+                        </div>
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="block text-sm font-medium text-canvas-400">Dirección de Envío</label>
+                            {{ form.direccion(class_="form-input") }}
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-canvas-700/30">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-canvas-400">Preferencia de Moneda</label>
+                                <div class="relative">
+                                    {{ form.currency_locale(class_="form-input appearance-none") }}
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-2.5 text-canvas-500 pointer-events-none">expand_more</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-canvas-700/30">
+                        <h3 class="text-lg font-semibold text-amber-400/90 mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">lock</span> Seguridad
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-canvas-400">Contraseña actual</label>
+                                {{ form.current_password(class_="form-input", autocomplete="current-password",
+                                placeholder="Requerido para cambios") }}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-canvas-400">Nueva contraseña</label>
+                                {{ form.new_password(class_="form-input", autocomplete="new-password",
+                                placeholder="Opcional") }}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-canvas-400">Confirmar nueva</label>
+                                {{ form.new_password2(class_="form-input", autocomplete="new-password",
+                                placeholder="Repetir nueva") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 mt-6 flex justify-end">
+                        <button type="submit" class="btn-elegant btn-primary px-8">
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-        {% if actividades %}
-        <ul class="list-group list-group-flush bg-transparent">
-            {% for act in actividades %}
-            <li class="list-group-item bg-transparent text-white d-flex justify-content-between">
-                <span>{{ act.fecha.strftime('%Y-%m-%d %H:%M') }} · {{ act.modulo }}: {{ act.accion }}</span>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p class="text-muted">Sin actividad registrada.</p>
-        {% endif %}
+
+        <!-- Activity Log (Right Column, spans 1) -->
+        <div class="lg:col-span-1">
+            <div class="glass-panel p-0 overflow-hidden h-full flex flex-col">
+                <div class="p-6 border-b border-canvas-700/50 bg-canvas-900/30">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-canvas-200">Actividad Reciente</h2>
+                        <span
+                            class="text-xs font-mono text-canvas-500 bg-canvas-800 px-2 py-1 rounded-full border border-canvas-700">
+                            {{ actividades|length }} / {{ total_actividades }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="p-4 overflow-y-auto max-h-[600px] custom-scrollbar">
+                    {% if actividades %}
+                    <ul class="space-y-3">
+                        {% for act in actividades %}
+                        <li
+                            class="p-3 rounded-lg bg-canvas-800/40 hover:bg-canvas-800/60 border border-canvas-700/30 hover:border-canvas-600 transition-all group">
+                            <div class="flex items-start gap-3">
+                                <div class="mt-1 w-2 h-2 rounded-full bg-primary-500 shadow-primary"></div>
+                                <div>
+                                    <p
+                                        class="text-sm text-canvas-300 font-medium group-hover:text-primary-200 transition-colors">
+                                        {{ act.accion }}
+                                    </p>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-xs text-canvas-500 font-mono">{{ act.fecha.strftime('%Y-%m-%d
+                                            %H:%M') }}</span>
+                                        <span class="text-xs text-canvas-600 px-1 border border-canvas-700 rounded">{{
+                                            act.modulo }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="text-center py-12 text-canvas-500">
+                        <span class="material-symbols-outlined text-4xl mb-2 opacity-30">history</span>
+                        <p>No hay actividad reciente.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 {% endblock %}

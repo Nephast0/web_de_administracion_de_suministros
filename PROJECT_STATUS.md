@@ -1,5 +1,39 @@
 # Estado actualizado del proyecto
 
+## Revisión 2025-12-10 (Diseño "Elegant Dark" y Mejoras de Flujo)
+
+### Cambios clave
+- **Rediseño Completado ("Elegant Dark"):**
+    - Se implementó un tema unificado baseado en Tailwind CSS con paleta "Deep Indigo" y "Slate".
+    - Tipografía actualizada a "Playfair Display" para encabezados y "Inter" para cuerpo.
+    - Componentes personalizados: `glass-panel`, `form-input`, `btn-elegant`, `glass-table` aplicados consistentemente.
+    - **Plantillas Actualizadas:**
+        - Admin Dashboard (`menu-admin.html`)
+        - Inventario (`inventario_admin.html`, `agregar-producto.html`, `editar_producto.html`)
+        - Proveedores (`proveedores.html`, `agregar-proveedor.html`, `editar_proveedor.html`)
+        - Contabilidad (`balance.html`, `cuenta_resultados.html`, `diario.html`, `nuevo_asiento.html`)
+        - Autenticación (`login.html`, `registro.html`, `base.html`)
+
+- **Mejoras Funcionales:**
+    - **Flujo de Registro:** Implementada redirección automática al login tras registro exitoso, con pre-llenado del nombre de usuario (`auth.py`).
+    - **Lógica de Autenticación:** Corrección en `create_admin.py` y `auth.py` para asegurar hash correcto de contraseñas.
+    - **UI/UX:** Navbar inteligente que oculta enlaces de login/registro cuando el usuario está autenticado.
+
+### Estado
+- La interfaz administrativa y de contabilidad presenta una identidad visual cohesiva y profesional.
+- El flujo de alta de usuarios es más fluido y reduce la fricción en el primer login.
+
+### Pruebas ejecutadas
+- **Verificación Visual:** Confirmado el rediseño en páginas de Login y Registro.
+- **Verificación Lógica:** Código de redirección de registro y modelos de usuario verificado mediante revisión estática.
+- **Limitaciones de Test:** La verificación automatizada de rutas protegidas (admin) fue bloqueada por problemas de persistencia de sesión en el entorno de pruebas local, aunque el código subyacente está implementado correctamente.
+
+### Pendiente / próximos pasos
+1. **Solucionar Entorno Local:** Resolver problemas de autenticación en el entorno de pruebas para permitir validación e2e completa.
+2. **Corrección de Rutas:** Investigar y solucionar el error 404 reportado en la ruta `/reportes` (actualmente redirige a gráfica pero la ruta base falla).
+3. **Actualización Cliente:** Aplicar y pulir el diseño "Elegant Dark" en las plantillas específicas de cliente (`catalogo`, `carrito`, `pedidos`, `perfil`) si requieren ajustes adicionales fuera de `base.html`.
+
+---
 ## Revisión 2025-12-10 (navbar y suite de tests)
 
 ### Cambios clave

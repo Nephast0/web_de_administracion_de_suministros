@@ -1,78 +1,123 @@
 {% extends "base.html" %}
 {% block title %}Mis Pedidos{% endblock %}
 
-{% block page_styles %}
-<style>
-    .pedidos-table thead th {
-        position: sticky;
-        top: 0;
-        z-index: 5;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<main class="span-all">
-    <div class="glass-container">
-        <div class="d-flex align-items-center mb-4">
-            <a class="back-btn" href="{{ url_for('inventario.menu_cliente') }}" aria-label="Volver al menú del cliente">
-                <span class="material-symbols-outlined">arrow_back</span>
-            </a>
-            <h1 class="ms-3 titlewhiteN mb-0">Mis Pedidos</h1>
-        </div>
+<main class="container mx-auto my-6 px-4 pb-12">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-8">
+        <a href="{{ url_for('inventario.menu_cliente') }}"
+            class="flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
+            aria-label="Volver al menú del cliente">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <h1
+            class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-canvas-100 to-canvas-400">
+            Mis Pedidos
+        </h1>
+    </div>
 
-        <div class="table-responsive">
-            <table class="glass-table w-100 pedidos-table">
-                <thead>
+    <!-- Orders Table -->
+    <div class="glass-panel p-1 overflow-hidden animate-fade-in">
+        <div class="overflow-x-auto rounded-lg">
+            <table class="w-full text-sm text-left text-canvas-300">
+                <thead class="text-xs text-canvas-400 uppercase bg-canvas-900/80 font-heading tracking-wider">
                     <tr>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Precio Unitario</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                        <th>Opciones</th>
+                        <th class="px-6 py-4 font-semibold">Producto</th>
+                        <th class="px-6 py-4 font-semibold text-center">Cantidad</th>
+                        <th class="px-6 py-4 font-semibold text-right">Precio Unitario</th>
+                        <th class="px-6 py-4 font-semibold text-right">Total</th>
+                        <th class="px-6 py-4 font-semibold text-center">Estado</th>
+                        <th class="px-6 py-4 font-semibold">Fecha</th>
+                        <th class="px-6 py-4 font-semibold text-right">Opciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-canvas-700/50">
                     {% for pedido in pedidos %}
-                    <tr>
-                        <td>{{ pedido.producto.modelo }}</td>
-                        <td>{{ pedido.cantidad }}</td>
-                        <td>{{ pedido.precio_unitario | currency }}</td>
-                        <td>{{ pedido.total | currency }}</td>
-                        <td>{{ pedido.estado }}</td>
-                        <td>{{ pedido.fecha.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td>
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-6 py-4 font-medium text-canvas-100">
+                            {{ pedido.producto.modelo }}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span
+                                class="bg-canvas-800 text-canvas-300 px-2 py-1 rounded text-xs font-mono border border-canvas-600">
+                                {{ pedido.cantidad }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right text-canvas-400">
+                            {{ pedido.precio_unitario | currency }}
+                        </td>
+                        <td class="px-6 py-4 text-right font-medium text-primary-400">
+                            {{ pedido.total | currency }}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {% if pedido.estado == "Pendiente" %}
+                            <span
+                                class="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-1 rounded-full text-xs uppercase tracking-wide">Pendiente</span>
+                            {% elif pedido.estado == "Completado" %}
+                            <span
+                                class="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-1 rounded-full text-xs uppercase tracking-wide">Completado</span>
+                            {% elif pedido.estado == "Cancelado" %}
+                            <span
+                                class="bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-1 rounded-full text-xs uppercase tracking-wide">Cancelado</span>
+                            {% else %}
+                            <span
+                                class="bg-canvas-700 text-canvas-300 px-2 py-1 rounded-full text-xs uppercase tracking-wide">{{
+                                pedido.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-xs text-canvas-500">
+                            {{ pedido.fecha.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+                        <td class="px-6 py-4 text-right">
                             {% if pedido.estado == "Pendiente" %}
                             <form action="{{ url_for('inventario.cancelar_pedido', pedido_id=pedido.id) }}"
-                                  method="POST"
-                                  onsubmit="return confirm('¿Estás seguro de que deseas cancelar este pedido?');">
+                                method="POST"
+                                onsubmit="return confirm('¿Estás seguro de que deseas cancelar este pedido?');"
+                                class="inline">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" class="btn-danger-light"
+                                <button type="submit"
+                                    class="text-sm border border-red-500/30 text-red-400 hover:bg-red-500/10 px-3 py-1.5 rounded transition-colors flex items-center gap-1 ml-auto"
                                     aria-label="Cancelar {{ pedido.producto.nombre }}">
-                                    Cancelar
+                                    <span class="material-symbols-outlined text-base">cancel</span> Cancelar
                                 </button>
                             </form>
                             {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-canvas-500">
+                            <span class="material-symbols-outlined text-4xl mb-2 opacity-50">shopping_cart_off</span>
+                            <p>No tienes pedidos registrados.</p>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+    </div>
 
-        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-            <div class="pagination">
-                {% if pagination and pagination.has_prev %}
-                <a class="btn btn-outline-light btn-sm" href="{{ url_for('inventario.pedidos', page=pagination.prev_num) }}">&larr; Anterior</a>
-                {% endif %}
-                <span class="text-muted">Página {{ pagination.page if pagination else 1 }} de {{ pagination.pages if pagination else 1 }}</span>
-                {% if pagination and pagination.has_next %}
-                <a class="btn btn-outline-light btn-sm" href="{{ url_for('inventario.pedidos', page=pagination.next_num) }}">Siguiente &rarr;</a>
-                {% endif %}
-            </div>
+    <!-- Pagination -->
+    {% if pagination %}
+    <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-700/50">
+        <div class="text-sm text-slate-500">
+            Página <span class="text-slate-200 font-bold">{{ pagination.page }}</span> de {{ pagination.pages }}
+        </div>
+        <div class="flex gap-2">
+            {% if pagination.has_prev %}
+            <a class="btn-elegant btn-secondary py-1 px-3 text-sm"
+                href="{{ url_for('inventario.pedidos', page=pagination.prev_num) }}">
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span> Anterior
+            </a>
+            {% endif %}
+            {% if pagination.has_next %}
+            <a class="btn-elegant btn-secondary py-1 px-3 text-sm"
+                href="{{ url_for('inventario.pedidos', page=pagination.next_num) }}">
+                Siguiente <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            </a>
+            {% endif %}
         </div>
     </div>
+    {% endif %}
 </main>
 {% endblock %}
