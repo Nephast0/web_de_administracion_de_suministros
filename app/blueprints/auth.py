@@ -6,6 +6,7 @@ reducir el monolito previo y documentar por qué se ajusta cada flujo.
 
 import csv
 import io
+import time
 from datetime import datetime, timedelta
 
 from flask import (
@@ -17,6 +18,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
     url_for,
 )
 from flask_login import current_user, login_required, login_user, logout_user
@@ -25,10 +27,33 @@ from ..db import db
 from ..extensions import login_manager
 from ..forms import Formulario_de_registro, Login_form
 from ..models import ActividadUsuario, Compra, Usuario
-from .helpers import registrar_actividad, role_required
+from .helpers import registrar_actividad, role_required, write_safe_csv_row
 
 
 auth_bp = Blueprint("auth", __name__)
+_LOGIN_ATTEMPTS: dict[str, list[float]] = {}
+_LOGIN_WINDOW_SECONDS = 600
+_LOGIN_MAX_ATTEMPTS = 5
+
+
+def _is_rate_limited():
+    """Limitador simple por IP para proteger el login."""
+
+    if app.config.get("TESTING"):
+        return False
+    ip = request.remote_addr or "unknown"
+    now = time.time()
+    attempts = [ts for ts in _LOGIN_ATTEMPTS.get(ip, []) if now - ts < _LOGIN_WINDOW_SECONDS]
+    if len(attempts) >= _LOGIN_MAX_ATTEMPTS:
+        return True
+    attempts.append(now)
+    _LOGIN_ATTEMPTS[ip] = attempts
+    return False
+
+
+def _reset_rate_limit():
+    ip = request.remote_addr or "unknown"
+    _LOGIN_ATTEMPTS.pop(ip, None)
 
 
 @login_manager.user_loader
@@ -111,8 +136,10 @@ def login():
             form.usuario.data = usuario_arg
     app.logger.debug("Datos recibidos del formulario: %s", {**form.data, "contrasenya": "[omitted]"})
 
-    print("DEBUG: Entered login route")
-    print(f"DEBUG: Form data: {form.data}")
+    if request.method == "POST" and _is_rate_limited():
+        flash("Demasiados intentos de inicio de sesión. Intenta de nuevo en unos minutos.", "danger")
+        return render_template("index.html", form=form), 429
+
     if form.validate_on_submit():
         usuario = Usuario.query.filter_by(usuario=form.usuario.data).first()
 
@@ -122,7 +149,9 @@ def login():
             return render_template("index.html", form=form)
 
         if usuario.check_contrasenya(form.contrasenya.data):
+            session.clear()  # Evita fijación de sesión previa al login.
             login_user(usuario)
+            _reset_rate_limit()
             flash(f"¡Bienvenido, {usuario.usuario}!", "success")
 
             # Derivamos según rol; se podría extender con más roles en el futuro.
@@ -145,7 +174,7 @@ def login():
     return render_template("index.html", form=form)
 
 
-@auth_bp.route("/logout", methods=["POST", "GET"])
+@auth_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
     logout_user()
@@ -275,7 +304,8 @@ def exportar_compras_admin():
 
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(
+    write_safe_csv_row(
+        writer,
         [
             "compra_id",
             "usuario",
@@ -286,11 +316,12 @@ def exportar_compras_admin():
             "total",
             "estado",
             "fecha",
-        ]
+        ],
     )
 
     for compra in compras_query.order_by(Compra.fecha.desc()).all():
-        writer.writerow(
+        write_safe_csv_row(
+            writer,
             [
                 compra.id,
                 getattr(compra.usuario, "usuario", compra.usuario_id),
@@ -301,7 +332,7 @@ def exportar_compras_admin():
                 f"{compra.total}",
                 compra.estado,
                 compra.fecha.strftime("%Y-%m-%d %H:%M") if hasattr(compra, "fecha") else "",
-            ]
+            ],
         )
 
     response = Response(buffer.getvalue(), mimetype="text/csv; charset=utf-8")

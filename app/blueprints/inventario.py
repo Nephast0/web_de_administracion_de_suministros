@@ -12,7 +12,7 @@ from flask_login import current_user, login_required, logout_user
 from ..db import db
 from ..forms import EditarPerfilForm
 from ..models import CestaDeCompra, Compra, Producto, Proveedor, ActividadUsuario, Usuario
-from .helpers import role_required
+from .helpers import role_required, write_safe_csv_row
 from ..services.accounting_services import crear_asiento
 
 
@@ -248,17 +248,20 @@ def exportar_productos():
     import csv, io
     si = io.StringIO()
     cw = csv.writer(si)
-    cw.writerow(['Tipo', 'Marca', 'Modelo', 'Descripcion', 'Precio', 'Cantidad', 'Proveedor'])
+    write_safe_csv_row(cw, ['Tipo', 'Marca', 'Modelo', 'Descripcion', 'Precio', 'Cantidad', 'Proveedor'])
     for p in productos:
-        cw.writerow([
-            p.tipo_producto,
-            p.marca,
-            p.modelo,
-            p.descripcion,
-            p.precio,
-            p.cantidad,
-            p.proveedor_id,
-        ])
+        write_safe_csv_row(
+            cw,
+            [
+                p.tipo_producto,
+                p.marca,
+                p.modelo,
+                p.descripcion,
+                p.precio,
+                p.cantidad,
+                p.proveedor_id,
+            ],
+        )
     output = Response(si.getvalue(), mimetype='text/csv')
     output.headers['Content-Disposition'] = 'attachment; filename=productos.csv'
     return output

@@ -8,6 +8,7 @@ revisiones.
 
 import logging
 import os
+from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
 from babel.core import UnknownLocaleError
@@ -118,6 +119,7 @@ def create_app():
     """
 
     app = Flask(__name__, template_folder="templates", static_folder="static")
+    environment = os.getenv("FLASK_ENV", os.getenv("ENV", "production")).lower()
 
     # Logging básico para depurar en desarrollo. Se puede ajustar por
     # entorno configurando LOG_LEVEL en despliegue.
@@ -136,13 +138,44 @@ def create_app():
     app.config["SQLALCHEMY_ECHO"] = _get_bool_env("SQLALCHEMY_ECHO", False)
     # Se usa SECRET_KEY desde entorno; se mantiene un fallback mínimo
     # sólo para desarrollo local.
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "cambia-esta-clave")
+    secret_key = os.getenv("SECRET_KEY")
+    if not secret_key:
+        if environment == "production":
+            raise RuntimeError("SECRET_KEY debe configurarse en el entorno para producción.")
+        secret_key = "dev-only-secret-key"
+        app.logger.warning("SECRET_KEY no configurada; usando una clave insegura solo para desarrollo.")
+    app.config["SECRET_KEY"] = secret_key
+    app.config["ENVIRONMENT"] = environment
     # CSRF activado por defecto para formularios; se puede desactivar
     # temporalmente con WTF_CSRF_ENABLED=false en entorno de pruebas.
     app.config["WTF_CSRF_ENABLED"] = _get_bool_env("WTF_CSRF_ENABLED", True)
+    # Endurecer cookies de sesión/remember para mitigar hijacking/fixation.
+    secure_cookies_default = environment == "production"
+    app.config.setdefault("SESSION_COOKIE_HTTPONLY", True)
+    app.config.setdefault("SESSION_COOKIE_SECURE", _get_bool_env("SESSION_COOKIE_SECURE", secure_cookies_default))
+    app.config.setdefault("SESSION_COOKIE_SAMESITE", os.getenv("SESSION_COOKIE_SAMESITE", "Lax"))
+    app.config.setdefault("REMEMBER_COOKIE_HTTPONLY", True)
+    app.config.setdefault("REMEMBER_COOKIE_SECURE", _get_bool_env("REMEMBER_COOKIE_SECURE", secure_cookies_default))
+    app.config.setdefault("REMEMBER_COOKIE_DURATION", timedelta(days=14))
+    if secure_cookies_default:
+        app.config.setdefault("PREFERRED_URL_SCHEME", "https")
     app.config.setdefault("CURRENCY_CODE", _DEFAULT_CURRENCY_CODE)
     app.config.setdefault("CURRENCY_LOCALE", _DEFAULT_CURRENCY_LOCALE)
     app.config.setdefault("CURRENCY_SYMBOL", _DEFAULT_CURRENCY_SYMBOL)
+    # Política CSP por defecto compatible con Tailwind CDN y Google Fonts; se puede
+    # sobreescribir vía CONTENT_SECURITY_POLICY en entorno.
+    default_csp = (
+        "default-src 'self'; "
+        "script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; "
+        "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "
+        "img-src 'self' data:; "
+        "font-src 'self' https://fonts.gstatic.com data:; "
+        "connect-src 'self'; "
+        "frame-ancestors 'self'; "
+        "base-uri 'self'; "
+        "form-action 'self'"
+    )
+    app.config.setdefault("CONTENT_SECURITY_POLICY", os.getenv("CONTENT_SECURITY_POLICY", default_csp))
 
     # Inicializar extensiones con la app actual.
     db.init_app(app)
@@ -193,6 +226,20 @@ def create_app():
             "currency_locale": config["locale"],
             "currency_code": config["code"],
         }
+
+    @app.after_request
+    def apply_security_headers(response):
+        """Añade cabeceras de seguridad básicas y HSTS (cuando aplica)."""
+
+        csp = app.config.get("CONTENT_SECURITY_POLICY")
+        if csp:
+            response.headers.setdefault("Content-Security-Policy", csp)
+        response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        if app.config.get("PREFERRED_URL_SCHEME") == "https":
+            response.headers.setdefault("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+        return response
 
     # Se retorna la instancia correctamente (el código anterior estaba
     # truncado), permitiendo a run.py u otros módulos inicializar la app.

@@ -46,6 +46,8 @@ class BaseTestCase(unittest.TestCase):
         # Configuración aislada: BD en memoria y CSRF deshabilitado sólo para pruebas.
         os.environ["DATABASE_URI"] = "sqlite:///:memory:"
         os.environ["WTF_CSRF_ENABLED"] = "false"
+        os.environ["FLASK_ENV"] = "testing"
+        os.environ["SECRET_KEY"] = "testing-secret"
         global _TEST_APP
         if _TEST_APP is None:
             _TEST_APP = create_app()

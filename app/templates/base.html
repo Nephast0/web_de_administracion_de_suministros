@@ -257,10 +257,14 @@
                         <span class="text-canvas-400 text-sm hidden xl:inline-block font-serif italic">Hola, <span
                                 class="text-canvas-200 font-semibold not-italic font-sans">{{ current_user.usuario
                                 }}</span></span>
-                        <a class="btn-elegant bg-red-900/20 border border-red-500/30 text-red-200 hover:bg-red-900/40 hover:text-red-100 py-1.5 px-4 text-sm rounded-full transition-all"
-                            href="{{ url_for('auth.logout') }}">
-                            <span class="material-symbols-outlined text-[16px] align-middle mr-1">logout</span> Salir
-                        </a>
+                        <form action="{{ url_for('auth.logout') }}" method="post" class="m-0 p-0">
+                            {{ csrf_token() }}
+                            <button type="submit"
+                                class="btn-elegant bg-red-900/20 border border-red-500/30 text-red-200 hover:bg-red-900/40 hover:text-red-100 py-1.5 px-4 text-sm rounded-full transition-all">
+                                <span class="material-symbols-outlined text-[16px] align-middle mr-1">logout</span>
+                                Salir
+                            </button>
+                        </form>
                     </li>
                     {% else %}
                     <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"

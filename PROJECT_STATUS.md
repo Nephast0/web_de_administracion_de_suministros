@@ -1,5 +1,44 @@
 # Estado actualizado del proyecto
 
+## Revision 2025-12-12 (Hardening OWASP)
+
+### Cambios clave
+- **Configuracion segura:** `create_app` exige `SECRET_KEY` en produccion, endurece cookies (`HttpOnly`, `Secure`, `SameSite=Lax`) y prepara esquema HTTPS por defecto; `run.py` deja de forzar debug y lo toma de `FLASK_DEBUG`.
+- **Autenticacion y CSRF:** se elimina logging de credenciales, se limpia la sesion antes de `login_user` para evitar fijacion y `logout` ahora es solo POST; las plantillas `base.html` y `menu-cliente.html` usan formulario POST con CSRF para cerrar sesion.
+- **Exportaciones CSV seguras:** helper `write_safe_csv_row` neutraliza payloads tipo formula en todos los CSV (compras admin, productos, proveedores, reportes, contabilidad).
+- **Confiabilidad:** `crear_asiento` deja de usar lista mutable por defecto.
+
+### Estado
+- Endurecimiento de superficies criticas (OWASP A01/A02/A03/A05/A07/A09) aplicado sin romper rutas existentes.
+
+### Pruebas ejecutadas
+- `python -m compileall app`
+
+### Pendiente / proximos pasos
+1. Definir `SECRET_KEY` y servir bajo HTTPS en despliegue para que los flags `Secure` se apliquen.
+2. Revisar que los proxies/dominios finales preserven encabezados de seguridad (CSP, HSTS) y el rate limiting en producción.
+
+## Revision 2025-12-12 (Cabeceras y rate limiting)
+
+### Cambios clave
+- Cabeceras de seguridad globales: CSP por defecto (self + Tailwind CDN + Google Fonts), `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` y HSTS automático si el esquema preferido es HTTPS.
+- Limitador de intentos de login por IP (ventana 10 min, 5 intentos), con limpieza tras éxito; mantiene bypass en modo TESTING.
+
+### Pruebas ejecutadas
+- `python -m unittest discover tests` -> OK (32 tests).
+
+## Revision 2025-12-12 (Tests actualizados)
+
+### Cambios clave
+- Tests ajustados al hardening: los entornos de prueba fijan `FLASK_ENV=testing` y `SECRET_KEY` para pasar las nuevas validaciones de arranque.
+- Ruta de `reportes.index` normalizada a `/` para evitar reglas vacías en Flask/Werkzeug.
+
+### Pruebas ejecutadas
+- `python -m unittest discover tests` -> OK (32 tests).
+
+### Pendiente / proximos pasos
+1. Considerar fixtures con HTTPS y cookies `Secure` simuladas para validar flags de sesión en integraciones end-to-end.
+
 ## Revisión 2025-12-10 (Diseño "Elegant Dark" y Mejoras de Flujo)
 
 ### Cambios clave

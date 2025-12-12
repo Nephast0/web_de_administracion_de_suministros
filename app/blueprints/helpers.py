@@ -56,6 +56,23 @@ def registrar_actividad(usuario_id, accion, modulo):
         current_app.logger.error("Error al registrar la actividad: %s", exc)
 
 
+def _sanitize_csv_value(value):
+    """Evita inyecciones CSV (Excel) ante datos controlados por usuario."""
+
+    if value is None:
+        return ""
+    text = str(value)
+    if text.startswith(("=", "+", "-", "@", "\t", "\r", "\n")):
+        return f"'{text}"
+    return text
+
+
+def write_safe_csv_row(writer, values):
+    """Escribe una fila CSV sanitizando posibles payloads de fórmulas."""
+
+    writer.writerow([_sanitize_csv_value(val) for val in values])
+
+
 def _period_key_and_label(moment: datetime, intervalo: str):
     """Agrupa fechas en Python para compatibilidad entre motores SQL.
 

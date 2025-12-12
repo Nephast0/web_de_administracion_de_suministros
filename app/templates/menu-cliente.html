@@ -31,11 +31,14 @@
                     <span class="material-symbols-outlined group-hover:scale-110 transition-transform">list_alt</span>
                     <span class="hidden md:inline">Pedidos</span>
                 </a>
-                <a href="{{ url_for('auth.logout') }}"
-                    class="glass-panel px-4 py-2 hover:bg-red-900/30 transition-colors flex items-center gap-2 text-canvas-300 hover:text-red-400 group text-decoration-none ml-2"
-                    aria-label="Cerrar sesión">
-                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">logout</span>
-                </a>
+                <form action="{{ url_for('auth.logout') }}" method="post" class="inline-block m-0">
+                    {{ csrf_token() }}
+                    <button type="submit"
+                        class="glass-panel px-4 py-2 hover:bg-red-900/30 transition-colors flex items-center gap-2 text-canvas-300 hover:text-red-400 group text-decoration-none ml-2"
+                        aria-label="Cerrar sesión">
+                        <span class="material-symbols-outlined group-hover:scale-110 transition-transform">logout</span>
+                    </button>
+                </form>
             </div>
         </div>
 

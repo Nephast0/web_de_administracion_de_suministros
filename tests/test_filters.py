@@ -10,6 +10,8 @@ class CurrencyFilterTest(unittest.TestCase):
     def setUp(self):
         os.environ["DATABASE_URI"] = "sqlite:///:memory:"
         os.environ["WTF_CSRF_ENABLED"] = "false"
+        os.environ["FLASK_ENV"] = "testing"
+        os.environ["SECRET_KEY"] = "testing-secret"
         self.app = create_app()
         self.app.config.update(TESTING=True)
         self.ctx = self.app.app_context()

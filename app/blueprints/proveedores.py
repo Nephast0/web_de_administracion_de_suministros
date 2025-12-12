@@ -16,7 +16,7 @@ MAX_PAGE_SIZE = 50
 from ..db import db
 from ..forms import AgregarProductoForm, ProveedorForm
 from ..models import Producto, Proveedor
-from .helpers import registrar_actividad, validar_datos_proveedor, role_required
+from .helpers import registrar_actividad, validar_datos_proveedor, role_required, write_safe_csv_row
 from ..services.accounting_services import crear_asiento
 
 
@@ -384,19 +384,22 @@ def exportar_proveedores():
     proveedores_list = query.order_by(Proveedor.nombre.asc()).all()
     si = io.StringIO()
     cw = csv.writer(si)
-    cw.writerow(['Fecha', 'Nombre', 'Telefono', 'Direccion', 'Email', 'CIF', 'Descuento', 'IVA', 'Tipo'])
+    write_safe_csv_row(cw, ['Fecha', 'Nombre', 'Telefono', 'Direccion', 'Email', 'CIF', 'Descuento', 'IVA', 'Tipo'])
     for p in proveedores_list:
-        cw.writerow([
-            p.fecha.strftime('%Y-%m-%d') if p.fecha else '',
-            p.nombre,
-            p.telefono,
-            p.direccion,
-            p.email,
-            p.cif,
-            p.tasa_de_descuento,
-            p.iva,
-            p.tipo_producto,
-        ])
+        write_safe_csv_row(
+            cw,
+            [
+                p.fecha.strftime('%Y-%m-%d') if p.fecha else '',
+                p.nombre,
+                p.telefono,
+                p.direccion,
+                p.email,
+                p.cif,
+                p.tasa_de_descuento,
+                p.iva,
+                p.tipo_producto,
+            ],
+        )
     output = Response(si.getvalue(), mimetype='text/csv')
     output.headers['Content-Disposition'] = 'attachment; filename=proveedores.csv'
     return output

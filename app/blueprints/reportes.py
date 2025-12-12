@@ -14,7 +14,7 @@ from sqlalchemy import func, case
 
 from ..db import db
 from ..models import Compra, Producto, Usuario, CacheEvent, Cuenta, Apunte, Asiento
-from .helpers import _period_key_and_label, role_required
+from .helpers import _period_key_and_label, role_required, write_safe_csv_row
 
 
 reportes_bp = Blueprint("reportes", __name__)
@@ -259,13 +259,13 @@ def _cached_json(key: str, builder):
 
 
 
-@reportes_bp.route("")
 @reportes_bp.route("/")
 @login_required
 def index():
-    if current_user.role == 'admin':
+    rol = getattr(current_user, "rol", None)
+    if rol == 'admin':
         return redirect(url_for('reportes.graficas'))
-    elif current_user.role == 'cliente':
+    if rol == 'cliente':
         return redirect(url_for('reportes.graficas_cliente'))
     return redirect(url_for('main.index'))
 
@@ -348,9 +348,9 @@ def chart_export(chart_name):
     rows = chart["rows"](dataset)
     output = StringIO()
     writer = csv.writer(output)
-    writer.writerow(chart["headers"])
+    write_safe_csv_row(writer, chart["headers"])
     for row in rows:
-        writer.writerow(row)
+        write_safe_csv_row(writer, row)
 
     response = Response(output.getvalue(), mimetype="text/csv")
     response.headers["Content-Disposition"] = f"attachment; filename={chart_name}.csv"
@@ -387,9 +387,9 @@ def chart_export_cliente(chart_name):
     rows = chart["rows"](dataset)
     output = StringIO()
     writer = csv.writer(output)
-    writer.writerow(chart["headers"])
+    write_safe_csv_row(writer, chart["headers"])
     for row in rows:
-        writer.writerow(row)
+        write_safe_csv_row(writer, row)
 
     response = Response(output.getvalue(), mimetype="text/csv")
     response.headers["Content-Disposition"] = f"attachment; filename={chart_name}.csv"

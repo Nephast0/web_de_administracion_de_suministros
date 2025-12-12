@@ -4,6 +4,7 @@ from app.db import db
 from app.models import Asiento, Cuenta, Apunte
 from app.forms import AsientoManualForm
 from app.services.accounting_services import crear_asiento, inicializar_plan_cuentas, obtener_saldo_cuenta
+from app.blueprints.helpers import write_safe_csv_row
 import csv
 import io
 from datetime import datetime, timedelta
@@ -163,19 +164,22 @@ def exportar_diario():
     
     si = io.StringIO()
     cw = csv.writer(si)
-    cw.writerow(['ID', 'Fecha', 'Descripcion', 'Usuario', 'Cuenta', 'Debe', 'Haber'])
+    write_safe_csv_row(cw, ['ID', 'Fecha', 'Descripcion', 'Usuario', 'Cuenta', 'Debe', 'Haber'])
     
     for asiento in asientos:
         for apunte in asiento.apuntes:
-            cw.writerow([
-                asiento.id,
-                asiento.fecha,
-                asiento.descripcion,
-                asiento.usuario.usuario if asiento.usuario else 'N/A',
-                f"{apunte.cuenta.codigo} - {apunte.cuenta.nombre}",
-                apunte.debe,
-                apunte.haber
-            ])
+            write_safe_csv_row(
+                cw,
+                [
+                    asiento.id,
+                    asiento.fecha,
+                    asiento.descripcion,
+                    asiento.usuario.usuario if asiento.usuario else 'N/A',
+                    f"{apunte.cuenta.codigo} - {apunte.cuenta.nombre}",
+                    apunte.debe,
+                    apunte.haber,
+                ],
+            )
             
     output = make_response(si.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=diario.csv"
@@ -194,12 +198,12 @@ def exportar_balance():
     
     si = io.StringIO()
     cw = csv.writer(si)
-    cw.writerow(['Código', 'Cuenta', 'Tipo', 'Saldo'])
+    write_safe_csv_row(cw, ['Código', 'Cuenta', 'Tipo', 'Saldo'])
     
     for c in cuentas:
         saldo = saldos[c.id]
         if saldo != 0:
-            cw.writerow([c.codigo, c.nombre, c.tipo, saldo])
+            write_safe_csv_row(cw, [c.codigo, c.nombre, c.tipo, saldo])
             
     output = make_response(si.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=balance.csv"
@@ -231,24 +235,24 @@ def exportar_cuenta_resultados():
     si = io.StringIO()
     cw = csv.writer(si)
     
-    cw.writerow(['Concepto', 'Importe'])
-    cw.writerow(['INGRESOS', ''])
+    write_safe_csv_row(cw, ['Concepto', 'Importe'])
+    write_safe_csv_row(cw, ['INGRESOS', ''])
     for item in datos['ingresos']:
         cuenta = item['cuenta']
         saldo = item['saldo']
-        cw.writerow([f"{cuenta.codigo} - {cuenta.nombre}", saldo])
-    cw.writerow(['Total Ingresos', datos['total_ingresos']])
+        write_safe_csv_row(cw, [f"{cuenta.codigo} - {cuenta.nombre}", saldo])
+    write_safe_csv_row(cw, ['Total Ingresos', datos['total_ingresos']])
     
     cw.writerow([])
-    cw.writerow(['GASTOS', ''])
+    write_safe_csv_row(cw, ['GASTOS', ''])
     for item in datos['gastos']:
         cuenta = item['cuenta']
         saldo = item['saldo']
-        cw.writerow([f"{cuenta.codigo} - {cuenta.nombre}", saldo])
-    cw.writerow(['Total Gastos', datos['total_gastos']])
+        write_safe_csv_row(cw, [f"{cuenta.codigo} - {cuenta.nombre}", saldo])
+    write_safe_csv_row(cw, ['Total Gastos', datos['total_gastos']])
     
     cw.writerow([])
-    cw.writerow(['RESULTADO NETO', datos['resultado_neto']])
+    write_safe_csv_row(cw, ['RESULTADO NETO', datos['resultado_neto']])
             
     output = make_response(si.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=cuenta_resultados.csv"

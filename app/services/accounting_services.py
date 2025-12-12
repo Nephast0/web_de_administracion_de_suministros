@@ -46,11 +46,12 @@ def inicializar_plan_cuentas():
 def obtener_cuenta_por_codigo(codigo):
     return Cuenta.query.filter_by(codigo=codigo).first()
 
-def crear_asiento(descripcion, usuario_id, fecha=None, referencia_id=None, apuntes_data=[]):
+def crear_asiento(descripcion, usuario_id, fecha=None, referencia_id=None, apuntes_data=None):
     """
     Crea un asiento contable con sus apuntes.
     apuntes_data: lista de dicts {'cuenta_codigo': str, 'debe': Decimal, 'haber': Decimal}
     """
+    apuntes_data = apuntes_data or []
     # Validar que debe == haber
     total_debe = sum(Decimal(a['debe']) for a in apuntes_data)
     total_haber = sum(Decimal(a['haber']) for a in apuntes_data)
