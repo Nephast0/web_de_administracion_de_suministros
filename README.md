@@ -16,8 +16,6 @@ Breve guía para ejecutar la aplicación y mantener la base de datos de forma se
 3. Genera migraciones cuando cambien los modelos: `flask db migrate -m "descripcion"`.
 4. Aplica cambios: `flask db upgrade`.
 
-> Se documentan estos pasos para reducir el riesgo de esquemas inconsistentes en despliegues.
-
 ## Ejecutar
 - Desarrollo: `python run.py` (usa `create_app` con la configuración anterior).
 - Tests: `python -m unittest discover tests` (usa SQLite en memoria y desactiva CSRF para flujos automatizados).
@@ -27,7 +25,7 @@ Breve guía para ejecutar la aplicación y mantener la base de datos de forma se
 - Evita activar `SQLALCHEMY_ECHO` en producción para no filtrar consultas ni datos sensibles.
 
 ## Arquitectura de rutas
-- Las vistas están divididas en blueprints bajo `app/blueprints/` para reducir el monolito original:
+- Las vistas están divididas en blueprints bajo `app/blueprints/`:
   - `auth.py`: login, registro y administración de usuarios/roles.
   - `inventario.py`: menús de admin/cliente, catálogo y flujo de compras.
   - `proveedores.py`: CRUD de proveedores y productos.
