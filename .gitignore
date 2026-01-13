@@ -20,5 +20,20 @@ instance/
 # Migraciones cache (mantén la carpeta, excluye cachés)
 migrations/*.log
 
-# Otros
+# Test y outputs
 *.log
+
+test_output*.txt
+migration_error.txt
+
+# Configuración de IDEs
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Base de datos y entorno local (según tu README usas instance)
+instance/
+.env
