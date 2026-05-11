@@ -1,0 +1,20 @@
+# Normalización de terminadores de línea.
+# Evita que Windows/PyCharm marquen el repo entero como "modified" por CRLF↔LF.
+* text=auto eol=lf
+
+# Binarios explícitos (no normalizar)
+*.db binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.xlsx binary
+*.docx binary
+*.pptx binary
+
+# Scripts de Windows mantienen CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf

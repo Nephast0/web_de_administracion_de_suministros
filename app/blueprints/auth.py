@@ -76,7 +76,13 @@ def registro():
     # Verifica si el formulario se envió correctamente
     app.logger.debug("Método de solicitud: %s", request.method)
     if request.method == "POST":
-        app.logger.debug("Datos enviados en el formulario: %s", request.form)
+        # Se omiten campos sensibles para no filtrar credenciales a los logs.
+        _sensitive_fields = {"contrasenya", "contrasena", "password", "csrf_token"}
+        safe_form = {
+            k: ("[omitted]" if k.lower() in _sensitive_fields else v)
+            for k, v in request.form.items()
+        }
+        app.logger.debug("Datos enviados en el formulario: %s", safe_form)
 
     if form.validate_on_submit():
         app.logger.debug("El formulario pasó las validaciones.")

@@ -1,5 +1,33 @@
 # Estado actualizado del proyecto
 
+## Revisión 2026-05-11 (Auditoría + correcciones de higiene)
+
+### Contexto
+Tras cinco meses sin actualización en este documento se hizo una auditoría completa. Detalle en `AUDITORIA_2026-05-11.md`. El código de aplicación está sano y consistente con la revisión de 12-dic-2025 (hardening OWASP). Los problemas principales eran de higiene de repositorio.
+
+### Cambios aplicados en esta revisión
+- **`.gitattributes` añadido** con `* text=auto eol=lf` para evitar que el repo entero se marque como modificado por diferencias CRLF↔LF. Binarios y scripts de Windows tratados explícitamente.
+- **`auth.registro` ya no loguea contraseñas.** El log de `request.form` ahora pasa por un filtro que omite `contrasenya`, `contrasena`, `password` y `csrf_token`, alineándose con el patrón ya usado en `auth.login`.
+
+### Estado del repositorio (pendientes externos a este commit)
+- La rama local estaba **3 commits por detrás** de `origin/main`. Esos commits remotos (`e06ca85`, `f437f47`, `c9705bf`) ya eliminan `test_output*.txt`, `migration_error.txt`, `.idea/*` y actualizan `.gitignore`. **Se recomienda hacer fast-forward antes del próximo desarrollo.**
+- 47 archivos aparecían como `modified` por terminadores de línea (CRLF↔LF). El nuevo `.gitattributes` cubre el caso a futuro; falta una renormalización única (ver script `scripts/normalize-git.ps1` o ejecutar `git add --renormalize .` tras el pull).
+
+### Hallazgos secundarios (no aplicados, requieren decisión)
+- `verify_enhancements.py` muestra 4 fallos antiguos (`302 != 200`, "event unexpectedly None"). El snapshot es de 22-nov-2025 y el fixture cliente parece haber perdido sesión. Falta re-correr en el entorno actual y, o bien arreglar el fixture, o retirar el script si la suite de `unittest` ya cubre los escenarios.
+- Rate-limit de login en memoria (`auth._LOGIN_ATTEMPTS`) no escala a multi-worker — pendiente migrar a Flask-Limiter + Redis cuando se planifique despliegue real.
+- Tailwind sigue cargándose por CDN; queda como deuda el build con npm + purgado para eliminar `'unsafe-inline'` de CSP.
+
+### Pruebas ejecutadas
+- `python -m unittest discover tests` → recolecta los 32 tests; ejecución completa pendiente en el entorno Windows del usuario (el sandbox Linux marca 7 errores por `PermissionError` en `instance/`, no son fallos de código).
+
+### Próximos pasos (orden sugerido)
+1. Ejecutar `scripts/normalize-git.ps1` (incluido en este commit) para traer los 3 commits remotos y normalizar terminadores.
+2. Re-correr `verify_enhancements.py` y decidir su futuro.
+3. Backlog: Flask-Limiter, Tailwind compilado, cierre de ejercicio contable, persistencia DB del histórico de caché.
+
+---
+
 ## Revision 2025-12-12 (Hardening OWASP)
 
 ### Cambios clave
