@@ -1,5 +1,38 @@
 # Estado actualizado del proyecto
 
+## Revisión 2026-05-11 (Cierre de auditoría — repo al día, siguiente fase: visual)
+
+### Estado actual
+- **Rama `main` al día con `origin/main`** en `2e5a58a` (push hecho el 2026-05-11). No hay commits locales sin publicar ni remotos sin integrar.
+- **Working tree limpio.** Los artefactos temporales versionados (`test_output*.txt`, `migration_error.txt`) ya no están en el árbol — los eliminó `e06ca85` al integrarlo. `.gitignore` ya los cubre a futuro.
+- **Suite de tests**: `python -m unittest discover tests` → **32 OK** en 10.9 s (entorno local Windows, venv del proyecto).
+- **Dev server verificado**: `FLASK_ENV=development venv\Scripts\python.exe run.py` arranca en `http://127.0.0.1:5000`, plan de cuentas inicializado, `GET /` → 200. Configuración guardada en `.claude/launch.json` para `preview_start`.
+
+### Cambios ejecutados en la sesión 2026-05-11
+1. **Commit `2e5a58a`** — auditoría + higiene de repo (ver detalle abajo).
+2. **`git pull --rebase origin main`** — integrados los 3 commits remotos (`e06ca85`, `f437f47`, `c9705bf`) que limpian temporales y actualizan `.gitignore`.
+3. **`git push origin main`** — local y remoto sincronizados.
+4. **Suite de tests** corrida en el entorno local: 32 OK.
+5. **Dev server** verificado vía `preview_start`.
+
+### Próxima fase (acordada con el usuario): trabajo visual
+La parte de aplicación está sana y desbloqueada. La próxima sesión entra en **modificación de la parte visual** (templates Jinja + Tailwind). Pendientes visuales heredados que conviene resolver en esta fase:
+
+- **Refactor `graficas.html` admin** — usar colores semánticos dinámicos en Chart.js, igual que el panel cliente.
+- **Compilar Tailwind con npm + purgado** — sustituye el CDN y permite eliminar `'unsafe-inline'` de la CSP. Mejora seguridad real y velocidad de carga.
+- **Auditoría de consistencia visual** — los componentes "Elegant Dark" (`glass-panel`, `form-input`, `btn-elegant`, `glass-table`) viven inline en templates, sin tokens centralizados. Candidato a formalizar como mini design system documentado.
+- **Limpieza de referencias a CSS obsoletos** — verificar que ningún template apunta a `main.css` o `partials/back.css` (no existe ya la carpeta `app/static/`).
+- **Revisión cross-template** — coherencia de navbar, anchos, snackbars, alertas, estados vacíos en todas las vistas admin y cliente.
+
+### Backlog técnico (en segundo plano hasta que avance la fase visual)
+- `verify_enhancements.py` — 4 fallos antiguos de fixture; decidir entre arreglar o eliminar si la suite oficial cubre.
+- Flask-Limiter + Redis para rate-limit multi-worker (sólo si planifica despliegue real).
+- Cierre de ejercicio fiscal en contabilidad (reset de cuentas temporales).
+- Persistir histórico de caché en DB con vista paginada (parcialmente hecho con `CacheEvent`).
+- UAT funcional de contabilidad y exports con volumen real.
+
+---
+
 ## Revisión 2026-05-11 (Auditoría + correcciones de higiene)
 
 ### Contexto
