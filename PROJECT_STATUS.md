@@ -1,5 +1,53 @@
 # Estado actualizado del proyecto
 
+## Revisión 2026-05-13 (madrugada) — Rediseño de navegación (sidebar) + fix seguridad back-button
+
+### Cambios
+
+#### Nueva estructura de navegación
+**Antes**: navbar horizontal sticky, una lista plana de links sin jerarquía. Mostrada también en login/registro (sin sentido).
+**Ahora**: layout app `sidebar lateral fijo (240px) + topbar minimal (h-14)`, con secciones agrupadas por dominio y diferenciación por rol.
+
+- **Admin sidebar** agrupa por dominio: Operaciones (Inicio/Inventario/Proveedores/Nuevo producto) · Contabilidad (Diario/Balance/Resultados/Nuevo asiento) · Análisis (Gráficas) · Sistema (Actividades).
+- **Cliente sidebar** plano y orientado a compra: Comprar (Inicio/Catálogo/Cesta) · Mis pedidos · Análisis personal.
+- **Estado activo**: cada item se compara con `request.endpoint` y se resalta con `bg-primary-500/15 + border-primary-500/30`.
+- **Mobile**: sidebar colapsa a drawer overlay con backdrop, toggle desde topbar; cierra automáticamente al hacer click en cualquier link.
+- **Footer del sidebar**: tarjeta de perfil (account_circle + nombre + rol) + botón "Cerrar sesión" en estilo destructivo discreto.
+
+#### Layout de auth separado (`base_auth.html`)
+Las pantallas anónimas (login, registro) ya no extienden `base.html` (con sidebar) sino el nuevo **`base_auth.html`** — viewport-centered, sin chrome, footer mínimo. Razón: el layout es estructuralmente distinto, condicionar todo en `base.html` con `{% if current_user.is_authenticated %}` produce templates frágiles.
+
+#### Fix de seguridad: back-button post-logout
+**Bug**: tras `Cerrar sesión`, pulsar "atrás" en el navegador mostraba la última página privada cacheada (datos sensibles visibles aunque la sesión ya estuviera invalidada).
+
+**Solución (server-side, no JS)**: en `app/__init__.py::apply_security_headers`, para cualquier respuesta dinámica autenticada (no `/static/*`):
+```
+Cache-Control: no-store, no-cache, must-revalidate, private, max-age=0
+Pragma: no-cache
+Expires: 0
+```
+- **`/static/*` exento**: assets públicos sin datos privados; cachearlos acelera mucho.
+- **Páginas anónimas exentas**: caché normal del navegador para login/registro.
+
+**Verificación**: 2 tests de regresión nuevos (`CacheHeadersTest`):
+- Página autenticada bloquea caché (`no-store` + `private`).
+- Página anónima NO fuerza `no-store`.
+
+**Reproducción manual**: login admin → `/contabilidad/balance` → logout → `history.back()` → permanece en `/login`. El navegador hace una nueva request al server (no caché), el server no tiene sesión, redirige a /login. ✅
+
+### Métricas
+- **36/36 tests OK** (34 anteriores + 2 nuevos de cache).
+- **63 endpoints Flask** (sin cambio).
+- `base.html` reescrito desde cero: ~245 líneas (vs. ~175 antes; el incremento es por el sidebar + macros de nav).
+- `base_auth.html` nuevo: ~85 líneas.
+- 2 templates migrados (`index.html`, `registro.html`) → `extends "base_auth.html"`.
+
+### Pendientes
+- Integrar `inventario.exportar_productos` y enlaces de exportación en el sidebar (actualmente solo accesibles desde botones inline en las tablas).
+- Considerar un mini "command palette" ⌘K en próxima iteración como capa encima del sidebar.
+
+---
+
 ## Revisión 2026-05-12 (noche-tarde) — Auditoría arquitectónica backend (ADR-001)
 
 ### Contexto

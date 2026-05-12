@@ -987,5 +987,54 @@ class ContabilidadRenderTest(BaseTestCase):
         self.assertIn('aria-label="Volver"', body)
 
 
+class CacheHeadersTest(BaseTestCase):
+    """Regresión del fix de back-button post-logout.
+
+    Sin estos headers, el navegador podía servir desde caché la última página
+    autenticada al pulsar "atrás" tras logout, exponiendo datos privados.
+    Estos tests bloquean cualquier cambio futuro que rompa la política.
+    """
+
+    def _crear_y_loguear_admin(self):
+        with self.app.app_context():
+            admin = Usuario(
+                nombre="Admin Cache",
+                usuario="admin_cache",
+                direccion="Oficina",
+                contrasenya="Segura123!",
+                rol="admin",
+                fecha_registro=datetime(2024, 1, 1),
+            )
+            db.session.add(admin)
+            db.session.commit()
+            admin_id = admin.id
+        with self.client.session_transaction() as session:
+            session["_user_id"] = admin_id
+            session["_fresh"] = True
+
+    def test_pagina_autenticada_bloquea_cache(self):
+        """Una página dinámica servida a un usuario autenticado debe
+        marcarse Cache-Control: no-store para que el back-button del navegador
+        no la muestre tras logout."""
+        self._crear_y_loguear_admin()
+        resp = self.client.get("/menu_principal")
+        self.assertEqual(resp.status_code, 200)
+        cc = resp.headers.get("Cache-Control", "")
+        self.assertIn("no-store", cc)
+        self.assertIn("no-cache", cc)
+        self.assertIn("private", cc)
+        self.assertEqual(resp.headers.get("Pragma"), "no-cache")
+        self.assertEqual(resp.headers.get("Expires"), "0")
+
+    def test_pagina_anonima_no_fuerza_no_store(self):
+        """Páginas públicas (login) no deben forzar no-store; el navegador
+        puede cachearlas con su política normal."""
+        resp = self.client.get("/login")
+        self.assertEqual(resp.status_code, 200)
+        cc = resp.headers.get("Cache-Control", "")
+        # Acepta vacío o cualquier política que NO sea no-store agresivo.
+        self.assertNotIn("no-store", cc.lower())
+
+
 if __name__ == "__main__":
     unittest.main()

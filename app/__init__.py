@@ -14,7 +14,8 @@ from decimal import Decimal, InvalidOperation
 
 from babel.core import UnknownLocaleError
 from babel.numbers import format_currency as babel_currency, get_currency_symbol
-from flask import Flask, current_app, g, session
+from flask import Flask, current_app, g, request, session
+from flask_login import current_user
 
 from .db import db
 from .extensions import csrf, login_manager, bcrypt
@@ -264,7 +265,16 @@ def create_app():
 
     @app.after_request
     def apply_security_headers(response):
-        """Añade cabeceras de seguridad básicas y HSTS (cuando aplica)."""
+        """Añade cabeceras de seguridad básicas, HSTS y anti-caché para sesiones autenticadas.
+
+        Anti-caché del back-button (fix 2026-05-12):
+            Tras logout, el navegador podía mostrar la última página privada cacheada
+            si el usuario pulsaba "atrás". Causa: las páginas autenticadas se cacheaban
+            con la política por defecto. Solución: para CUALQUIER respuesta dinámica
+            servida a un usuario autenticado, forzamos `Cache-Control: no-store ...`.
+            Excluimos `/static/*` (assets públicos sin datos privados — su caché larga
+            es deseable para rendimiento).
+        """
 
         csp_template = app.config.get("CONTENT_SECURITY_POLICY_TEMPLATE")
         if csp_template:
@@ -275,6 +285,19 @@ def create_app():
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
         if app.config.get("PREFERRED_URL_SCHEME") == "https":
             response.headers.setdefault("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+
+        # Anti-caché para páginas autenticadas (no para /static/*).
+        # `current_user` puede no estar disponible en algunos puntos del lifecycle
+        # (errores tempranos); por eso lo envolvemos defensivamente.
+        is_static = request.endpoint == "static"
+        try:
+            authenticated = current_user.is_authenticated
+        except Exception:
+            authenticated = False
+        if not is_static and authenticated:
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
         return response
 
     # Se retorna la instancia correctamente (el código anterior estaba
