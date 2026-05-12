@@ -2,12 +2,12 @@
 {% block title %}Balance de Situación{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-6 px-4 pb-12">
+<div class="container mx-auto my-6 px-4 pb-12">
     <!-- Header -->
     <div
         class="glass-panel p-6 mb-8 animate-fade-in flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl shadow-primary-900/5">
         <div class="flex items-center gap-4">
-            <a href="{{ url_for('menu.menu_principal') }}"
+            <a href="{{ url_for('inventario.menu_principal') }}"
                 class="flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
                 aria-label="Volver">
                 <span class="material-symbols-outlined">arrow_back</span>
@@ -20,11 +20,11 @@
         <div class="flex gap-3">
             <a href="{{ url_for('contabilidad.exportar_balance') }}"
                 class="btn-elegant btn-secondary flex items-center gap-2 hover:bg-canvas-700">
-                <span class="material-symbols-outlined text-lg">download</span> Exportar CSV
+                <span class="material-symbols-outlined text-xl">download</span> Exportar CSV
             </a>
             <a href="{{ url_for('contabilidad.diario') }}"
                 class="btn-elegant btn-primary flex items-center gap-2 bg-primary-600 hover:bg-primary-500 shadow-primary-500/20">
-                <span class="material-symbols-outlined text-lg">book</span> Ver Diario
+                <span class="material-symbols-outlined text-xl">book</span> Ver Diario
             </a>
         </div>
     </div>
@@ -32,10 +32,9 @@
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         {% for tipo, total in totales.items() %}
-        <div class="glass-panel p-4 flex flex-col items-center justify-center text-center animate-fade-in shadow-lg shadow-primary-900/5"
-            style="animation-delay: {{ loop.index0 * 100 }}ms">
+        <div class="glass-panel p-4 flex flex-col items-center justify-center text-center animate-fade-in shadow-lg shadow-primary-900/5 animation-delay-{{ loop.index0 * 100 }}">
             <h3 class="text-xs uppercase tracking-widest text-canvas-400 mb-2 font-bold">{{ tipo }}</h3>
-            <p class="text-xl font-mono font-bold {% if total < 0 %}text-red-400{% else %}text-emerald-400{% endif %}">
+            <p class="text-xl font-mono font-bold {% if total < 0 %}text-danger-400{% else %}text-success-400{% endif %}">
                 {{ "%.2f"|format(total) }} €
             </p>
         </div>
@@ -66,7 +65,7 @@
                             </span>
                         </td>
                         <td
-                            class="px-6 py-3 text-right font-mono {% if saldos[cuenta.id] < 0 %}text-red-400{% else %}text-emerald-400{% endif %}">
+                            class="px-6 py-3 text-right font-mono {% if saldos[cuenta.id] < 0 %}text-danger-400{% else %}text-success-400{% endif %}">
                             {{ "%.2f"|format(saldos[cuenta.id]) }} €
                         </td>
                     </tr>
@@ -82,5 +81,5 @@
             </table>
         </div>
     </div>
-</main>
+</div>
 {% endblock %}

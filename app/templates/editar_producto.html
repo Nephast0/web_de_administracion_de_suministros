@@ -2,13 +2,13 @@
 {% block title %}Editar producto{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-8 px-4 flex justify-center pb-12">
+<div class="container mx-auto my-6 px-4 pb-12 flex justify-center">
     <div class="glass-panel w-full max-w-4xl p-8 relative animate-fade-in shadow-2xl shadow-primary-900/10">
         <!-- Back Button -->
         <a href="{{ url_for('inventario.productos') }}"
             class="absolute top-8 left-8 flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
             aria-label="Volver">
-            <span class="material-symbols-outlined text-lg">arrow_back</span>
+            <span class="material-symbols-outlined text-xl">arrow_back</span>
         </a>
 
         <div class="text-center mb-8 mt-4">
@@ -50,7 +50,7 @@
             <!-- Stock and Pricing -->
             <div class="bg-canvas-900/40 border border-canvas-700/50 rounded-xl p-6">
                 <h3
-                    class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-4 border-b border-canvas-700/50 pb-2">
+                    class="text-sm font-bold text-warning-400 uppercase tracking-wider mb-4 border-b border-canvas-700/50 pb-2">
                     Inventario y Precios</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-2">
@@ -85,5 +85,5 @@
             </div>
         </form>
     </div>
-</main>
+</div>
 {% endblock %}

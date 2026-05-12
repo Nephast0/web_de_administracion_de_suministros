@@ -2,13 +2,13 @@
 {% block title %}Agregar producto{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-8 px-4 flex justify-center pb-12">
+<div class="container mx-auto my-6 px-4 pb-12 flex justify-center">
     <div class="glass-panel w-full max-w-4xl p-8 relative animate-fade-in shadow-2xl shadow-primary-900/10">
         <!-- Back Button -->
         <a href="{{ url_for('inventario.productos') }}"
             class="absolute top-8 left-8 flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
             aria-label="Volver">
-            <span class="material-symbols-outlined text-lg">arrow_back</span>
+            <span class="material-symbols-outlined text-xl">arrow_back</span>
         </a>
 
         <div class="text-center mb-8 mt-4">
@@ -49,7 +49,7 @@
             <!-- Producto Info -->
             <div class="bg-canvas-900/40 border border-canvas-700/50 rounded-xl p-6">
                 <h3
-                    class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-4 border-b border-canvas-700/50 pb-2">
+                    class="text-sm font-bold text-warning-400 uppercase tracking-wider mb-4 border-b border-canvas-700/50 pb-2">
                     Datos del Artículo</h3>
 
                 <div class="space-y-4">
@@ -124,7 +124,7 @@
                             Referencia</label>
                         <div class="relative">
                             <span
-                                class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500 text-[20px]">qr_code_2</span>
+                                class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500 text-xl">qr_code_2</span>
                             <input autocomplete="off" type="text" id="num_referencia" name="num_referencia"
                                 class="form-input pl-10 focus:border-primary-500 focus:ring-primary-500"
                                 placeholder="REF-0000" required>
@@ -142,11 +142,11 @@
             </div>
         </form>
     </div>
-</main>
+</div>
 {% endblock %}
 
 {% block page_scripts %}
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function () {
         const proveedorSelect = document.getElementById('proveedor');
         const tiposProductoSelect = document.getElementById('tipo_producto');
@@ -175,13 +175,13 @@
         });
     });
 </script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.getElementById("proveedor").addEventListener("change", function () {
         document.getElementById("marca").innerHTML = '<option value="" disabled selected>Seleccione la Marca</option>';
         document.getElementById("modelo").innerHTML = '<option value="" disabled selected>Seleccione el Modelo</option>';
     });
 </script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.getElementById('tipo_producto').addEventListener('change', function () {
         var tipoProducto = this.options[this.selectedIndex].text;
         fetch(`/get_marcas?tipo_producto=${encodeURIComponent(tipoProducto)}`)
@@ -202,7 +202,7 @@
             });
     });
 </script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function () {
         const tipoProductoSelect = document.getElementById('tipo_producto');
         const marcaSelect = document.getElementById('marca');

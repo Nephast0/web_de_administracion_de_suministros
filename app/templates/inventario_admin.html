@@ -2,7 +2,7 @@
 {% block title %}Productos (Admin){% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-6 px-4 pb-12">
+<div class="container mx-auto my-6 px-4 pb-12">
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
         <div class="flex items-center gap-4">
@@ -17,7 +17,7 @@
             </h1>
         </div>
         <a href="/agregar-producto"
-            class="btn-elegant btn-primary flex items-center gap-2 text-decoration-none bg-primary-600 hover:bg-primary-500 text-white border-none shadow-lg shadow-primary-500/20">
+            class="btn-elegant btn-primary flex items-center gap-2 no-underline bg-primary-600 hover:bg-primary-500 text-white border-none shadow-lg shadow-primary-500/20">
             <span class="material-symbols-outlined">add_circle</span>
             Agregar Producto
         </a>
@@ -128,11 +128,11 @@
     <!-- Alerts -->
     {% if alertas %}
     <div
-        class="glass-panel bg-amber-900/20 border-amber-500/30 p-4 mb-8 flex items-start gap-3 animate-fade-in shadow-lg shadow-amber-900/5">
-        <span class="material-symbols-outlined text-amber-400">warning</span>
+        class="glass-panel bg-warning-900/20 border-warning-500/30 p-4 mb-8 flex items-start gap-3 animate-fade-in shadow-lg shadow-warning-900/5">
+        <span class="material-symbols-outlined text-warning-400">warning</span>
         <div>
-            <h4 class="text-amber-200 font-bold mb-2">Atención Requerida (Stock Bajo):</h4>
-            <ul class="list-disc list-inside text-amber-100/80 text-sm space-y-1">
+            <h4 class="text-warning-200 font-bold mb-2">Atención Requerida (Stock Bajo):</h4>
+            <ul class="list-disc list-inside text-warning-100/80 text-sm space-y-1">
                 {% for producto in alertas %}
                 <li>
                     <strong>{{ producto.tipo_producto }} {{ producto.marca }} {{ producto.modelo }}</strong>
@@ -145,8 +145,7 @@
     {% endif %}
 
     <!-- Table -->
-    <div class="glass-panel p-1 overflow-hidden animate-fade-in shadow-xl shadow-canvas-900/5"
-        style="animation-delay: 100ms">
+    <div class="glass-panel p-1 overflow-hidden animate-fade-in shadow-xl shadow-canvas-900/5 animation-delay-100">
         <div class="overflow-x-auto rounded-lg">
             <table class="glass-table w-full text-sm text-left text-canvas-300">
                 <thead class="text-xs text-canvas-400 uppercase bg-canvas-900/80 font-heading tracking-wider">
@@ -167,15 +166,15 @@
                         <td class="px-6 py-4 font-medium text-canvas-200">{{ producto.marca }}</td>
                         <td class="px-6 py-4 font-bold text-canvas-100">{{ producto.modelo }}</td>
                         <td class="px-6 py-4 text-canvas-400 truncate max-w-xs">{{ producto.descripcion }}</td>
-                        <td class="px-6 py-4 text-right font-mono text-emerald-400 font-bold">
+                        <td class="px-6 py-4 text-right font-mono text-success-400 font-bold">
                             {{ producto.precio | currency }}
                         </td>
                         <td class="px-6 py-4 text-center">
                             {% if producto.cantidad == 0 %}
                             <span
-                                class="bg-red-500/20 text-red-400 px-2 py-1 rounded text-xs border border-red-500/30">Agotado</span>
+                                class="bg-danger-500/20 text-danger-400 px-2 py-1 rounded text-xs border border-danger-500/30">Agotado</span>
                             {% elif producto.cantidad < 5 %} <span
-                                class="bg-amber-500/20 text-amber-400 px-2 py-1 rounded text-xs border border-amber-500/30">
+                                class="bg-warning-500/20 text-warning-400 px-2 py-1 rounded text-xs border border-warning-500/30">
                                 {{ producto.cantidad }}</span>
                                 {% else %}
                                 <span
@@ -192,10 +191,12 @@
                                 </a>
                                 <form action="{{ url_for('proveedores.eliminar_producto', id=producto.id) }}"
                                     method="post"
-                                    onsubmit="return confirm('¿Está seguro de eliminar este producto? Esta acción no se puede deshacer.');">
+                                    data-confirm="¿Está seguro de eliminar este producto? Esta acción no se puede deshacer."
+                                    data-confirm-title="Eliminar producto" data-confirm-text="Eliminar"
+                                    data-confirm-variant="danger">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit"
-                                        class="p-2 rounded hover:bg-red-900/30 text-canvas-400 hover:text-red-400 transition-colors"
+                                        class="p-2 rounded hover:bg-danger-900/30 text-canvas-400 hover:text-danger-400 transition-colors"
                                         title="Eliminar">
                                         <span class="material-symbols-outlined text-base">delete</span>
                                     </button>
@@ -225,25 +226,25 @@
             </span>
             <div class="flex gap-2">
                 {% if pagination.has_prev %}
-                <a class="btn-elegant btn-secondary py-1 px-3 text-xs flex items-center gap-1 text-decoration-none hover:bg-canvas-700 hover:text-white"
+                <a class="btn-elegant btn-secondary py-1 px-3 text-xs flex items-center gap-1 no-underline hover:bg-canvas-700 hover:text-white"
                     href="{{ url_for('inventario.productos', page=pagination.prev_num, **filtros) }}">
-                    <span class="material-symbols-outlined text-sm">arrow_back</span> Prev
+                    <span class="material-symbols-outlined text-base">arrow_back</span> Prev
                 </a>
                 {% endif %}
 
                 {% if pagination.has_next %}
-                <a class="btn-elegant btn-secondary py-1 px-3 text-xs flex items-center gap-1 text-decoration-none hover:bg-canvas-700 hover:text-white"
+                <a class="btn-elegant btn-secondary py-1 px-3 text-xs flex items-center gap-1 no-underline hover:bg-canvas-700 hover:text-white"
                     href="{{ url_for('inventario.productos', page=pagination.next_num, **filtros) }}">
-                    Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    Next <span class="material-symbols-outlined text-base">arrow_forward</span>
                 </a>
                 {% endif %}
             </div>
         </div>
 
-        <a class="btn-elegant btn-secondary flex items-center gap-2 text-decoration-none hover:bg-primary-900/30 hover:text-primary-300 border-canvas-600"
+        <a class="btn-elegant btn-secondary flex items-center gap-2 no-underline hover:bg-primary-900/30 hover:text-primary-300 border-canvas-600"
             href="{{ url_for('inventario.exportar_productos', **filtros) }}">
             <span class="material-symbols-outlined">download</span> Exportar CSV
         </a>
     </div>
-</main>
+</div>
 {% endblock %}

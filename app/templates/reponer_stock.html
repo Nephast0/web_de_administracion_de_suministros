@@ -2,13 +2,13 @@
 {% block title %}Reponer Stock{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-8 px-4 flex justify-center pb-12">
+<div class="container mx-auto my-6 px-4 pb-12 flex justify-center">
     <div class="glass-panel w-full max-w-2xl p-8 relative animate-fade-in">
         <!-- Back Button -->
         <a href="{{ url_for('inventario.productos') }}"
             class="absolute top-8 left-8 flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
             aria-label="Volver">
-            <span class="material-symbols-outlined text-lg">arrow_back</span>
+            <span class="material-symbols-outlined text-xl">arrow_back</span>
         </a>
 
         <div class="text-center mb-8 mt-4">
@@ -28,7 +28,7 @@
             </div>
             <div class="text-center w-1/2">
                 <span class="block text-xs text-canvas-400 uppercase tracking-wider mb-1">Coste PMP</span>
-                <span class="text-2xl font-bold text-emerald-400">{{ producto.costo | currency }}</span>
+                <span class="text-2xl font-bold text-success-400">{{ producto.costo | currency }}</span>
             </div>
         </div>
 
@@ -39,7 +39,7 @@
                 <label for="cantidad" class="block text-sm font-medium text-canvas-300">Cantidad a Añadir</label>
                 <div class="relative">
                     <span
-                        class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500 text-[20px]">add_circle</span>
+                        class="material-symbols-outlined absolute left-3 top-2.5 text-canvas-500 text-xl">add_circle</span>
                     <input type="number" name="cantidad" id="cantidad" required min="1" class="form-input pl-10"
                         placeholder="0">
                 </div>
@@ -67,5 +67,5 @@
             </div>
         </form>
     </div>
-</main>
+</div>
 {% endblock %}

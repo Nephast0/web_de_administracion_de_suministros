@@ -37,3 +37,6 @@ __pycache__/
 # Base de datos y entorno local (según tu README usas instance)
 instance/
 .env
+
+# Node / Tailwind build
+node_modules/

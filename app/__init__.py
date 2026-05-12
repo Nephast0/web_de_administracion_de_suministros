@@ -8,12 +8,13 @@ revisiones.
 
 import logging
 import os
+import secrets
 from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
 from babel.core import UnknownLocaleError
 from babel.numbers import format_currency as babel_currency, get_currency_symbol
-from flask import Flask, current_app, session
+from flask import Flask, current_app, g, session
 
 from .db import db
 from .extensions import csrf, login_manager, bcrypt
@@ -162,11 +163,24 @@ def create_app():
     app.config.setdefault("CURRENCY_CODE", _DEFAULT_CURRENCY_CODE)
     app.config.setdefault("CURRENCY_LOCALE", _DEFAULT_CURRENCY_LOCALE)
     app.config.setdefault("CURRENCY_SYMBOL", _DEFAULT_CURRENCY_SYMBOL)
-    # Política CSP por defecto compatible con Tailwind CDN y Google Fonts; se puede
-    # sobreescribir vía CONTENT_SECURITY_POLICY en entorno.
-    default_csp = (
+    # Política CSP. El placeholder {nonce} se sustituye en after_request por un
+    # nonce aleatorio per-request. Permite incluir <script nonce="..."> inline
+    # sin necesidad de 'unsafe-inline' en script-src.
+    #
+    # script-src:
+    #   - 'self'                       : archivos en /static/js/*
+    #   - https://cdn.jsdelivr.net     : Chart.js (graficas.html, graficas-cliente.html)
+    #   - 'nonce-{nonce}'              : scripts inline marcados con el nonce de la request
+    #
+    # style-src:
+    #   - 'self'                          : tailwind.css compilado, futuros .css
+    #   - https://fonts.googleapis.com    : Google Fonts CSS
+    #   - 'unsafe-inline'                 : style.X = "Y" dinámico via JS de gráficas
+    #                                       (Chart.js inyecta estilos); mantenerlo
+    #                                       hasta migrar Chart.js a un wrapper propio.
+    default_csp_template = (
         "default-src 'self'; "
-        "script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; "
+        "script-src 'self' https://cdn.jsdelivr.net 'nonce-{nonce}'; "
         "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "
         "img-src 'self' data:; "
         "font-src 'self' https://fonts.gstatic.com data:; "
@@ -175,7 +189,12 @@ def create_app():
         "base-uri 'self'; "
         "form-action 'self'"
     )
-    app.config.setdefault("CONTENT_SECURITY_POLICY", os.getenv("CONTENT_SECURITY_POLICY", default_csp))
+    # Si el operador define CONTENT_SECURITY_POLICY en el entorno usa esa cadena
+    # literal (sin sustitución de nonce); útil para builds en modo reporting.
+    app.config.setdefault(
+        "CONTENT_SECURITY_POLICY_TEMPLATE",
+        os.getenv("CONTENT_SECURITY_POLICY", default_csp_template),
+    )
 
     # Inicializar extensiones con la app actual.
     db.init_app(app)
@@ -210,6 +229,17 @@ def create_app():
 
     app.before_request(_ensure_plan_cuentas)
 
+    @app.before_request
+    def _generate_csp_nonce():
+        """Crea un nonce criptográficamente aleatorio por cada request.
+
+        Se expone al template como `csp_nonce()` (ver context_processor) y se
+        inyecta en el header Content-Security-Policy via after_request. Cada
+        `<script nonce="{{ csp_nonce() }}">` inline necesita usar este valor
+        para no ser bloqueado por la CSP estricta.
+        """
+        g.csp_nonce = secrets.token_urlsafe(16)
+
     # Registrar modelos y blueprints dentro del contexto para evitar imports
     # circulares y mantener la inicialización documentada.
     with app.app_context():
@@ -227,12 +257,18 @@ def create_app():
             "currency_code": config["code"],
         }
 
+    @app.context_processor
+    def inject_csp_nonce():
+        """Expone el nonce CSP al template como `csp_nonce()` (callable)."""
+        return {"csp_nonce": lambda: getattr(g, "csp_nonce", "")}
+
     @app.after_request
     def apply_security_headers(response):
         """Añade cabeceras de seguridad básicas y HSTS (cuando aplica)."""
 
-        csp = app.config.get("CONTENT_SECURITY_POLICY")
-        if csp:
+        csp_template = app.config.get("CONTENT_SECURITY_POLICY_TEMPLATE")
+        if csp_template:
+            csp = csp_template.replace("{nonce}", getattr(g, "csp_nonce", ""))
             response.headers.setdefault("Content-Security-Policy", csp)
         response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
         response.headers.setdefault("X-Content-Type-Options", "nosniff")

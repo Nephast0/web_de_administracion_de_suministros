@@ -1,0 +1,13 @@
+{
+  "name": "suministros-cncv-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frontend build pipeline (Tailwind CSS) para la app Flask de Suministros CNCV.",
+  "scripts": {
+    "build:css": "tailwindcss -i ./app/static/css/input.css -o ./app/static/css/tailwind.css --minify",
+    "dev:css": "tailwindcss -i ./app/static/css/input.css -o ./app/static/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.10"
+  }
+}

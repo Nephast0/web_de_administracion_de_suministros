@@ -937,5 +937,55 @@ class PerfilClienteTest(BaseTestCase):
             self.assertEqual(cliente.direccion, "Nueva Direccion")
 
 
+class ContabilidadRenderTest(BaseTestCase):
+    """Smoke tests para vistas de contabilidad que se renderizan completamente.
+
+    Existen porque hubo BuildError silenciosos (url_for('menu.menu_principal')
+    tras renombrar el blueprint a 'inventario') que el resto de la suite no
+    detectaba: ningún test hacía GET autenticado sobre estas dos URLs. Si
+    cualquier futura referencia url_for(...) queda colgada, estos tests fallan.
+    """
+
+    def _crear_admin(self):
+        admin = Usuario(
+            nombre="Admin Contab",
+            usuario="admin_contab",
+            direccion="Oficina",
+            contrasenya="Segura123!",
+            rol="admin",
+            fecha_registro=datetime(2024, 1, 1),
+        )
+        db.session.add(admin)
+        db.session.commit()
+        return admin
+
+    def _login_admin(self):
+        with self.app.app_context():
+            admin = self._crear_admin()
+            admin_id = admin.id
+            inicializar_plan_cuentas()
+        with self.client.session_transaction() as session:
+            session["_user_id"] = admin_id
+            session["_fresh"] = True
+
+    def test_balance_renderiza_sin_buildError(self):
+        self._login_admin()
+        resp = self.client.get("/contabilidad/balance")
+        self.assertEqual(resp.status_code, 200, resp.data[:500].decode("utf-8", errors="ignore"))
+        body = resp.data.decode("utf-8")
+        # La vista debe haber resuelto el url_for('inventario.menu_principal') correctamente.
+        self.assertIn("/menu_principal", body)
+        # Debe tener el botón Volver con su aria-label.
+        self.assertIn('aria-label="Volver"', body)
+
+    def test_diario_renderiza_sin_buildError(self):
+        self._login_admin()
+        resp = self.client.get("/contabilidad/diario")
+        self.assertEqual(resp.status_code, 200, resp.data[:500].decode("utf-8", errors="ignore"))
+        body = resp.data.decode("utf-8")
+        self.assertIn("/menu_principal", body)
+        self.assertIn('aria-label="Volver"', body)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -5,169 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Suministros{% endblock %} - CNCV</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        // Semantic Colors (Mapped to CSS Variables)
-                        primary: {
-                            50: 'rgb(var(--color-primary-50) / <alpha-value>)',
-                            100: 'rgb(var(--color-primary-100) / <alpha-value>)',
-                            200: 'rgb(var(--color-primary-200) / <alpha-value>)',
-                            300: 'rgb(var(--color-primary-300) / <alpha-value>)',
-                            400: 'rgb(var(--color-primary-400) / <alpha-value>)',
-                            500: 'rgb(var(--color-primary-500) / <alpha-value>)',
-                            600: 'rgb(var(--color-primary-600) / <alpha-value>)',
-                            700: 'rgb(var(--color-primary-700) / <alpha-value>)',
-                            800: 'rgb(var(--color-primary-800) / <alpha-value>)',
-                            900: 'rgb(var(--color-primary-900) / <alpha-value>)',
-                            950: 'rgb(var(--color-primary-950) / <alpha-value>)',
-                        },
-                        canvas: {
-                            50: 'rgb(var(--color-canvas-50) / <alpha-value>)',
-                            100: 'rgb(var(--color-canvas-100) / <alpha-value>)',
-                            200: 'rgb(var(--color-canvas-200) / <alpha-value>)',
-                            300: 'rgb(var(--color-canvas-300) / <alpha-value>)',
-                            400: 'rgb(var(--color-canvas-400) / <alpha-value>)',
-                            500: 'rgb(var(--color-canvas-500) / <alpha-value>)',
-                            600: 'rgb(var(--color-canvas-600) / <alpha-value>)',
-                            700: 'rgb(var(--color-canvas-700) / <alpha-value>)',
-                            800: 'rgb(var(--color-canvas-800) / <alpha-value>)',
-                            900: 'rgb(var(--color-canvas-900) / <alpha-value>)',
-                            950: 'rgb(var(--color-canvas-950) / <alpha-value>)',
-                        },
-                        // Keep legacy for safety during migration, but aim to remove
-                        slate: {
-                            800: '#1e293b', 900: '#0f172a'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Playfair Display', 'serif'],
-                        mono: ['Fira Code', 'monospace'], // Added for tech vibes
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* --- Themes --- */
-        :root,
-        [data-theme="elegant"] {
-            /* Elegant Dark (Default) - Indigo / Slate */
-            --color-primary-50: 238 242 255;
-            --color-primary-100: 224 231 255;
-            --color-primary-200: 199 210 254;
-            --color-primary-300: 165 180 252;
-            --color-primary-400: 129 140 248;
-            --color-primary-500: 99 102 241;
-            --color-primary-600: 79 70 229;
-            --color-primary-700: 67 56 202;
-            --color-primary-800: 55 48 163;
-            --color-primary-900: 49 46 129;
-            --color-primary-950: 30 27 75;
+    <!-- Theme bootstrap (must run before first paint to avoid theme flash) -->
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 
-            --color-canvas-50: 248 250 252;
-            --color-canvas-100: 241 245 249;
-            --color-canvas-200: 226 232 240;
-            --color-canvas-300: 203 213 225;
-            --color-canvas-400: 148 163 184;
-            --color-canvas-500: 100 116 139;
-            --color-canvas-600: 71 85 105;
-            --color-canvas-700: 51 65 85;
-            --color-canvas-800: 30 41 59;
-            --color-canvas-900: 15 23 42;
-            --color-canvas-950: 2 6 23;
-        }
-
-        [data-theme="cyberpunk"] {
-            /* Cyberpunk - Fuchsia / Black */
-            --color-primary-50: 253 244 255;
-            --color-primary-100: 250 232 255;
-            --color-primary-200: 245 208 254;
-            --color-primary-300: 240 171 252;
-            --color-primary-400: 232 121 249;
-            --color-primary-500: 217 70 239;
-            --color-primary-600: 192 38 211;
-            --color-primary-700: 162 27 180;
-            --color-primary-800: 134 25 143;
-            --color-primary-900: 112 26 117;
-            --color-primary-950: 74 4 78;
-
-            --color-canvas-50: 250 250 250;
-            --color-canvas-100: 245 245 245;
-            --color-canvas-200: 229 229 229;
-            --color-canvas-300: 212 212 212;
-            --color-canvas-400: 163 163 163;
-            --color-canvas-500: 115 115 115;
-            --color-canvas-600: 82 82 82;
-            --color-canvas-700: 64 64 64;
-            --color-canvas-800: 38 38 38;
-            --color-canvas-900: 23 23 23;
-            /* Neutral black */
-            --color-canvas-950: 10 10 10;
-        }
-
-        [data-theme="corporate"] {
-            /* Corporate - Sky Blue / Navy */
-            --color-primary-50: 240 249 255;
-            --color-primary-100: 224 242 254;
-            --color-primary-200: 186 230 253;
-            --color-primary-300: 125 211 252;
-            --color-primary-400: 56 189 248;
-            --color-primary-500: 14 165 233;
-            --color-primary-600: 2 132 199;
-            --color-primary-700: 3 105 161;
-            --color-primary-800: 7 89 133;
-            --color-primary-900: 12 74 110;
-            --color-primary-950: 8 47 73;
-
-            --color-canvas-50: 239 246 255;
-            --color-canvas-100: 219 234 254;
-            --color-canvas-200: 191 219 254;
-            --color-canvas-300: 147 197 253;
-            --color-canvas-400: 96 165 250;
-            --color-canvas-500: 59 130 246;
-            --color-canvas-600: 37 99 235;
-            --color-canvas-700: 29 78 216;
-            --color-canvas-800: 30 64 175;
-            --color-canvas-900: 30 58 138;
-            /* Blue-heavy background */
-            --color-canvas-950: 23 37 84;
-        }
-
-        [data-theme="emerald"] {
-            /* Emerald - Emerald / Zinc */
-            --color-primary-50: 236 253 245;
-            --color-primary-100: 209 250 229;
-            --color-primary-200: 167 243 208;
-            --color-primary-300: 110 231 183;
-            --color-primary-400: 52 211 153;
-            --color-primary-500: 16 185 129;
-            --color-primary-600: 5 150 105;
-            --color-primary-700: 4 120 87;
-            --color-primary-800: 6 95 70;
-            --color-primary-900: 6 78 59;
-            --color-primary-950: 2 44 34;
-
-            --color-canvas-50: 250 250 250;
-            --color-canvas-100: 244 244 245;
-            --color-canvas-200: 228 228 231;
-            --color-canvas-300: 212 212 216;
-            --color-canvas-400: 161 161 170;
-            --color-canvas-500: 113 113 122;
-            --color-canvas-600: 82 82 91;
-            --color-canvas-700: 63 63 70;
-            --color-canvas-800: 39 39 42;
-            --color-canvas-900: 24 24 27;
-            /* Zinc background */
-            --color-canvas-950: 9 9 11;
-        }
-    </style>
+    <!-- Compiled Tailwind CSS (replaces the runtime cdn.tailwindcss.com loader) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
     <!-- Main CSS (Custom) -->
 
     <!-- Google Fonts -->
@@ -213,19 +55,19 @@
                             </button>
                             <div
                                 class="absolute right-0 mt-2 w-48 py-2 bg-canvas-800 border border-canvas-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                                <button onclick="setTheme('elegant')"
+                                <button data-set-theme="elegant"
                                     class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
                                     <span class="w-3 h-3 rounded-full bg-[#6366f1]"></span> Elegant
                                 </button>
-                                <button onclick="setTheme('cyberpunk')"
+                                <button data-set-theme="cyberpunk"
                                     class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
                                     <span class="w-3 h-3 rounded-full bg-[#d946ef]"></span> Cyberpunk
                                 </button>
-                                <button onclick="setTheme('corporate')"
+                                <button data-set-theme="corporate"
                                     class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
                                     <span class="w-3 h-3 rounded-full bg-[#0ea5e9]"></span> Corporate
                                 </button>
-                                <button onclick="setTheme('emerald')"
+                                <button data-set-theme="emerald"
                                     class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
                                     <span class="w-3 h-3 rounded-full bg-[#10b981]"></span> Emerald
                                 </button>
@@ -260,8 +102,8 @@
                         <form action="{{ url_for('auth.logout') }}" method="post" class="m-0 p-0">
                             {{ csrf_token() }}
                             <button type="submit"
-                                class="btn-elegant bg-red-900/20 border border-red-500/30 text-red-200 hover:bg-red-900/40 hover:text-red-100 py-1.5 px-4 text-sm rounded-full transition-all">
-                                <span class="material-symbols-outlined text-[16px] align-middle mr-1">logout</span>
+                                class="btn-elegant bg-danger-900/20 border border-danger-500/30 text-danger-200 hover:bg-danger-900/40 hover:text-danger-100 py-1.5 px-4 text-sm rounded-full transition-all">
+                                <span class="material-symbols-outlined text-base align-middle mr-1">logout</span>
                                 Salir
                             </button>
                         </form>
@@ -287,17 +129,17 @@
         {% if messages %}
         {% for category, message in messages %}
         {% set color_classes = {
-        'success': 'bg-canvas-800/90 border-primary-500 text-primary-100 shadow-primary-900/20',
-        'danger': 'bg-canvas-800/90 border-red-500 text-red-100 shadow-red-900/20',
-        'warning': 'bg-canvas-800/90 border-amber-500 text-amber-100 shadow-amber-900/20',
-        'info': 'bg-canvas-800/90 border-canvas-500 text-canvas-100 shadow-canvas-900/20'
+        'success': 'bg-canvas-800/90 border-success-500 text-success-100 shadow-success-900/20',
+        'danger': 'bg-canvas-800/90 border-danger-500 text-danger-100 shadow-danger-900/20',
+        'warning': 'bg-canvas-800/90 border-warning-500 text-warning-100 shadow-warning-900/20',
+        'info': 'bg-canvas-800/90 border-info-500 text-info-100 shadow-info-900/20'
         } %}
         {% set active_class = color_classes.get(category, 'bg-canvas-800/90 border-canvas-500 text-canvas-100') %}
 
         <div
             class="pointer-events-auto alert-dismissible transform transition-all duration-500 hover:scale-[1.02] p-4 rounded-r-xl rounded-l-sm shadow-2xl mb-4 border-l-4 backdrop-blur-md flex justify-between items-start {{ active_class }}">
             <div class="flex items-center gap-4">
-                <span class="material-symbols-outlined text-2xl opacity-80">
+                <span class="material-symbols-outlined text-3xl opacity-80">
                     {% if category == 'success' %}check_circle
                     {% elif category == 'danger' %}error
                     {% elif category == 'warning' %}warning
@@ -310,13 +152,47 @@
                 </div>
             </div>
             <button type="button" class="ml-4 opacity-50 hover:opacity-100 transition-opacity p-1"
-                onclick="this.parentElement.style.opacity='0'; setTimeout(()=>this.parentElement.remove(), 300);">
-                <span class="material-symbols-outlined text-lg">close</span>
+                data-flash-close aria-label="Cerrar mensaje">
+                <span class="material-symbols-outlined text-xl">close</span>
             </button>
         </div>
         {% endfor %}
         {% endif %}
         {% endwith %}
+    </div>
+
+    <!-- Toast container (filled by window.showToast) -->
+    <div id="toast-container"
+        class="fixed top-24 right-5 w-full max-w-sm z-50 pointer-events-none px-4 md:px-0 space-y-2"></div>
+
+    <!-- Confirmation Modal (controlled by window.confirmDialog) -->
+    <div id="confirm-modal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-canvas-950/70 backdrop-blur-sm"
+        role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-message">
+        <div id="confirm-modal-panel"
+            class="glass-panel w-full max-w-md p-6 transform transition-all duration-200 scale-95 opacity-0">
+            <div class="flex items-start gap-4">
+                <div id="confirm-modal-icon-wrap"
+                    class="shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-danger-500/10 border border-danger-500/30">
+                    <span id="confirm-modal-icon"
+                        class="material-symbols-outlined text-xl text-danger-400">warning</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 id="confirm-modal-title"
+                        class="text-lg font-bold font-heading text-canvas-100 mb-1">Confirmar acción</h3>
+                    <p id="confirm-modal-message"
+                        class="text-sm text-canvas-300 font-light leading-relaxed">¿Estás seguro?</p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" id="confirm-modal-cancel" class="btn-elegant btn-secondary">
+                    Cancelar
+                </button>
+                <button type="button" id="confirm-modal-confirm" class="btn-elegant btn-primary">
+                    Confirmar
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -325,88 +201,8 @@
     </main>
 
     <!-- Scripts -->
-    <script>
-        // Theme Switcher Logic
-        function setTheme(themeName) {
-            localStorage.setItem('theme', themeName);
-            document.documentElement.setAttribute('data-theme', themeName);
-            applyThemeBackground(themeName);
-        }
-
-        function applyThemeBackground(theme) {
-            // Optional: Adjust radial gradients slightly per theme if desired
-            // For now, relies on CSS vars updating bg-canvas-900
-        }
-
-        (function () {
-            // Immediate theme apply on load
-            const savedTheme = localStorage.getItem('theme') || 'elegant';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-
-        document.addEventListener("DOMContentLoaded", function () {
-            // Auto-hide alerts
-            setTimeout(() => {
-                const alerts = document.querySelectorAll(".alert-dismissible");
-                alerts.forEach(alert => {
-                    alert.style.opacity = '0';
-                    setTimeout(() => alert.remove(), 500);
-                });
-            }, 6000);
-
-            // Mobile Nav
-            const btn = document.getElementById('nav-toggle');
-            const nav = document.getElementById('nav-content');
-            if (btn && nav) {
-                btn.addEventListener('click', () => {
-                    nav.classList.toggle('hidden');
-                });
-            }
-        });
-    </script>
-    <style>
-        /* Simple Fade In Animation */
-        .animate-fade-in {
-            animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            opacity: 0;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .glass-panel {
-            background: rgb(var(--color-canvas-800) / 0.4);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgb(var(--color-canvas-200) / 0.08);
-            border-radius: 1rem;
-        }
-
-        body {
-            background-color: rgb(var(--color-canvas-900));
-            /* Dynamic gradient using primary color with low opacity */
-            background-image: radial-gradient(at 0% 0%, rgb(var(--color-primary-900) / 0.3) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgb(var(--color-canvas-800) / 0.3) 0px, transparent 50%);
-            background-attachment: fixed;
-        }
-
-        .btn-elegant {
-            transition: all 0.3s ease;
-        }
-
-        .btn-elegant:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-    </style>
+    <!-- UI helpers (modal, toast, mobile nav, data-confirm interceptor) -->
+    <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
     {% block page_scripts %}{% endblock %}
 </body>
 

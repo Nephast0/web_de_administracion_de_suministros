@@ -2,17 +2,17 @@
 {% block title %}Nuevo Asiento{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-8 px-4 flex justify-center pb-12">
-    <div class="glass-panel w-full max-w-5xl p-8 relative animate-fade-in shadow-2xl shadow-indigo-900/10">
+<div class="container mx-auto my-6 px-4 pb-12 flex justify-center">
+    <div class="glass-panel w-full max-w-5xl p-8 relative animate-fade-in shadow-2xl shadow-primary-900/10">
         <!-- Back Button -->
         <div class="flex items-center gap-4 mb-8">
             <a href="{{ url_for('contabilidad.diario') }}"
-                class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-400 transition-all bg-slate-900/50"
+                class="flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
                 aria-label="Volver al Diario">
                 <span class="material-symbols-outlined">arrow_back</span>
             </a>
             <h1
-                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-indigo-400">
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-primary-400">
                 Nuevo Asiento Manual
             </h1>
         </div>
@@ -22,35 +22,35 @@
 
             <!-- Header Info -->
             <div
-                class="bg-slate-900/40 border border-slate-700/50 rounded-xl p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                class="bg-canvas-900/40 border border-canvas-700/50 rounded-xl p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="md:col-span-2 space-y-2">
-                    {{ form.descripcion.label(class="block text-sm font-medium text-slate-300") }}
-                    {{ form.descripcion(class="form-input focus:border-indigo-500 focus:ring-indigo-500",
+                    {{ form.descripcion.label(class="block text-sm font-medium text-canvas-300") }}
+                    {{ form.descripcion(class="form-input focus:border-primary-500 focus:ring-primary-500",
                     placeholder="Descripción del asiento") }}
                 </div>
                 <div class="space-y-2">
-                    {{ form.fecha.label(class="block text-sm font-medium text-slate-300") }}
-                    {{ form.fecha(class="form-input focus:border-indigo-500 focus:ring-indigo-500", type="date") }}
+                    {{ form.fecha.label(class="block text-sm font-medium text-canvas-300") }}
+                    {{ form.fecha(class="form-input focus:border-primary-500 focus:ring-primary-500", type="date") }}
                 </div>
             </div>
 
             <!-- Apuntes Table -->
             <div>
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-slate-200 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-indigo-400">list</span> Apuntes
+                    <h3 class="text-xl font-bold text-canvas-200 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary-400">list</span> Apuntes
                     </h3>
                     <button type="button"
-                        class="btn-elegant btn-secondary text-sm flex items-center gap-1 hover:bg-slate-700"
+                        class="btn-elegant btn-secondary text-sm flex items-center gap-1 hover:bg-canvas-700"
                         id="add-row-btn">
                         <span class="material-symbols-outlined text-base">add</span> Añadir Línea
                     </button>
                 </div>
 
-                <div class="glass-panel p-1 overflow-hidden shadow-lg shadow-indigo-900/5">
+                <div class="glass-panel p-1 overflow-hidden shadow-lg shadow-primary-900/5">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-slate-300" id="apuntes-table">
-                            <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 font-heading tracking-wider">
+                        <table class="w-full text-sm text-left text-canvas-300" id="apuntes-table">
+                            <thead class="text-xs text-canvas-400 uppercase bg-canvas-900/80 font-heading tracking-wider">
                                 <tr>
                                     <th class="px-4 py-3 font-semibold">Cuenta</th>
                                     <th class="px-4 py-3 font-semibold w-40 text-right">Debe</th>
@@ -58,29 +58,29 @@
                                     <th class="px-4 py-3 font-semibold w-12"></th>
                                 </tr>
                             </thead>
-                            <tbody id="apuntes-body" class="divide-y divide-slate-700/30">
+                            <tbody id="apuntes-body" class="divide-y divide-canvas-700/30">
                                 {% for apunte in form.apuntes %}
-                                <tr class="apunte-row hover:bg-indigo-500/5 transition-colors">
+                                <tr class="apunte-row hover:bg-primary-500/5 transition-colors">
                                     <td class="px-4 py-2">
                                         {{ apunte.cuenta_codigo(class="form-input w-full font-mono text-sm h-9
-                                        focus:border-indigo-500 focus:ring-indigo-500",
+                                        focus:border-primary-500 focus:ring-primary-500",
                                         list="cuentas-list", placeholder="Código de Cuenta") }}
                                     </td>
                                     <td class="px-4 py-2">
                                         {{ apunte.debe(class="form-input w-full text-right font-mono text-sm h-9
-                                        focus:border-indigo-500 focus:ring-indigo-500",
+                                        focus:border-primary-500 focus:ring-primary-500",
                                         step="0.01") }}
                                     </td>
                                     <td class="px-4 py-2">
                                         {{ apunte.haber(class="form-input w-full text-right font-mono text-sm h-9
-                                        focus:border-indigo-500 focus:ring-indigo-500",
+                                        focus:border-primary-500 focus:ring-primary-500",
                                         step="0.01") }}
                                     </td>
                                     <td class="px-4 py-2 text-center">
                                         <button type="button"
-                                            class="text-slate-500 hover:text-red-400 transition-colors p-1"
-                                            onclick="this.closest('tr').remove()" title="Eliminar línea">
-                                            <span class="material-symbols-outlined text-lg">delete</span>
+                                            class="text-canvas-500 hover:text-danger-400 transition-colors p-1"
+                                            data-remove-closest="tr" title="Eliminar línea">
+                                            <span class="material-symbols-outlined text-xl">delete</span>
                                         </button>
                                     </td>
                                 </tr>
@@ -92,8 +92,8 @@
             </div>
 
             <div class="pt-4 flex justify-end">
-                {{ form.submit(class="btn-elegant btn-primary px-8 text-lg bg-indigo-600 hover:bg-indigo-500
-                shadow-indigo-500/20") }}
+                {{ form.submit(class="btn-elegant btn-primary px-8 text-lg bg-primary-600 hover:bg-primary-500
+                shadow-primary-500/20") }}
             </div>
         </form>
     </div>
@@ -104,9 +104,9 @@
         <option value="{{ cuenta.codigo }}">{{ cuenta.codigo }} - {{ cuenta.nombre }}</option>
         {% endfor %}
     </datalist>
-</main>
+</div>
 
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function () {
         const addBtn = document.getElementById('add-row-btn');
         const tbody = document.getElementById('apuntes-body');

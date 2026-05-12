@@ -2,16 +2,16 @@
 {% block title %}Confirmar compra{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-6 px-4 pb-12">
+<div class="container mx-auto my-6 px-4 pb-12">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-8">
         <a href="{{ url_for('inventario.cesta') }}"
-            class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:text-teal-400 hover:border-teal-400 transition-all bg-slate-900/50"
+            class="flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
             aria-label="Volver a la cesta">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <h1
-            class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400">
+            class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-canvas-100 to-canvas-400">
             Confirmación de Compra
         </h1>
     </div>
@@ -20,40 +20,40 @@
         <!-- Order Summary (Left) -->
         <div class="lg:col-span-2">
             <div class="glass-panel p-1 overflow-hidden h-full">
-                <div class="p-4 bg-slate-900/50 border-b border-slate-700/50">
-                    <h3 class="text-lg font-bold text-slate-200 uppercase tracking-widest">Resumen del Pedido</h3>
+                <div class="p-4 bg-canvas-900/50 border-b border-canvas-700/50">
+                    <h3 class="text-lg font-bold text-canvas-200 uppercase tracking-widest">Resumen del Pedido</h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-slate-300">
-                        <thead class="text-xs text-slate-400 uppercase bg-slate-900/30">
+                    <table class="w-full text-sm text-left text-canvas-300">
+                        <thead class="text-xs text-canvas-400 uppercase bg-canvas-900/30">
                             <tr>
                                 <th class="px-6 py-3 font-semibold">Producto</th>
                                 <th class="px-6 py-3 font-semibold text-center">Cantidad</th>
                                 <th class="px-6 py-3 font-semibold text-right">Precio</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-700/30">
+                        <tbody class="divide-y divide-canvas-700/30">
                             {% for item in cesta_items %}
                             <tr class="hover:bg-white/5 transition-colors">
-                                <td class="px-6 py-3 font-medium text-slate-200">{{ item.producto.modelo }}</td>
+                                <td class="px-6 py-3 font-medium text-canvas-200">{{ item.producto.modelo }}</td>
                                 <td class="px-6 py-3 text-center">
                                     <span
-                                        class="bg-slate-800 text-slate-400 px-2 py-1 rounded text-xs border border-slate-700 font-mono">
+                                        class="bg-canvas-800 text-canvas-400 px-2 py-1 rounded text-xs border border-canvas-700 font-mono">
                                         {{ item.cantidad }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-3 text-right font-mono text-emerald-400">
+                                <td class="px-6 py-3 text-right font-mono text-success-400">
                                     {{ item.producto.precio | currency }}
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                         <tfoot>
-                            <tr class="bg-slate-900/40 border-t border-slate-700/50">
+                            <tr class="bg-canvas-900/40 border-t border-canvas-700/50">
                                 <td colspan="2"
-                                    class="px-6 py-4 text-right font-bold text-slate-300 uppercase tracking-wider">Total
+                                    class="px-6 py-4 text-right font-bold text-canvas-300 uppercase tracking-wider">Total
                                 </td>
-                                <td class="px-6 py-4 text-right font-bold font-mono text-emerald-400 text-xl">{{ total |
+                                <td class="px-6 py-4 text-right font-bold font-mono text-success-400 text-xl">{{ total |
                                     currency }}</td>
                             </tr>
                         </tfoot>
@@ -65,22 +65,22 @@
         <!-- Checkout Form (Right) -->
         <div class="lg:col-span-1">
             <div class="glass-panel p-6 sticky top-6">
-                <h3 class="text-xl font-bold font-heading text-slate-200 mb-6 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-teal-400">local_shipping</span> Información de Envío
+                <h3 class="text-xl font-bold font-heading text-canvas-200 mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary-400">local_shipping</span> Información de Envío
                 </h3>
 
                 <form action="{{ url_for('inventario.confirmar_compra') }}" method="post" class="space-y-6">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                     <div class="space-y-2">
-                        <label for="direccion" class="block text-sm font-medium text-slate-300">Dirección de
+                        <label for="direccion" class="block text-sm font-medium text-canvas-300">Dirección de
                             Entrega</label>
                         <input type="text" class="form-input" id="direccion" name="direccion"
                             placeholder="Calle, Número, Piso..." required>
                     </div>
 
                     <div class="space-y-2">
-                        <label for="metodo_pago" class="block text-sm font-medium text-slate-300">Método de Pago</label>
+                        <label for="metodo_pago" class="block text-sm font-medium text-canvas-300">Método de Pago</label>
                         <div class="relative">
                             <select class="form-input appearance-none" id="metodo_pago" name="metodo_pago" required>
                                 <option value="">Seleccione un método</option>
@@ -89,15 +89,15 @@
                                 <option value="transferencia">Transferencia Bancaria</option>
                             </select>
                             <span
-                                class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none">expand_more</span>
+                                class="material-symbols-outlined absolute right-3 top-2.5 text-canvas-500 pointer-events-none">expand_more</span>
                         </div>
                     </div>
 
-                    <div class="pt-4 border-t border-slate-700/50">
+                    <div class="pt-4 border-t border-canvas-700/50">
                         <button type="submit" class="w-full btn-elegant btn-primary justify-center text-lg py-3">
                             <span class="material-symbols-outlined mr-2">check_circle</span> Confirmar Compra
                         </button>
-                        <p class="text-xs text-center text-slate-500 mt-4">
+                        <p class="text-xs text-center text-canvas-500 mt-4">
                             Al confirmar, aceptas nuestros términos y condiciones de venta.
                         </p>
                     </div>
@@ -105,5 +105,5 @@
             </div>
         </div>
     </div>
-</main>
+</div>
 {% endblock %}

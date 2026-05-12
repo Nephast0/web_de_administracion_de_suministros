@@ -16,7 +16,7 @@ contabilidad_bp = Blueprint('contabilidad', __name__, template_folder='templates
 def setup():
     if current_user.rol != 'admin':
         flash('Acceso no autorizado.', 'danger')
-        return redirect(url_for('menu.menu_principal'))
+        return redirect(url_for('inventario.menu_principal'))
     
     inicializar_plan_cuentas()
     flash('Plan de cuentas inicializado correctamente.', 'success')
@@ -27,7 +27,7 @@ def setup():
 def diario():
     if current_user.rol != 'admin':
         flash('Acceso no autorizado.', 'danger')
-        return redirect(url_for('menu.menu_principal'))
+        return redirect(url_for('inventario.menu_principal'))
     
     def _parse_date(raw):
         if not raw:
@@ -56,16 +56,19 @@ def diario():
 def balance():
     if current_user.rol != 'admin':
         flash('Acceso no autorizado.', 'danger')
-        return redirect(url_for('menu.menu_principal'))
-    
+        return redirect(url_for('inventario.menu_principal'))
+
     cuentas = Cuenta.query.order_by(Cuenta.codigo).all()
     saldos = {c.id: obtener_saldo_cuenta(c.id) for c in cuentas}
-    
-    # Calcular totales por tipo
+
+    # Calcular totales por tipo. Inicializamos con todos los tipos esperados
+    # del plan de cuentas; usamos .setdefault para no romper si llega un tipo
+    # nuevo o con casing inesperado (defensivo contra datos importados).
     totales = {'ACTIVO': 0, 'PASIVO': 0, 'PATRIMONIO': 0, 'INGRESO': 0, 'GASTO': 0}
     for c in cuentas:
+        totales.setdefault(c.tipo, 0)
         totales[c.tipo] += saldos[c.id]
-        
+
     return render_template('contabilidad/balance.html', cuentas=cuentas, saldos=saldos, totales=totales)
 
 @contabilidad_bp.route('/contabilidad/nuevo-asiento', methods=['GET', 'POST'])
@@ -73,7 +76,7 @@ def balance():
 def nuevo_asiento():
     if current_user.rol != 'admin':
         flash('Acceso no autorizado.', 'danger')
-        return redirect(url_for('menu.menu_principal'))
+        return redirect(url_for('inventario.menu_principal'))
     
     form = AsientoManualForm()
     
@@ -113,7 +116,7 @@ def nuevo_asiento():
 def cuenta_resultados():
     if current_user.rol != 'admin':
         flash('Acceso no autorizado.', 'danger')
-        return redirect(url_for('menu.menu_principal'))
+        return redirect(url_for('inventario.menu_principal'))
         
     from app.services.accounting_services import obtener_cuenta_resultados
 
@@ -139,7 +142,7 @@ def cuenta_resultados():
 def exportar_diario():
     if current_user.rol != 'admin':
         flash('Acceso no autorizado.', 'danger')
-        return redirect(url_for('menu.menu_principal'))
+        return redirect(url_for('inventario.menu_principal'))
     
     def _parse_date(raw):
         if not raw:
@@ -191,7 +194,7 @@ def exportar_diario():
 def exportar_balance():
     if current_user.rol != 'admin':
         flash('Acceso no autorizado.', 'danger')
-        return redirect(url_for('menu.menu_principal'))
+        return redirect(url_for('inventario.menu_principal'))
     
     cuentas = Cuenta.query.order_by(Cuenta.codigo).all()
     saldos = {c.id: obtener_saldo_cuenta(c.id) for c in cuentas}
@@ -215,7 +218,7 @@ def exportar_balance():
 def exportar_cuenta_resultados():
     if current_user.rol != 'admin':
         flash('Acceso no autorizado.', 'danger')
-        return redirect(url_for('menu.menu_principal'))
+        return redirect(url_for('inventario.menu_principal'))
         
     from app.services.accounting_services import obtener_cuenta_resultados
 

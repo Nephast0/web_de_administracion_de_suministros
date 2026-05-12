@@ -2,7 +2,7 @@
 {% block title %}Gráficas de cliente{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-6 px-4 pb-12">
+<div class="container mx-auto my-6 px-4 pb-12">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-8">
         <a href="{{ url_for('inventario.menu_cliente') }}"
@@ -50,7 +50,7 @@
         </div>
 
         <!-- Favorite Products -->
-        <div class="glass-panel p-6 animate-fade-in" style="animation-delay: 100ms">
+        <div class="glass-panel p-6 animate-fade-in animation-delay-100">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-bold text-canvas-200">Productos preferidos</h3>
                 <a href="{{ url_for('reportes.chart_export_cliente', chart_name='cliente_productos_favoritos') }}"
@@ -65,7 +65,7 @@
         </div>
 
         <!-- Order Status -->
-        <div class="glass-panel p-6 animate-fade-in lg:col-span-2" style="animation-delay: 200ms">
+        <div class="glass-panel p-6 animate-fade-in lg:col-span-2 animation-delay-200">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-bold text-canvas-200">Estado de tus pedidos</h3>
                 <a href="{{ url_for('reportes.chart_export_cliente', chart_name='cliente_estados_pedido') }}"
@@ -81,12 +81,12 @@
             </div>
         </div>
     </div>
-</main>
+</div>
 {% endblock %}
 
 {% block page_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     async function fetchJSON(url) {
         const response = await fetch(url);
         if (!response.ok) {

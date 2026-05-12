@@ -2,7 +2,7 @@
 {% block title %}Panel administrativo{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-6 px-4 pb-12">
+<div class="container mx-auto my-6 px-4 pb-12">
     {% macro filtros_hidden() -%}
     <input type="hidden" name="f_usuario" value="{{ filtros.f_usuario }}">
     <input type="hidden" name="f_modulo" value="{{ filtros.f_modulo }}">
@@ -24,7 +24,7 @@
                 Panel Administrativo
             </h1>
             <a href="{{ url_for('inventario.menu_principal') }}"
-                class="text-sm text-primary-400 hover:text-primary-300 flex items-center gap-1 text-decoration-none transition-colors">
+                class="text-sm text-primary-400 hover:text-primary-300 flex items-center gap-1 no-underline transition-colors">
                 <span class="material-symbols-outlined text-base">arrow_back</span> Volver al Menú Principal
             </a>
         </div>
@@ -39,14 +39,14 @@
                 <div class="relative">
                     <select id="page_size" name="page_size"
                         class="form-input py-1 px-3 appearance-none pr-8 focus:border-primary-500 focus:ring-primary-500"
-                        onchange="this.form.submit()">
+                        data-auto-submit>
                         {% for size in [10, 20, 30, 50] %}
                         <option value="{{ size }}" {% if pag_actividades.per_page==size %}selected{% endif %}>{{ size }}
                         </option>
                         {% endfor %}
                     </select>
                     <span
-                        class="material-symbols-outlined absolute right-2 top-1.5 text-canvas-500 pointer-events-none text-sm">expand_more</span>
+                        class="material-symbols-outlined absolute right-2 top-1.5 text-canvas-500 pointer-events-none text-base">expand_more</span>
                 </div>
             </form>
         </div>
@@ -86,7 +86,7 @@
                 <div class="flex gap-2 min-w-[140px]">
                     <button type="submit"
                         class="btn-elegant btn-primary py-1 px-3 text-sm flex-1 justify-center bg-primary-600 hover:bg-primary-500 border-none shadow-md shadow-primary-500/20">Filtrar</button>
-                    <a class="btn-elegant btn-secondary py-1 px-3 text-sm flex-1 justify-center text-decoration-none hover:bg-canvas-700 hover:text-white"
+                    <a class="btn-elegant btn-secondary py-1 px-3 text-sm flex-1 justify-center no-underline hover:bg-canvas-700 hover:text-white"
                         href="{{ url_for('auth.actividades') }}">Limpiar</a>
                 </div>
 
@@ -168,11 +168,11 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Users Section -->
-        <section class="glass-panel p-6 animate-fade-in shadow-xl shadow-canvas-900/5" style="animation-delay: 100ms">
+        <section class="glass-panel p-6 animate-fade-in shadow-xl shadow-canvas-900/5 animation-delay-100">
             <div
                 class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-canvas-700/50 pb-4">
                 <h2 class="text-xl font-bold text-canvas-200 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-amber-400">group</span>
+                    <span class="material-symbols-outlined text-warning-400">group</span>
                     Usuarios
                 </h2>
 
@@ -190,11 +190,11 @@
                             </option>
                         </select>
                         <span
-                            class="material-symbols-outlined absolute right-1 top-1.5 text-canvas-500 pointer-events-none text-xs">expand_more</span>
+                            class="material-symbols-outlined absolute right-1 top-1.5 text-canvas-500 pointer-events-none text-[14px]">expand_more</span>
                     </div>
                     <button type="submit"
                         class="btn-elegant btn-primary py-1 px-2 text-xs bg-primary-600 hover:bg-primary-500 shadow-md shadow-primary-500/20">
-                        <span class="material-symbols-outlined text-sm">search</span>
+                        <span class="material-symbols-outlined text-base">search</span>
                     </button>
 
                     <input type="hidden" name="page_act" value="{{ pag_actividades.page }}">
@@ -223,7 +223,7 @@
                             <td class="px-4 py-3">
                                 <select
                                     class="form-input py-1 px-2 text-xs bg-canvas-900 border-canvas-700 focus:border-primary-500 focus:ring-primary-500"
-                                    onchange="cambiarRol('{{ usuario.id }}', this.value)">
+                                    data-action="cambiar-rol" data-user-id="{{ usuario.id }}">
                                     <option value="admin" {% if usuario.rol=='admin' %}selected{% endif %}>Admin
                                     </option>
                                     <option value="cliente" {% if usuario.rol=='cliente' %}selected{% endif %}>Cliente
@@ -231,9 +231,9 @@
                                 </select>
                             </td>
                             <td class="px-4 py-3 text-right">
-                                <button class="text-canvas-500 hover:text-red-400 transition-colors p-1"
-                                    onclick="eliminarUsuario('{{ usuario.id }}')" title="Eliminar Usuario">
-                                    <span class="material-symbols-outlined text-lg">delete</span>
+                                <button class="text-canvas-500 hover:text-danger-400 transition-colors p-1"
+                                    data-action="eliminar-usuario" data-user-id="{{ usuario.id }}" title="Eliminar Usuario">
+                                    <span class="material-symbols-outlined text-xl">delete</span>
                                 </button>
                             </td>
                         </tr>
@@ -281,18 +281,18 @@
         </section>
 
         <!-- Purchases Section -->
-        <section class="glass-panel p-6 animate-fade-in shadow-xl shadow-canvas-900/5" style="animation-delay: 200ms">
+        <section class="glass-panel p-6 animate-fade-in shadow-xl shadow-canvas-900/5 animation-delay-200">
             <div
                 class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-canvas-700/50 pb-4">
                 <h2 class="text-xl font-bold text-canvas-200 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-emerald-400">shopping_cart</span>
+                    <span class="material-symbols-outlined text-success-400">shopping_cart</span>
                     Compras
                 </h2>
 
                 <div class="flex gap-2">
-                    <a class="btn-elegant btn-secondary py-1 px-2 text-xs flex items-center gap-1 text-decoration-none hover:bg-canvas-700"
+                    <a class="btn-elegant btn-secondary py-1 px-2 text-xs flex items-center gap-1 no-underline hover:bg-canvas-700"
                         href="{{ url_for('auth.exportar_compras_admin', c_estado=filtros.c_estado, c_desde=filtros.c_desde, c_hasta=filtros.c_hasta) }}">
-                        <span class="material-symbols-outlined text-sm">download</span> CSV
+                        <span class="material-symbols-outlined text-base">download</span> CSV
                     </a>
                 </div>
             </div>
@@ -312,7 +312,7 @@
                         </option>
                     </select>
                     <span
-                        class="material-symbols-outlined absolute right-2 top-1.5 text-canvas-500 pointer-events-none text-xs">expand_more</span>
+                        class="material-symbols-outlined absolute right-2 top-1.5 text-canvas-500 pointer-events-none text-[14px]">expand_more</span>
                 </div>
                 <input type="date" class="form-input text-sm py-1 focus:border-primary-500 focus:ring-primary-500"
                     name="c_desde" value="{{ filtros.c_desde }}">
@@ -322,7 +322,7 @@
                 <div class="col-span-2 flex gap-2">
                     <button type="submit"
                         class="btn-elegant btn-primary py-1 px-3 text-xs flex-1 justify-center bg-primary-600 hover:bg-primary-500 border-none shadow-md shadow-primary-500/20">Filtrar</button>
-                    <a class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none hover:bg-canvas-700"
+                    <a class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline hover:bg-canvas-700"
                         href="{{ url_for('auth.actividades', page_comp=1, page_act=pag_actividades.page, page_user=pag_usuarios.page, page_size=pag_actividades.per_page) }}">Limpiar</a>
                 </div>
 
@@ -346,20 +346,20 @@
                         {% for compra in compras %}
                         <tr class="hover:bg-primary-500/5 transition-colors">
                             <td class="px-4 py-3 font-mono text-canvas-500">#{{ compra.id }}</td>
-                            <td class="px-4 py-3 font-bold text-emerald-400">{{ compra.total | currency }}</td>
+                            <td class="px-4 py-3 font-bold text-success-400">{{ compra.total | currency }}</td>
                             <td class="px-4 py-3">
                                 {% if compra.estado == 'Completado' %}
                                 <span
-                                    class="text-xs text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-1 rounded">Completado</span>
+                                    class="text-xs text-success-400 border border-success-500/30 bg-success-500/10 px-1 rounded">Completado</span>
                                 {% elif compra.estado == 'Pendiente' %}
                                 <span
-                                    class="text-xs text-amber-400 border border-amber-500/30 bg-amber-500/10 px-1 rounded">Pendiente</span>
+                                    class="text-xs text-warning-400 border border-warning-500/30 bg-warning-500/10 px-1 rounded">Pendiente</span>
                                 {% elif compra.estado == 'Cancelado' %}
                                 <span
-                                    class="text-xs text-red-400 border border-red-500/30 bg-red-500/10 px-1 rounded">Cancelado</span>
+                                    class="text-xs text-danger-400 border border-danger-500/30 bg-danger-500/10 px-1 rounded">Cancelado</span>
                                 {% else %}
                                 <span
-                                    class="text-xs text-slate-400 border border-slate-500/30 bg-slate-500/10 px-1 rounded">{{
+                                    class="text-xs text-canvas-400 border border-canvas-500/30 bg-canvas-500/10 px-1 rounded">{{
                                     compra.estado }}</span>
                                 {% endif %}
                             </td>
@@ -409,59 +409,70 @@
             </div>
         </section>
     </div>
-</main>
+</div>
 {% endblock %}
 
 {% block page_scripts %}
-<script>
-    const csrfToken = "{{ csrf_token() }}";
+<script nonce="{{ csp_nonce() }}">
+    /* Lógica de menu-admin: cambiar rol / eliminar usuario via fetch.
+       Bound mediante data-action="..." (sin onclick inline para cumplir CSP). */
+    (function () {
+        const csrfToken = "{{ csrf_token() }}";
 
-    function cambiarRol(usuarioId, nuevoRol) {
-        // Show loading state implicitly by maybe disabling the select? 
-        // For now, simpler implementation is fine.
-
-        fetch(`/cambiar_rol/${usuarioId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken,
-            },
-            body: JSON.stringify({ rol: nuevoRol })
-        })
-            .then(response => response.json())
-            .then(data => {
-                const params = new URLSearchParams(window.location.search);
+        async function cambiarRol(usuarioId, nuevoRol) {
+            try {
+                const response = await fetch(`/cambiar_rol/${usuarioId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                    body: JSON.stringify({ rol: nuevoRol }),
+                });
+                const data = await response.json();
                 if (data.success) {
-                    // Refresh carefully or show toast
-                    alert(data.message); // Simple alert for now, could be improved to toast
-                    window.location.reload();
+                    window.showToast(data.message || 'Rol actualizado.', 'success');
+                    setTimeout(() => window.location.reload(), 800);
                 } else {
-                    alert(data.message || 'No se pudo cambiar el rol.');
+                    window.showToast(data.message || 'No se pudo cambiar el rol.', 'danger');
                 }
-            })
-            .catch(error => {
-                alert(`Error al cambiar el rol: ${error}`);
-            });
-    }
-
-    function eliminarUsuario(usuarioId) {
-        if (!confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
-            return;
-        }
-        fetch(`/eliminar_usuario/${usuarioId}`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken,
+            } catch (error) {
+                window.showToast(`Error al cambiar el rol: ${error}`, 'danger');
             }
-        })
-            .then(response => {
+        }
+
+        async function eliminarUsuario(usuarioId) {
+            const ok = await window.confirmDialog({
+                title: 'Eliminar usuario',
+                message: '¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.',
+                confirmText: 'Eliminar',
+                variant: 'danger',
+            });
+            if (!ok) return;
+            try {
+                const response = await fetch(`/eliminar_usuario/${usuarioId}`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
+                });
                 if (response.ok) {
-                    window.location.reload();
+                    window.showToast('Usuario eliminado.', 'success');
+                    setTimeout(() => window.location.reload(), 800);
                 } else {
-                    alert('No se pudo eliminar el usuario.');
+                    window.showToast('No se pudo eliminar el usuario.', 'danger');
                 }
-            })
-            .catch(error => alert(`Error al eliminar usuario: ${error}`));
-    }
+            } catch (error) {
+                window.showToast(`Error al eliminar usuario: ${error}`, 'danger');
+            }
+        }
+
+        document.addEventListener('change', (e) => {
+            const el = e.target.closest('[data-action="cambiar-rol"]');
+            if (!el) return;
+            cambiarRol(el.dataset.userId, el.value);
+        });
+
+        document.addEventListener('click', (e) => {
+            const el = e.target.closest('[data-action="eliminar-usuario"]');
+            if (!el) return;
+            eliminarUsuario(el.dataset.userId);
+        });
+    })();
 </script>
 {% endblock %}

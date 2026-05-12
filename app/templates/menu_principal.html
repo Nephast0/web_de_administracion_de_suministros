@@ -9,10 +9,8 @@
         </div>
         <h1
             class="text-4xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-primary-400 mb-2">
-            Suministros Informáticos CNCV
+            Panel de Administración
         </h1>
-        <h2 class="text-xl text-canvas-400 font-light mb-4 tracking-wide uppercase text-sm font-sans">Panel de
-            Administración</h2>
         <p class="text-canvas-400 max-w-2xl mx-auto font-light">
             Bienvenido. Gestiona inventario, proveedores y contabilidad desde este centro de control unificado.
         </p>
@@ -21,12 +19,12 @@
     <!-- Stock Alert -->
     {% if alertas_stock_bajo and alertas_stock_bajo > 0 %}
     <div
-        class="bg-amber-900/30 border border-amber-500/30 p-4 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 text-amber-100 shadow-lg shadow-amber-900/10 backdrop-blur-sm">
+        class="bg-warning-900/30 border border-warning-500/30 p-4 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 text-warning-100 shadow-lg shadow-warning-900/10 backdrop-blur-sm">
         <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-amber-400">warning</span>
-            <p><span class="font-bold text-amber-400">{{ alertas_stock_bajo }}</span> productos tienen stock bajo.</p>
+            <span class="material-symbols-outlined text-warning-400">warning</span>
+            <p><span class="font-bold text-warning-400">{{ alertas_stock_bajo }}</span> productos tienen stock bajo.</p>
         </div>
-        <a class="btn-elegant border border-amber-500/50 text-amber-300 hover:bg-amber-500/10 hover:text-amber-200 text-sm py-1.5 px-4 rounded-full transition-all"
+        <a class="btn-elegant border border-warning-500/50 text-warning-300 hover:bg-warning-500/10 hover:text-warning-200 text-sm py-1.5 px-4 rounded-full transition-all"
             href="{{ url_for('inventario.productos', stock='bajo') }}">
             Revisar Inventario
         </a>
@@ -48,19 +46,19 @@
                     class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
                     <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Proveedores</span>
                     <span
-                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-base">arrow_forward</span>
                 </a>
                 <a href="{{ url_for('inventario.productos') }}"
                     class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
                     <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Inventario</span>
                     <span
-                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-base">arrow_forward</span>
                 </a>
                 <a href="{{ url_for('inventario.pedidos') }}"
                     class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
                     <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Pedidos</span>
                     <span
-                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-base">arrow_forward</span>
                 </a>
             </div>
         </div>
@@ -78,25 +76,25 @@
                     class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
                     <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Balance</span>
                     <span
-                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-base">arrow_forward</span>
                 </a>
                 <a href="{{ url_for('contabilidad.cuenta_resultados') }}"
                     class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
                     <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Resultados</span>
                     <span
-                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-base">arrow_forward</span>
                 </a>
                 <a href="{{ url_for('contabilidad.diario') }}"
                     class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
                     <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Diario</span>
                     <span
-                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-base">arrow_forward</span>
                 </a>
                 <a href="{{ url_for('reportes.graficas') }}"
                     class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
                     <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Gráficos</span>
                     <span
-                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">arrow_forward</span>
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-base">arrow_forward</span>
                 </a>
             </div>
         </div>
@@ -115,14 +113,14 @@
                     <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Inventario
                         CSV</span>
                     <span
-                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">file_download</span>
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-base">file_download</span>
                 </a>
                 <a href="{{ url_for('proveedores.exportar_proveedores') }}"
                     class="group/item flex items-center justify-between p-3 rounded-lg hover:bg-primary-500/10 transition-colors">
                     <span class="text-canvas-300 group-hover/item:text-primary-200 transition-colors">Proveedores
                         CSV</span>
                     <span
-                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-sm">file_download</span>
+                        class="material-symbols-outlined text-canvas-600 group-hover/item:text-primary-400 text-base">file_download</span>
                 </a>
             </div>
         </div>
@@ -134,7 +132,7 @@
         <div class="glass-panel p-4 text-center hover:bg-canvas-800/50 transition-colors">
             <h6 class="text-xs font-bold text-canvas-500 uppercase mb-2">Stock Bajo</h6>
             <p
-                class="text-2xl font-bold font-heading {{ 'text-amber-500' if alertas_stock_bajo and alertas_stock_bajo > 0 else 'text-primary-400' }}">
+                class="text-2xl font-bold font-heading {{ 'text-warning-500' if alertas_stock_bajo and alertas_stock_bajo > 0 else 'text-primary-400' }}">
                 {{ alertas_stock_bajo if alertas_stock_bajo is not none else '-' }}
             </p>
         </div>
@@ -159,7 +157,7 @@
         <!-- Ventas -->
         <div class="glass-panel p-4 text-center hover:bg-canvas-800/50 transition-colors">
             <h6 class="text-xs font-bold text-canvas-500 uppercase mb-2">Ventas</h6>
-            <p class="text-2xl font-bold font-heading text-green-400">
+            <p class="text-2xl font-bold font-heading text-success-400">
                 {{ ventas_totales | currency }}
             </p>
         </div>

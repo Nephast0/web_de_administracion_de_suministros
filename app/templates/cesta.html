@@ -2,7 +2,7 @@
 {% block title %}Cesta{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-6 px-4 pb-12">
+<div class="container mx-auto my-6 px-4 pb-12">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-8">
         <a href="{{ url_for('inventario.menu_cliente') }}"
@@ -43,18 +43,20 @@
                                     class="form-input w-20 text-center text-sm py-1 h-8 cantidad" />
                             </form>
                         </td>
-                        <td class="px-6 py-4 text-right font-mono text-emerald-400 font-bold precio-total"
+                        <td class="px-6 py-4 text-right font-mono text-success-400 font-bold precio-total"
                             data-symbol="{{ currency_symbol }}" data-locale="{{ currency_locale }}"
                             data-code="{{ currency_code }}">
                             {{ precio_total_producto | currency }}
                         </td>
                         <td class="px-6 py-4 text-right">
                             <form action="{{ url_for('inventario.eliminar_de_la_cesta', item_id=item.id) }}"
-                                method="post" class="inline-block">
+                                method="post" class="inline-block"
+                                data-confirm="¿Estás seguro de eliminar este producto?"
+                                data-confirm-title="Eliminar producto" data-confirm-text="Eliminar"
+                                data-confirm-variant="danger">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit"
-                                    class="text-canvas-500 hover:text-red-400 transition-colors p-2 rounded-full hover:bg-red-500/10"
-                                    onclick="return confirm('¿Estás seguro de eliminar este producto?');"
+                                    class="text-canvas-500 hover:text-danger-400 transition-colors p-2 rounded-full hover:bg-danger-500/10"
                                     aria-label="Eliminar {{ item.producto.modelo }}">
                                     <span class="material-symbols-outlined text-xl">delete</span>
                                 </button>
@@ -79,7 +81,7 @@
     <div class="mt-8 flex flex-col items-end gap-6">
         <div class="glass-panel p-6 flex items-center gap-6">
             <span class="text-canvas-400 uppercase tracking-widest text-sm font-bold">Total a Pagar</span>
-            <span class="text-4xl font-bold font-mono text-emerald-400" id="total" data-symbol="{{ currency_symbol }}"
+            <span class="text-4xl font-bold font-mono text-success-400" id="total" data-symbol="{{ currency_symbol }}"
                 data-locale="{{ currency_locale }}" data-code="{{ currency_code }}">
                 {{ total | currency }}
             </span>
@@ -94,11 +96,11 @@
         </form>
     </div>
     {% endif %}
-</main>
+</div>
 {% endblock %}
 
 {% block page_scripts %}
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function () {
         const cantidadInputs = document.querySelectorAll('.cantidad');
         const totalElement = document.getElementById('total');

@@ -2,27 +2,27 @@
 {% block title %}Gráficas Administrativas{% endblock %}
 
 {% block content %}
-<main class="container mx-auto my-6 px-4 pb-12">
+<div class="container mx-auto my-6 px-4 pb-12">
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
         <div class="flex items-center gap-4">
             <a href="{{ url_for('inventario.menu_principal') }}"
-                class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 text-slate-400 hover:text-indigo-400 hover:border-indigo-400 transition-all bg-slate-900/50"
+                class="flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
                 aria-label="Volver al menú">
                 <span class="material-symbols-outlined">arrow_back</span>
             </a>
             <h1
-                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-indigo-400">
+                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-primary-200 to-primary-400">
                 Gráficas y Análisis
             </h1>
         </div>
 
         <!-- Time Interval Selector -->
-        <div class="flex items-center gap-3 bg-slate-800/80 p-2 rounded-lg border border-slate-700/50 shadow-lg">
-            <label for="intervaloTiempo" class="text-sm text-slate-400 pl-2">Intervalo:</label>
+        <div class="flex items-center gap-3 bg-canvas-800/80 p-2 rounded-lg border border-canvas-700/50 shadow-lg">
+            <label for="intervaloTiempo" class="text-sm text-canvas-400 pl-2">Intervalo:</label>
             <div class="relative">
                 <select id="intervaloTiempo"
-                    class="form-input py-1 px-8 pl-3 text-sm appearance-none border-0 bg-transparent focus:ring-0 text-slate-200 font-medium">
+                    class="form-input py-1 px-8 pl-3 text-sm appearance-none border-0 bg-transparent focus:ring-0 text-canvas-200 font-medium">
                     <option value="dia">Diario</option>
                     <option value="semana">Semanal</option>
                     <option value="mes" selected>Mensual</option>
@@ -30,7 +30,7 @@
                     <option value="anio">Anual</option>
                 </select>
                 <span
-                    class="material-symbols-outlined absolute right-2 top-1.5 text-slate-500 pointer-events-none text-sm">expand_more</span>
+                    class="material-symbols-outlined absolute right-2 top-1.5 text-canvas-500 pointer-events-none text-base">expand_more</span>
             </div>
         </div>
     </div>
@@ -39,197 +39,191 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <!-- Distribution Chart -->
         <div
-            class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50">
-            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
-                <span class="material-symbols-outlined text-indigo-400">pie_chart</span>
+            class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-primary-900/5 border border-canvas-700/50">
+            <h3 class="text-lg font-bold text-canvas-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-primary-400">pie_chart</span>
                 Distribución de Productos
             </h3>
             <div class="relative flex-grow min-h-[300px]">
                 <canvas id="distribucionProductos" role="img" aria-label="Distribución de productos"></canvas>
             </div>
-            <p id="summary-distribucion_productos" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
-            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+            <p id="summary-distribucion_productos" class="text-canvas-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-canvas-700/50">
                 <a id="summary-download-distribucion_productos"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                    <span class="material-symbols-outlined text-base mr-1">description</span> Resumen
                 </a>
                 <a id="export-distribucion_productos"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline export-link bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                    <span class="material-symbols-outlined text-base mr-1">download</span> CSV
                 </a>
             </div>
         </div>
 
         <!-- Total Sales Chart -->
-        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
-            style="animation-delay: 50ms">
-            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
-                <span class="material-symbols-outlined text-indigo-400">show_chart</span>
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-primary-900/5 border border-canvas-700/50 animation-delay-50">
+            <h3 class="text-lg font-bold text-canvas-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-primary-400">show_chart</span>
                 Ventas Totales
             </h3>
             <div class="relative flex-grow min-h-[300px]">
                 <canvas id="ventasTotales" role="img" aria-label="Ventas totales"></canvas>
             </div>
-            <p id="summary-ventas_totales" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
-            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+            <p id="summary-ventas_totales" class="text-canvas-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-canvas-700/50">
                 <a id="summary-download-ventas_totales"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                    <span class="material-symbols-outlined text-base mr-1">description</span> Resumen
                 </a>
                 <a id="export-ventas_totales"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline export-link bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                    <span class="material-symbols-outlined text-base mr-1">download</span> CSV
                 </a>
             </div>
         </div>
 
         <!-- Best Sellers Chart -->
-        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
-            style="animation-delay: 100ms">
-            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
-                <span class="material-symbols-outlined text-amber-400">star</span>
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-primary-900/5 border border-canvas-700/50 animation-delay-100">
+            <h3 class="text-lg font-bold text-canvas-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-warning-400">star</span>
                 Productos Más Vendidos
             </h3>
             <div class="relative flex-grow min-h-[300px]">
                 <canvas id="productosMasVendidos" role="img" aria-label="Productos más vendidos"></canvas>
             </div>
-            <p id="summary-productos_mas_vendidos" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
-            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+            <p id="summary-productos_mas_vendidos" class="text-canvas-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-canvas-700/50">
                 <a id="summary-download-productos_mas_vendidos"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                    <span class="material-symbols-outlined text-base mr-1">description</span> Resumen
                 </a>
                 <a id="export-productos_mas_vendidos"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline export-link bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                    <span class="material-symbols-outlined text-base mr-1">download</span> CSV
                 </a>
             </div>
         </div>
 
         <!-- Registered Users Chart -->
-        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
-            style="animation-delay: 150ms">
-            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
-                <span class="material-symbols-outlined text-blue-400">group_add</span>
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-primary-900/5 border border-canvas-700/50 animation-delay-150">
+            <h3 class="text-lg font-bold text-canvas-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+                <span class="material-symbols-outlined text-info-400">group_add</span>
                 Usuarios Registrados
             </h3>
             <div class="relative flex-grow min-h-[300px]">
                 <canvas id="usuariosRegistrados" role="img" aria-label="Usuarios registrados"></canvas>
             </div>
-            <p id="summary-usuarios_registrados" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
-            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+            <p id="summary-usuarios_registrados" class="text-canvas-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-canvas-700/50">
                 <a id="summary-download-usuarios_registrados"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                    <span class="material-symbols-outlined text-base mr-1">description</span> Resumen
                 </a>
                 <a id="export-usuarios_registrados"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline export-link bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                    <span class="material-symbols-outlined text-base mr-1">download</span> CSV
                 </a>
             </div>
         </div>
 
         <!-- Revenue by User Chart -->
-        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
-            style="animation-delay: 200ms">
-            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-primary-900/5 border border-canvas-700/50 animation-delay-200">
+            <h3 class="text-lg font-bold text-canvas-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
                 <span class="material-symbols-outlined text-purple-400">person</span>
                 Ingresos por Usuario
             </h3>
             <div class="relative flex-grow min-h-[300px]">
                 <canvas id="ingresosPorUsuario" role="img" aria-label="Ingresos por usuario"></canvas>
             </div>
-            <p id="summary-ingresos_por_usuario" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
-            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+            <p id="summary-ingresos_por_usuario" class="text-canvas-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-canvas-700/50">
                 <a id="summary-download-ingresos_por_usuario"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                    <span class="material-symbols-outlined text-base mr-1">description</span> Resumen
                 </a>
                 <a id="export-ingresos_por_usuario"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline export-link bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                    <span class="material-symbols-outlined text-base mr-1">download</span> CSV
                 </a>
             </div>
         </div>
 
         <!-- Revenue vs Expenses Chart -->
-        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-indigo-900/5 border border-slate-700/50"
-            style="animation-delay: 250ms">
-            <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-primary-900/5 border border-canvas-700/50 animation-delay-250">
+            <h3 class="text-lg font-bold text-canvas-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
                 <span class="material-symbols-outlined text-pink-400">compare_arrows</span>
                 Ingresos vs Gastos
             </h3>
             <div class="relative flex-grow min-h-[300px]">
                 <canvas id="ingresosGastos" role="img" aria-label="Ingresos vs Gastos"></canvas>
             </div>
-            <p id="summary-ingresos_gastos" class="text-slate-400 text-sm mt-4 min-h-[3rem] font-light"></p>
-            <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+            <p id="summary-ingresos_gastos" class="text-canvas-400 text-sm mt-4 min-h-[3rem] font-light"></p>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-canvas-700/50">
                 <a id="summary-download-ingresos_gastos"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">description</span> Resumen
+                    <span class="material-symbols-outlined text-base mr-1">description</span> Resumen
                 </a>
                 <a id="export-ingresos_gastos"
-                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none export-link bg-slate-800/50 hover:bg-slate-700"
+                    class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline export-link bg-canvas-800/50 hover:bg-canvas-700"
                     href="#" download>
-                    <span class="material-symbols-outlined text-sm mr-1">download</span> CSV
+                    <span class="material-symbols-outlined text-base mr-1">download</span> CSV
                 </a>
             </div>
         </div>
 
         <!-- Cache Status -->
-        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full md:col-span-2 shadow-xl shadow-indigo-900/5 border border-slate-700/50"
-            style="animation-delay: 300ms">
-            <h3 class="text-lg font-bold text-slate-200 mb-6 flex items-center gap-2 font-heading tracking-wide">
+        <div class="glass-panel p-6 animate-fade-in flex flex-col h-full md:col-span-2 shadow-xl shadow-primary-900/5 border border-canvas-700/50 animation-delay-300">
+            <h3 class="text-lg font-bold text-canvas-200 mb-6 flex items-center gap-2 font-heading tracking-wide">
                 <span class="material-symbols-outlined text-cyan-400">memory</span>
                 Estado del Sistema (Caché)
             </h3>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
-                    <span class="block text-slate-400 text-xs uppercase tracking-wider mb-1">Entradas</span>
-                    <span class="text-2xl font-bold text-slate-100" id="cacheEntries">0</span>
+                <div class="bg-canvas-800/50 p-4 rounded-lg border border-canvas-700/50">
+                    <span class="block text-canvas-400 text-xs uppercase tracking-wider mb-1">Entradas</span>
+                    <span class="text-2xl font-bold text-canvas-100" id="cacheEntries">0</span>
                 </div>
-                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
-                    <span class="block text-slate-400 text-xs uppercase tracking-wider mb-1">Hits</span>
-                    <span class="text-2xl font-bold text-emerald-400" id="cacheHits">0</span>
+                <div class="bg-canvas-800/50 p-4 rounded-lg border border-canvas-700/50">
+                    <span class="block text-canvas-400 text-xs uppercase tracking-wider mb-1">Hits</span>
+                    <span class="text-2xl font-bold text-success-400" id="cacheHits">0</span>
                 </div>
-                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
-                    <span class="block text-slate-400 text-xs uppercase tracking-wider mb-1">Misses</span>
-                    <span class="text-2xl font-bold text-rose-400" id="cacheMisses">0</span>
+                <div class="bg-canvas-800/50 p-4 rounded-lg border border-canvas-700/50">
+                    <span class="block text-canvas-400 text-xs uppercase tracking-wider mb-1">Misses</span>
+                    <span class="text-2xl font-bold text-danger-400" id="cacheMisses">0</span>
                 </div>
-                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
-                    <span class="block text-slate-400 text-xs uppercase tracking-wider mb-1">TTL (seg)</span>
-                    <span class="text-2xl font-bold text-blue-400" id="cacheTtl">0</span>
+                <div class="bg-canvas-800/50 p-4 rounded-lg border border-canvas-700/50">
+                    <span class="block text-canvas-400 text-xs uppercase tracking-wider mb-1">TTL (seg)</span>
+                    <span class="text-2xl font-bold text-info-400" id="cacheTtl">0</span>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- TTL Config -->
                 <div>
-                    <h4 class="text-slate-300 font-semibold mb-4 font-heading">Configuración</h4>
+                    <h4 class="text-canvas-300 font-semibold mb-4 font-heading">Configuración</h4>
                     <form id="ttlForm" class="space-y-4" autocomplete="off">
                         <div>
-                            <label class="block text-sm text-slate-400 mb-1" for="ttlInput">Actualizar TTL
+                            <label class="block text-sm text-canvas-400 mb-1" for="ttlInput">Actualizar TTL
                                 (segundos)</label>
                             <div class="flex gap-2">
                                 <input type="number" min="5" step="5" id="ttlInput"
-                                    class="form-input focus:border-indigo-500" required>
+                                    class="form-input focus:border-primary-500" required>
                                 <button
-                                    class="btn-elegant bg-indigo-600 hover:bg-indigo-500 text-white whitespace-nowrap px-4"
+                                    class="btn-elegant bg-primary-600 hover:bg-primary-500 text-white whitespace-nowrap px-4"
                                     type="submit">Aplicar</button>
                             </div>
-                            <p class="text-xs text-slate-500 mt-2">Cambiar el TTL limpiará la caché actual.</p>
+                            <p class="text-xs text-canvas-500 mt-2">Cambiar el TTL limpiará la caché actual.</p>
                             <div id="ttlFeedback" class="text-sm mt-2 hidden"></div>
                         </div>
                     </form>
@@ -238,33 +232,33 @@
                 <!-- History Log -->
                 <div>
                     <div class="flex justify-between items-center mb-4">
-                        <h4 class="text-slate-300 font-semibold font-heading">Historial de Eventos</h4>
+                        <h4 class="text-canvas-300 font-semibold font-heading">Historial de Eventos</h4>
                         <div class="relative w-40">
                             <select id="historyFilter"
-                                class="form-input py-1 text-xs appearance-none pr-6 bg-slate-800/50 border-slate-700">
+                                class="form-input py-1 text-xs appearance-none pr-6 bg-canvas-800/50 border-canvas-700">
                                 <option value="all">Todos</option>
                                 <option value="hit">Hits</option>
                                 <option value="miss">Misses</option>
                                 <option value="ttl_update">Cambios de TTL</option>
                             </select>
                             <span
-                                class="material-symbols-outlined absolute right-2 top-1.5 text-slate-500 pointer-events-none text-xs">expand_more</span>
+                                class="material-symbols-outlined absolute right-2 top-1.5 text-canvas-500 pointer-events-none text-[14px]">expand_more</span>
                         </div>
                     </div>
 
                     <ul id="cacheHistory"
-                        class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar p-2 bg-slate-900/30 rounded-lg border border-slate-800">
+                        class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar p-2 bg-canvas-900/30 rounded-lg border border-canvas-800">
                         <!-- Items injected by JS -->
                     </ul>
 
-                    <div class="flex gap-2 mt-4 pt-2 border-t border-slate-800">
+                    <div class="flex gap-2 mt-4 pt-2 border-t border-canvas-800">
                         <a id="cacheHistoryDownload" href="{{ url_for('reportes.cache_history_export') }}" download
-                            class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700">
+                            class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline bg-canvas-800/50 hover:bg-canvas-700">
                             Descargar actual
                         </a>
                         <a id="cacheHistoryDownloadAll"
                             href="{{ url_for('reportes.cache_history_export', include_archives=1) }}" download
-                            class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center text-decoration-none bg-slate-800/50 hover:bg-slate-700">
+                            class="btn-elegant btn-secondary py-1 px-3 text-xs flex-1 justify-center no-underline bg-canvas-800/50 hover:bg-canvas-700">
                             Descargar todo (ZIP)
                         </a>
                     </div>
@@ -272,29 +266,29 @@
             </div>
         </div>
     </div>
-</main>
+</div>
 {% endblock %}
 
 {% block page_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Theme Colors (Updated for Elegant Dark / Indigo)
+<script nonce="{{ csp_nonce() }}">
+    // Theme Colors (read from CSS vars, theme-aware)
     // Theme Colors (Dynamic)
     const getThemeColor = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
 
     const themeColors = {
         primary: getThemeColor('--color-primary-500') || '#6366f1',
         primaryTransparent: (getThemeColor('--color-primary-500') || '#6366f1') + '33',
-        secondary: '#f59e0b', // Amber 500
-        danger: '#ef4444',    // Red 500
-        success: '#10b981',   // Emerald 500
-        info: '#3b82f6',      // Blue 500
+        secondary: getThemeColor('--color-warning-500') || '#f59e0b', // warning
+        danger: getThemeColor('--color-danger-500') || '#ef4444', // danger
+        success: getThemeColor('--color-success-500') || '#10b981', // success
+        info: getThemeColor('--color-info-500') || '#3b82f6', // info
         purple: '#a855f7',    // Purple 500
         pink: '#ec4899',      // Pink 500
-        text: getThemeColor('--color-canvas-300') || '#cbd5e1', // Slate 300
-        textMuted: getThemeColor('--color-canvas-400') || '#94a3b8', // Slate 400
-        grid: getThemeColor('--color-canvas-700') || '#334155', // Slate 700
-        background: getThemeColor('--color-canvas-900') || '#0f172a' // Slate 900
+        text: getThemeColor('--color-canvas-300') || '#cbd5e1', // Canvas 300
+        textMuted: getThemeColor('--color-canvas-400') || '#94a3b8', // Canvas 400
+        grid: getThemeColor('--color-canvas-700') || '#334155', // Canvas 700
+        background: getThemeColor('--color-canvas-900') || '#0f172a' // Canvas 900
     };
 
     // Chart.js Global Defaults
@@ -526,31 +520,31 @@
         const filtered = cacheHistoryEvents.filter((event) => selectedType === 'all' || event.type === selectedType);
 
         if (!filtered.length) {
-            cacheHistoryList.innerHTML = '<li class="text-slate-500 text-xs italic text-center py-2">Sin eventos recientes.</li>';
+            cacheHistoryList.innerHTML = '<li class="text-canvas-500 text-xs italic text-center py-2">Sin eventos recientes.</li>';
             return;
         }
 
         filtered.forEach((event) => {
             const li = document.createElement('li');
-            li.className = 'text-xs text-slate-300 py-1 border-b border-slate-700/50 last:border-0 flex gap-2';
+            li.className = 'text-xs text-canvas-300 py-1 border-b border-canvas-700/50 last:border-0 flex gap-2';
 
             const date = new Date(event.timestamp);
             const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             let icon = 'info';
-            let colorClass = 'text-slate-400';
+            let colorClass = 'text-canvas-400';
 
-            if (event.type === 'hit') { icon = 'check_circle'; colorClass = 'text-emerald-400'; }
-            else if (event.type === 'miss') { icon = 'cancel'; colorClass = 'text-rose-400'; }
-            else if (event.type === 'ttl_update') { icon = 'update'; colorClass = 'text-blue-400'; }
+            if (event.type === 'hit') { icon = 'check_circle'; colorClass = 'text-success-400'; }
+            else if (event.type === 'miss') { icon = 'cancel'; colorClass = 'text-danger-400'; }
+            else if (event.type === 'ttl_update') { icon = 'update'; colorClass = 'text-info-400'; }
 
             let desc = event.type === 'ttl_update'
                 ? `TTL actualizado a <span class="font-bold">${event.ttl_seconds}s</span>`
-                : `Cache ${event.type.toUpperCase()} → <span class="font-mono text-slate-400">${event.key}</span>`;
+                : `Cache ${event.type.toUpperCase()} → <span class="font-mono text-canvas-400">${event.key}</span>`;
 
             li.innerHTML = `
                     <span class="material-symbols-outlined text-[14px] ${colorClass}">${icon}</span>
-                    <span class="text-slate-500 font-mono text-[10px] w-14">${timeStr}</span>
+                    <span class="text-canvas-500 font-mono text-[10px] w-14">${timeStr}</span>
                     <span class="flex-1">${desc}</span>
                 `;
             cacheHistoryList.appendChild(li);
@@ -637,7 +631,7 @@
         } catch (error) {
             console.error(`Error loading ${config.chartName}:`, error);
             const p = config.ctx.parentElement;
-            p.innerHTML = `<div class="flex items-center justify-center h-full text-rose-400 text-sm"><span class="material-symbols-outlined mr-2">error</span>Error cargando datos</div>`;
+            p.innerHTML = `<div class="flex items-center justify-center h-full text-danger-400 text-sm"><span class="material-symbols-outlined mr-2">error</span>Error cargando datos</div>`;
         }
     };
 
@@ -674,7 +668,7 @@
 
         if (!Number.isFinite(ttlSeconds) || ttlSeconds < 5) {
             feedback.textContent = 'Mínimo 5 segundos.';
-            feedback.className = 'text-sm mt-2 text-amber-400';
+            feedback.className = 'text-sm mt-2 text-warning-400';
             feedback.classList.remove('hidden');
             return;
         }
@@ -690,7 +684,7 @@
             if (!response.ok) throw new Error(payload.error || 'Error al actualizar.');
 
             feedback.textContent = 'Actualizado correctamente.';
-            feedback.className = 'text-sm mt-2 text-emerald-400';
+            feedback.className = 'text-sm mt-2 text-success-400';
             feedback.classList.remove('hidden');
             await refreshCacheStats();
             await refreshCacheHistory();
@@ -698,7 +692,7 @@
             setTimeout(() => feedback.classList.add('hidden'), 3000);
         } catch (error) {
             feedback.textContent = error.message;
-            feedback.className = 'text-sm mt-2 text-rose-400';
+            feedback.className = 'text-sm mt-2 text-danger-400';
             feedback.classList.remove('hidden');
         }
     });

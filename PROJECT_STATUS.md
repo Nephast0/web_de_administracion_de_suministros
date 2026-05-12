@@ -1,5 +1,65 @@
 # Estado actualizado del proyecto
 
+## Revisión 2026-05-12 (Sprint visual completo — 4 sprints + design system)
+
+### Estado actual
+- **34 tests pasan** (32 previos + 2 nuevos de regresión para `/contabilidad/balance` y `/contabilidad/diario`).
+- **Smoke test end-to-end**: 14/14 URLs admin y anónimas renderizan 200 OK sin BuildError ni jinja sin resolver.
+- **Tailwind compilado con npm** (no CDN runtime). Build: `npm run build:css` → `app/static/css/tailwind.css` (~45KB minified).
+- **CSP estricta sin `script-src 'unsafe-inline'`** activa: scripts inline usan `nonce="{{ csp_nonce() }}"` generado per-request.
+- **Sistema de design documentado** en `DESIGN_SYSTEM.md` (tokens, componentes, patrones, do's/don'ts).
+
+### Cambios ejecutados en esta sesión
+
+#### Sprint 1 — Fixes estructurales
+- **5 clases de componente "fantasma" definidas** en CSS (`form-input`, `glass-table`, `glass-card`, `btn-primary`, `btn-secondary`). Antes estaban en uso (161 ocurrencias) pero no definidas en ningún sitio.
+- **`<main>` anidado eliminado** en 21 templates (la auditoría original decía 6 — había más). Bonus: corregido un `</main>{% endblock %}` duplicado en `proveedores.html`.
+- **`text-decoration-none` (clase Bootstrap inválida en Tailwind) → `no-underline`** — 31 reemplazos en 6 archivos.
+- **Logout duplicado eliminado** de `menu-cliente.html`.
+
+#### Sprint 2 — Tokens semánticos
+- **4 paletas semánticas nuevas** en `:root` (`success`, `danger`, `warning`, `info`) — 44 vars CSS + 44 mappings Tailwind. Theme-independent (un rojo de error es rojo en los 4 temas).
+- **Migración de 123 colores hardcodeados** a tokens semánticos (`emerald-* → success-*`, `red-* → danger-*`, `amber-* → warning-*`, `green-400 → success-400`) en 19 templates.
+- **Migración de 142 colores legacy** (`slate-* → canvas-*`, `indigo-* → primary-*`, `rose-* → danger-*`) en 6 templates más.
+- **`graficas.html` admin refactorizado**: cierra el pendiente de diciembre 2025. Chart.js ahora lee colores del CSS via `getThemeColor()` con los nuevos tokens semánticos — los gráficos cambian con el tema.
+- **Bug del snackbar corregido**: el banner "success" mapeaba a `primary` (color acento) y "info" a `canvas` (gris). Ahora cada categoría usa su token correcto.
+
+#### Sprint 3 — Pulido visual
+- **Wrappers consolidados a 3 patrones canónicos** (`default` / `form-centered` / `viewport-centered`). 6 archivos con `my-8 → my-6`; 1 con `pb-12` añadido.
+- **Banner de marca duplicado eliminado** en `menu-cliente.html` y `menu_principal.html`. Bonus: corregido conflicto `text-xl text-sm` simultáneos en `menu_principal`.
+- **Botón "Volver" auditado**: dos patrones (pill icon-only y inline link) ambos válidos en su contexto. Bonus: migrados 5 residuales `teal-* → primary-*`.
+- **Escala canónica de 5 tamaños de icono** aplicada en 19 archivos (72 normalizaciones). Bonus: migrados 3 `blue-* → info-*`.
+- **Modal de confirmación reutilizable** (`window.confirmDialog`) y **toast** (`window.showToast`) en `base.html`. API declarativa via `data-confirm="..."` en forms/links. 6 call sites migrados (5 forms con `onsubmit="return confirm(...)"` + 1 archivo con `confirm()`/`alert()` en JS). Erradicados `confirm()` y `alert()` nativos.
+
+#### Auditoría funcional (entre Sprint 3 y 4)
+- **Eliminado `inventario.html`** (código muerto: huérfano + 3 `url_for` rotos).
+- **Arregladas 9 referencias `url_for('menu.menu_principal')` rotas** (el blueprint se llama `inventario`, no `menu`). 2 en templates (`contabilidad/balance.html`, `contabilidad/diario.html`) + 7 en código Python (`contabilidad.py`) que sólo se activaban cuando un cliente intentaba acceder a URLs admin.
+- **Arreglado bug funcional preexistente** en `contabilidad.py::balance`: `totales[c.tipo] += saldos[c.id]` lanzaba `KeyError` si el tipo de cuenta no estaba pre-poblado. Ahora usa `setdefault` defensivo.
+- **2 tests de regresión añadidos** (`ContabilidadRenderTest`) que renderizan `/balance` y `/diario` autenticados — evitan que estos `BuildError` vuelvan a pasar inadvertidos.
+
+#### Sprint 4 — Infraestructura
+- **npm + Tailwind compilado**: `package.json`, `tailwind.config.js`, `app/static/css/input.css` extraídos de las 95 líneas de config inline + 3 bloques `<style>` que vivían en `base.html`.
+- **Safelist Tailwind** para clases generadas dinámicamente desde JS (variantes del modal, variantes del toast).
+- **JS externalizado**: `app/static/js/theme.js` (pre-paint, evita flash de tema) + `app/static/js/ui.js` (modal, toast, mobile nav, data-confirm interceptor, theme switcher delegation).
+- **Todos los handlers inline migrados a delegated events** (`onclick=`/`onchange=`/`onsubmit=` cero en templates): `data-set-theme`, `data-flash-close`, `data-remove-closest`, `data-auto-submit`, `data-action`.
+- **Todos los `style="..."` inline migrados a clases CSS** (`animation-delay-X`), incluyendo el caso dinámico de `balance.html` con interpolación Jinja.
+- **CSP nonce** implementado: `app/__init__.py::_generate_csp_nonce` genera nonce per-request, expuesto al template como `csp_nonce()`. Sustituido en `Content-Security-Policy` header en `after_request`. 8 `<script>` inline restantes (Chart.js wrappers, page-specific JS) ahora llevan `nonce="{{ csp_nonce() }}"`.
+- **CSP endurecida**: eliminado `script-src 'unsafe-inline'`. Sigue presente `style-src 'unsafe-inline'` por compatibilidad con estilos dinámicos de Chart.js (documentado para revisión futura).
+- **`base.html` pasó de 873 líneas → 209 líneas** (76% reducción).
+
+### Métricas
+- **Templates tocados al menos una vez**: 25 (todos los del proyecto + eliminado `inventario.html`).
+- **Archivos creados nuevos**: 6 — `DESIGN_SYSTEM.md`, `package.json`, `tailwind.config.js`, `app/static/css/input.css`, `app/static/js/theme.js`, `app/static/js/ui.js`.
+- **Reducción de `<script>` inline en templates**: 200+ líneas → 0 (todo en archivos `.js` o con nonce).
+- **Tests**: 32 → 34 (con 2 de regresión nuevos).
+
+### Próxima fase (sin urgencia, opcional)
+- **Endurecer `style-src`**: eliminar `'unsafe-inline'` de style-src requeriría envolver Chart.js para que no inyecte estilos dinámicos, o aceptar perder algunos efectos visuales de los gráficos.
+- **CI**: añadir un step que corra `npm run build:css` antes del deploy (o asumir que `tailwind.css` se commitea — actualmente sí lo está).
+- **Auditoría a11y completa**: contraste, navegación por teclado, ARIA labels en componentes complejos (modal ya tiene; tablas y dropdowns no fueron auditados a fondo).
+
+---
+
 ## Revisión 2026-05-11 (Cierre de auditoría — repo al día, siguiente fase: visual)
 
 ### Estado actual

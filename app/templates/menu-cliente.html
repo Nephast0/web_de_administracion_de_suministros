@@ -2,43 +2,30 @@
 {% block title %}Menú Cliente{% endblock %}
 
 {% block content %}
-<main class="min-h-screen flex items-center justify-center p-4">
+<div class="min-h-screen flex items-center justify-center p-4">
     <div class="max-w-4xl w-full">
-        <!-- Header / Actions -->
-        <div class="flex justify-between items-center mb-8">
-            <h1
-                class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-canvas-100 to-canvas-400">
-                Suministros Informáticos <span class="text-primary-400 not-italic">CNCV</span>
-            </h1>
-
+        <!-- Quick Actions -->
+        <div class="flex justify-end items-center mb-8">
             <div class="flex items-center gap-3">
                 <a href="{{ url_for('inventario.cesta') }}"
-                    class="glass-panel px-4 py-2 hover:bg-canvas-700/50 transition-colors flex items-center gap-2 text-canvas-300 hover:text-primary-400 group text-decoration-none"
+                    class="glass-panel px-4 py-2 hover:bg-canvas-700/50 transition-colors flex items-center gap-2 text-canvas-300 hover:text-primary-400 group no-underline"
                     aria-label="Ir a la cesta">
                     <span
                         class="material-symbols-outlined group-hover:scale-110 transition-transform">shopping_cart</span>
                     <span class="hidden md:inline">Cesta</span>
                 </a>
                 <a href="{{ url_for('inventario.perfil_cliente') }}"
-                    class="glass-panel px-4 py-2 hover:bg-canvas-700/50 transition-colors flex items-center gap-2 text-canvas-300 hover:text-primary-400 group text-decoration-none"
+                    class="glass-panel px-4 py-2 hover:bg-canvas-700/50 transition-colors flex items-center gap-2 text-canvas-300 hover:text-primary-400 group no-underline"
                     aria-label="Ir al perfil">
                     <span class="material-symbols-outlined group-hover:scale-110 transition-transform">person</span>
                     <span class="hidden md:inline">Perfil</span>
                 </a>
                 <a href="{{ url_for('inventario.pedidos') }}"
-                    class="glass-panel px-4 py-2 hover:bg-canvas-700/50 transition-colors flex items-center gap-2 text-canvas-300 hover:text-primary-400 group text-decoration-none"
+                    class="glass-panel px-4 py-2 hover:bg-canvas-700/50 transition-colors flex items-center gap-2 text-canvas-300 hover:text-primary-400 group no-underline"
                     aria-label="Ver pedidos">
                     <span class="material-symbols-outlined group-hover:scale-110 transition-transform">list_alt</span>
                     <span class="hidden md:inline">Pedidos</span>
                 </a>
-                <form action="{{ url_for('auth.logout') }}" method="post" class="inline-block m-0">
-                    {{ csrf_token() }}
-                    <button type="submit"
-                        class="glass-panel px-4 py-2 hover:bg-red-900/30 transition-colors flex items-center gap-2 text-canvas-300 hover:text-red-400 group text-decoration-none ml-2"
-                        aria-label="Cerrar sesión">
-                        <span class="material-symbols-outlined group-hover:scale-110 transition-transform">logout</span>
-                    </button>
-                </form>
             </div>
         </div>
 
@@ -49,14 +36,14 @@
                 class="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none">
             </div>
             <div
-                class="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none">
+                class="absolute bottom-0 left-0 w-64 h-64 bg-warning-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none">
             </div>
 
             <h2 class="text-2xl text-canvas-200 mb-8 font-heading">Bienvenido a tu panel de cliente</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 <a href="{{ url_for('inventario.productos_cliente') }}"
-                    class="group glass-card p-6 flex flex-col items-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all text-decoration-none cursor-pointer border border-canvas-700/50 hover:border-primary-500/50">
+                    class="group glass-card p-6 flex flex-col items-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all no-underline cursor-pointer border border-canvas-700/50 hover:border-primary-500/50">
                     <div
                         class="w-16 h-16 rounded-full bg-canvas-800 flex items-center justify-center group-hover:bg-primary-500/20 transition-colors">
                         <span class="material-symbols-outlined text-4xl text-primary-400">inventory_2</span>
@@ -69,13 +56,13 @@
                 </a>
 
                 <a href="{{ url_for('reportes.graficas_cliente') }}"
-                    class="group glass-card p-6 flex flex-col items-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all text-decoration-none cursor-pointer border border-canvas-700/50 hover:border-amber-500/50">
+                    class="group glass-card p-6 flex flex-col items-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all no-underline cursor-pointer border border-canvas-700/50 hover:border-warning-500/50">
                     <div
-                        class="w-16 h-16 rounded-full bg-canvas-800 flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
-                        <span class="material-symbols-outlined text-4xl text-amber-400">monitoring</span>
+                        class="w-16 h-16 rounded-full bg-canvas-800 flex items-center justify-center group-hover:bg-warning-500/20 transition-colors">
+                        <span class="material-symbols-outlined text-4xl text-warning-400">monitoring</span>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-canvas-200 group-hover:text-amber-400 transition-colors">Mis
+                        <h3 class="text-xl font-bold text-canvas-200 group-hover:text-warning-400 transition-colors">Mis
                             Métricas</h3>
                         <p class="text-canvas-400 text-sm mt-2">Visualiza tus gastos y productos favoritos</p>
                     </div>
@@ -85,14 +72,14 @@
             {% if pedidos_pendientes and pedidos_pendientes > 0 %}
             <div class="mt-8 mx-auto max-w-lg">
                 <div
-                    class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 flex items-center justify-between">
+                    class="bg-warning-500/10 border border-warning-500/30 rounded-lg p-4 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-amber-400">pending_actions</span>
-                        <span class="text-amber-100">Tienes <strong>{{ pedidos_pendientes }}</strong> pedidos
+                        <span class="material-symbols-outlined text-warning-400">pending_actions</span>
+                        <span class="text-warning-100">Tienes <strong>{{ pedidos_pendientes }}</strong> pedidos
                             pendientes</span>
                     </div>
                     <a href="{{ url_for('inventario.pedidos') }}"
-                        class="text-sm font-bold text-amber-400 hover:text-amber-300 underline">
+                        class="text-sm font-bold text-warning-400 hover:text-warning-300 underline">
                         Ver pedidos
                     </a>
                 </div>
@@ -104,5 +91,5 @@
             <p>&copy; 2024 Suministros Informáticos CNCV</p>
         </div>
     </div>
-</main>
+</div>
 {% endblock %}
