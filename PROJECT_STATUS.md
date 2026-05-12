@@ -1,5 +1,62 @@
 # Estado actualizado del proyecto
 
+## Revisión 2026-05-12 (noche-tarde) — Auditoría arquitectónica backend (ADR-001)
+
+### Contexto
+Auditoría completa del backend tras el rediseño visual. ADR-001 unifica 4 deficiencias detectadas: inconsistencia en checks de rol (8 endpoints en contabilidad con `if current_user.rol != 'admin'` inline), cobertura incompleta del audit log (login/logout/compras/asientos no se registraban), filtrado limitado en tablas críticas (diario, balance, pedidos).
+
+### Cambios aplicados
+
+#### Política unificada de autorización
+- **`contabilidad.py` reescrito**: los 8 endpoints pasan de check inline a `@role_required("admin")`. Eliminadas 8 repeticiones de `if current_user.rol != 'admin': flash(...); redirect(...)`.
+- **`inventario.menu_principal` y `menu_cliente`**: eliminado el check manual redundante post-decorador (`if current_user.is_authenticated and current_user.rol == "X"`).
+- Helper `_parse_date` movido al nivel de módulo en `contabilidad.py` (antes repetido 4 veces como función local).
+- Logout verificado: redirige a `auth.login` correctamente.
+
+#### Audit log completo (`registrar_actividad`)
+Antes 9 endpoints registraban actividad. Ahora **20+**:
+
+| Módulo | Eventos añadidos |
+|---|---|
+| Autenticación | login exitoso, logout, **intento de login fallido** (anti-fuerza-bruta) |
+| Perfil | actualización de datos, cambio de contraseña |
+| Compras | confirmar compra (con resumen y total), cancelar pedido |
+| Contabilidad | crear asiento (con id y descripción), inicializar plan de cuentas |
+| Exportaciones | productos, proveedores, compras admin, diario, balance, cuenta resultados, historial caché, gráficas (admin + cliente) |
+
+#### Filtrado avanzado en tablas
+
+**`contabilidad.diario`** — antes solo fechas. Ahora 5 filtros AND-combinables:
+- `fecha_inicio`, `fecha_fin` (rango)
+- `cuenta` (substring código, con `<datalist>` autocompletado)
+- `usuario` (login del registrador)
+- `descripcion` (substring del asiento)
+
+**`contabilidad.balance`** — antes estático. Ahora:
+- Click en cualquier *summary card* (Activo/Pasivo/Patrimonio/Ingreso/Gasto) filtra la tabla por tipo
+- Chip de filtro activo con botón "quitar"
+- Totales siempre calculados sobre TODAS las cuentas (no se deforman al filtrar)
+
+**`inventario.pedidos` (cliente)** — antes ninguno. Ahora:
+- `estado` (Pendiente / Completado / Cancelado / todos)
+- `producto` (substring del modelo)
+- `desde`/`hasta` (fechas)
+- Checkbox "incluir cancelados"
+- Paginación preservando filtros entre páginas
+
+### Métricas
+- **34/34 tests OK**, sin regresiones.
+- **63 endpoints Flask** (sin cambio).
+- **Cobertura de audit log**: 9 → 20+ endpoints (+122%).
+- **Líneas eliminadas (DRY)**: ~50 (checks inline duplicados, `_parse_date` consolidado).
+
+### Pendientes
+- Política de retención de `ActividadUsuario` (la tabla va a crecer rápido con login + intento fallido + compras + asientos + exports).
+- Filtros equivalentes en `cuenta_resultados` contable (sólo fechas actualmente).
+- Encoding del select de moneda en perfil ("EspaÃ±ol") — preexistente.
+
+---
+
 ## Revisión 2026-05-12 (noche) — Rediseño visual "serio" + theme switcher reubicado
 
 ### Decisión

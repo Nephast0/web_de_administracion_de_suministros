@@ -1,85 +1,127 @@
 {% extends "base.html" %}
-{% block title %}Mis Pedidos{% endblock %}
+{% block title %}Mis pedidos{% endblock %}
 
 {% block content %}
 <div class="container mx-auto my-6 px-4 pb-12">
     <!-- Header -->
-    <div class="flex items-center gap-4 mb-8">
+    <div class="flex items-center gap-4 mb-6">
         <a href="{{ url_for('inventario.menu_cliente') }}"
-            class="flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
+            class="flex items-center justify-center w-9 h-9 rounded-md border border-canvas-700 text-canvas-400 hover:text-canvas-100 hover:border-canvas-500 transition-colors bg-canvas-900/50"
             aria-label="Volver al menú del cliente">
-            <span class="material-symbols-outlined">arrow_back</span>
+            <span class="material-symbols-outlined text-xl">arrow_back</span>
         </a>
-        <h1
-            class="text-2xl font-semibold font-heading text-canvas-100">
-            Mis Pedidos
-        </h1>
+        <div>
+            <h1 class="text-2xl text-canvas-100">Mis pedidos</h1>
+            <p class="text-sm text-canvas-500">
+                {% if pagination %}{{ pagination.total }}{% else %}{{ pedidos|length }}{% endif %} pedido{{ '' if (pagination.total if pagination else pedidos|length) == 1 else 's' }} en total
+            </p>
+        </div>
     </div>
 
+    <!-- Filters -->
+    <section class="glass-panel p-5 mb-6 animate-fade-in">
+        <header class="flex items-center gap-2 mb-4">
+            <span class="material-symbols-outlined text-canvas-400 text-base">filter_alt</span>
+            <h2 class="text-sm font-medium text-canvas-200">Filtros</h2>
+        </header>
+        <form method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+            <div class="space-y-1.5">
+                <label for="estado" class="block text-xs font-medium text-canvas-400 uppercase tracking-wider">Estado</label>
+                <div class="relative">
+                    <select id="estado" name="estado" class="form-input pr-9 appearance-none">
+                        <option value="" {% if not filtros.estado %}selected{% endif %}>Todos (activos)</option>
+                        <option value="Pendiente"  {% if filtros.estado == 'Pendiente'  %}selected{% endif %}>Pendiente</option>
+                        <option value="Completado" {% if filtros.estado == 'Completado' %}selected{% endif %}>Completado</option>
+                        <option value="Cancelado"  {% if filtros.estado == 'Cancelado'  %}selected{% endif %}>Cancelado</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-canvas-500 pointer-events-none text-base">expand_more</span>
+                </div>
+            </div>
+            <div class="space-y-1.5">
+                <label for="producto" class="block text-xs font-medium text-canvas-400 uppercase tracking-wider">Producto</label>
+                <input type="text" id="producto" name="producto" value="{{ filtros.producto }}"
+                    placeholder="modelo contiene…"
+                    class="form-input">
+            </div>
+            <div class="space-y-1.5">
+                <label for="desde" class="block text-xs font-medium text-canvas-400 uppercase tracking-wider">Desde</label>
+                <input type="date" id="desde" name="desde" value="{{ filtros.desde }}" class="form-input">
+            </div>
+            <div class="space-y-1.5">
+                <label for="hasta" class="block text-xs font-medium text-canvas-400 uppercase tracking-wider">Hasta</label>
+                <input type="date" id="hasta" name="hasta" value="{{ filtros.hasta }}" class="form-input">
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="btn-elegant btn-primary flex-1 justify-center">
+                    <span class="material-symbols-outlined text-base">search</span> Filtrar
+                </button>
+                <a href="{{ url_for('inventario.pedidos') }}"
+                    class="btn-elegant btn-secondary flex items-center justify-center px-3"
+                    aria-label="Limpiar filtros"
+                    title="Limpiar">
+                    <span class="material-symbols-outlined text-base">close</span>
+                </a>
+            </div>
+            <div class="sm:col-span-2 lg:col-span-5 flex items-center gap-2 text-sm text-canvas-400">
+                <input type="checkbox" id="incluir_cancelados" name="incluir_cancelados" value="1"
+                    {% if filtros.incluir_cancelados %}checked{% endif %}
+                    class="w-4 h-4 rounded border-canvas-700 bg-canvas-900 text-primary-500 focus:ring-primary-500 focus:ring-2 focus:ring-offset-0">
+                <label for="incluir_cancelados">Incluir pedidos cancelados</label>
+            </div>
+        </form>
+    </section>
+
     <!-- Orders Table -->
-    <div class="glass-panel p-1 overflow-hidden animate-fade-in">
+    <div class="glass-panel p-1 overflow-hidden animate-fade-in animation-delay-100">
         <div class="overflow-x-auto rounded-lg">
             <table class="w-full text-sm text-left text-canvas-300">
-                <thead class="text-xs text-canvas-400 uppercase bg-canvas-900/80 font-heading tracking-wider">
+                <thead class="text-xs text-canvas-400 uppercase bg-canvas-950/60 tracking-wider">
                     <tr>
-                        <th class="px-6 py-4 font-semibold">Producto</th>
-                        <th class="px-6 py-4 font-semibold text-center">Cantidad</th>
-                        <th class="px-6 py-4 font-semibold text-right">Precio Unitario</th>
-                        <th class="px-6 py-4 font-semibold text-right">Total</th>
-                        <th class="px-6 py-4 font-semibold text-center">Estado</th>
-                        <th class="px-6 py-4 font-semibold">Fecha</th>
-                        <th class="px-6 py-4 font-semibold text-right">Opciones</th>
+                        <th class="px-6 py-3 font-medium">Producto</th>
+                        <th class="px-6 py-3 font-medium text-center">Cantidad</th>
+                        <th class="px-6 py-3 font-medium text-right">Precio</th>
+                        <th class="px-6 py-3 font-medium text-right">Total</th>
+                        <th class="px-6 py-3 font-medium text-center">Estado</th>
+                        <th class="px-6 py-3 font-medium">Fecha</th>
+                        <th class="px-6 py-3 font-medium text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-canvas-700/50">
+                <tbody class="divide-y divide-canvas-800/60">
                     {% for pedido in pedidos %}
-                    <tr class="hover:bg-white/5 transition-colors">
-                        <td class="px-6 py-4 font-medium text-canvas-100">
-                            {{ pedido.producto.modelo }}
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span
-                                class="bg-canvas-800 text-canvas-300 px-2 py-1 rounded text-xs font-mono border border-canvas-600">
+                    <tr class="hover:bg-canvas-800/40 transition-colors">
+                        <td class="px-6 py-2.5 text-canvas-100">{{ pedido.producto.modelo }}</td>
+                        <td class="px-6 py-2.5 text-center">
+                            <span class="bg-canvas-800 text-canvas-300 px-2 py-0.5 rounded text-xs font-mono border border-canvas-700">
                                 {{ pedido.cantidad }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-right text-canvas-400">
-                            {{ pedido.precio_unitario | currency }}
-                        </td>
-                        <td class="px-6 py-4 text-right font-medium text-primary-400">
-                            {{ pedido.total | currency }}
-                        </td>
-                        <td class="px-6 py-4 text-center">
+                        <td class="px-6 py-2.5 text-right text-canvas-400 font-mono text-sm">{{ pedido.precio_unitario | currency }}</td>
+                        <td class="px-6 py-2.5 text-right font-mono text-sm text-canvas-100">{{ pedido.total | currency }}</td>
+                        <td class="px-6 py-2.5 text-center">
                             {% if pedido.estado == "Pendiente" %}
-                            <span
-                                class="bg-warning-500/10 text-warning-500 border border-warning-500/20 px-2 py-1 rounded-full text-xs uppercase">Pendiente</span>
+                            <span class="bg-warning-500/10 text-warning-400 border border-warning-500/20 px-2 py-0.5 rounded-full text-[11px] uppercase tracking-wide">Pendiente</span>
                             {% elif pedido.estado == "Completado" %}
-                            <span
-                                class="bg-success-500/10 text-success-500 border border-success-500/20 px-2 py-1 rounded-full text-xs uppercase">Completado</span>
+                            <span class="bg-success-500/10 text-success-400 border border-success-500/20 px-2 py-0.5 rounded-full text-[11px] uppercase tracking-wide">Completado</span>
                             {% elif pedido.estado == "Cancelado" %}
-                            <span
-                                class="bg-danger-500/10 text-danger-500 border border-danger-500/20 px-2 py-1 rounded-full text-xs uppercase">Cancelado</span>
+                            <span class="bg-danger-500/10 text-danger-400 border border-danger-500/20 px-2 py-0.5 rounded-full text-[11px] uppercase tracking-wide">Cancelado</span>
                             {% else %}
-                            <span
-                                class="bg-canvas-700 text-canvas-300 px-2 py-1 rounded-full text-xs uppercase">{{
-                                pedido.estado }}</span>
+                            <span class="bg-canvas-700 text-canvas-300 px-2 py-0.5 rounded-full text-[11px] uppercase tracking-wide">{{ pedido.estado }}</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-xs text-canvas-500">
-                            {{ pedido.fecha.strftime('%d/%m/%Y %H:%M') }}
-                        </td>
-                        <td class="px-6 py-4 text-right">
+                        <td class="px-6 py-2.5 text-xs text-canvas-500 font-mono">{{ pedido.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td class="px-6 py-2.5 text-right">
                             {% if pedido.estado == "Pendiente" %}
                             <form action="{{ url_for('inventario.cancelar_pedido', pedido_id=pedido.id) }}"
                                 method="POST"
                                 data-confirm="¿Estás seguro de que deseas cancelar este pedido?"
-                                data-confirm-title="Cancelar pedido" data-confirm-text="Cancelar pedido"
+                                data-confirm-title="Cancelar pedido"
+                                data-confirm-text="Cancelar pedido"
                                 data-confirm-variant="warning"
                                 class="inline">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit"
-                                    class="text-sm border border-danger-500/30 text-danger-400 hover:bg-danger-500/10 px-3 py-1.5 rounded transition-colors flex items-center gap-1 ml-auto"
-                                    aria-label="Cancelar {{ pedido.producto.nombre }}">
+                                    class="text-xs border border-danger-500/30 text-danger-400 hover:bg-danger-500/10 px-2.5 py-1 rounded-md transition-colors inline-flex items-center gap-1 ml-auto"
+                                    aria-label="Cancelar pedido de {{ pedido.producto.modelo }}">
                                     <span class="material-symbols-outlined text-base">cancel</span> Cancelar
                                 </button>
                             </form>
@@ -88,9 +130,9 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-canvas-500">
-                            <span class="material-symbols-outlined text-4xl mb-2 opacity-50">shopping_cart_off</span>
-                            <p>No tienes pedidos registrados.</p>
+                        <td colspan="7" class="px-6 py-16 text-center text-canvas-500">
+                            <span class="material-symbols-outlined text-3xl opacity-40 mb-2">shopping_cart_off</span>
+                            <p class="text-sm">No hay pedidos con los filtros actuales.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -100,21 +142,21 @@
     </div>
 
     <!-- Pagination -->
-    {% if pagination %}
-    <div class="flex justify-between items-center mt-6 pt-4 border-t border-canvas-700/50">
+    {% if pagination and pagination.pages > 1 %}
+    <div class="flex justify-between items-center mt-5 pt-4 border-t border-canvas-800">
         <div class="text-sm text-canvas-500">
-            Página <span class="text-canvas-200 font-bold">{{ pagination.page }}</span> de {{ pagination.pages }}
+            Página <span class="text-canvas-200 font-medium">{{ pagination.page }}</span> de {{ pagination.pages }}
         </div>
         <div class="flex gap-2">
             {% if pagination.has_prev %}
-            <a class="btn-elegant btn-secondary py-1 px-3 text-sm"
-                href="{{ url_for('inventario.pedidos', page=pagination.prev_num) }}">
+            <a class="btn-elegant btn-secondary py-1 px-3 text-xs"
+                href="{{ url_for('inventario.pedidos', page=pagination.prev_num, **filtros) }}">
                 <span class="material-symbols-outlined text-base">chevron_left</span> Anterior
             </a>
             {% endif %}
             {% if pagination.has_next %}
-            <a class="btn-elegant btn-secondary py-1 px-3 text-sm"
-                href="{{ url_for('inventario.pedidos', page=pagination.next_num) }}">
+            <a class="btn-elegant btn-secondary py-1 px-3 text-xs"
+                href="{{ url_for('inventario.pedidos', page=pagination.next_num, **filtros) }}">
                 Siguiente <span class="material-symbols-outlined text-base">chevron_right</span>
             </a>
             {% endif %}

@@ -158,6 +158,7 @@ def login():
             session.clear()  # Evita fijación de sesión previa al login.
             login_user(usuario)
             _reset_rate_limit()
+            registrar_actividad(usuario.id, "Inició sesión", "Autenticación")
             flash(f"¡Bienvenido, {usuario.usuario}!", "success")
 
             # Derivamos según rol; se podría extender con más roles en el futuro.
@@ -169,6 +170,8 @@ def login():
             flash("Tu cuenta no tiene un rol asignado correctamente.", "warning")
             logout_user()
         else:
+            # Audit log de intento fallido — útil para detección de fuerza bruta.
+            registrar_actividad(usuario.id, "Intento de login fallido", "Autenticación")
             flash("Usuario o contraseña incorrectos.", "danger")
 
     else:
@@ -183,8 +186,11 @@ def login():
 @auth_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
+    # IMPORTANTE: registrar la actividad ANTES de logout_user() porque después
+    # current_user es AnonymousUserMixin y no tiene id.
+    registrar_actividad(current_user.id, "Cerró sesión", "Autenticación")
     logout_user()
-    flash("Has cerrado la sesión  correctamente.", "info")
+    flash("Has cerrado la sesión correctamente.", "info")
     return redirect(url_for("auth.login"))
 
 
@@ -340,6 +346,8 @@ def exportar_compras_admin():
                 compra.fecha.strftime("%Y-%m-%d %H:%M") if hasattr(compra, "fecha") else "",
             ],
         )
+
+    registrar_actividad(current_user.id, "Exportó listado de compras (admin)", "Reportes")
 
     response = Response(buffer.getvalue(), mimetype="text/csv; charset=utf-8")
     response.headers["Content-Disposition"] = "attachment; filename=compras_admin.csv"

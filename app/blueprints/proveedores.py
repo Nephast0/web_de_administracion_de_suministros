@@ -400,6 +400,11 @@ def exportar_proveedores():
                 p.tipo_producto,
             ],
         )
+    registrar_actividad(
+        current_user.id,
+        f"Exportó listado de proveedores ({len(proveedores_list)} ítems)",
+        "Proveedores",
+    )
     output = Response(si.getvalue(), mimetype='text/csv')
     output.headers['Content-Disposition'] = 'attachment; filename=proveedores.csv'
     return output

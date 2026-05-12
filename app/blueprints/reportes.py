@@ -14,7 +14,7 @@ from sqlalchemy import func
 
 from ..db import db
 from ..models import Compra, Producto, Usuario, CacheEvent, Cuenta, Apunte, Asiento
-from .helpers import _period_key_and_label, role_required, write_safe_csv_row
+from .helpers import _period_key_and_label, registrar_actividad, role_required, write_safe_csv_row
 
 
 reportes_bp = Blueprint("reportes", __name__)
@@ -314,6 +314,11 @@ def cache_history_export():
     include_archives = str(request.args.get("include_archives", "0")).lower() in {"1", "true", "yes"}
     events = _load_history_events(include_archives=include_archives)
     payload = json.dumps({"events": events}, ensure_ascii=False, indent=2)
+    registrar_actividad(
+        current_user.id,
+        f"Exportó historial de caché ({len(events)} eventos)",
+        "Reportes",
+    )
     response = Response(payload, mimetype="application/json")
     response.headers["Content-Disposition"] = "attachment; filename=cache_history.json"
     return response
@@ -345,6 +350,8 @@ def chart_export(chart_name):
     write_safe_csv_row(writer, chart["headers"])
     for row in rows:
         write_safe_csv_row(writer, row)
+
+    registrar_actividad(current_user.id, f"Exportó gráfica admin: {chart_name}", "Reportes")
 
     response = Response(output.getvalue(), mimetype="text/csv")
     response.headers["Content-Disposition"] = f"attachment; filename={chart_name}.csv"
@@ -384,6 +391,8 @@ def chart_export_cliente(chart_name):
     write_safe_csv_row(writer, chart["headers"])
     for row in rows:
         write_safe_csv_row(writer, row)
+
+    registrar_actividad(current_user.id, f"Exportó gráfica cliente: {chart_name}", "Reportes")
 
     response = Response(output.getvalue(), mimetype="text/csv")
     response.headers["Content-Disposition"] = f"attachment; filename={chart_name}.csv"
