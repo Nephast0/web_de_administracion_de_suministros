@@ -11,7 +11,7 @@
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <h1
-            class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-canvas-100 to-canvas-400">
+            class="text-2xl font-semibold font-heading text-canvas-100">
             Tu Cesta
         </h1>
     </div>
@@ -81,7 +81,7 @@
     <div class="mt-8 flex flex-col items-end gap-6">
         <div class="glass-panel p-6 flex items-center gap-6">
             <span class="text-canvas-400 uppercase tracking-widest text-sm font-bold">Total a Pagar</span>
-            <span class="text-4xl font-bold font-mono text-success-400" id="total" data-symbol="{{ currency_symbol }}"
+            <span class="text-4xl font-semibold font-mono text-success-400" id="total" data-symbol="{{ currency_symbol }}"
                 data-locale="{{ currency_locale }}" data-code="{{ currency_code }}">
                 {{ total | currency }}
             </span>

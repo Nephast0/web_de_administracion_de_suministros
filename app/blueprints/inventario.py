@@ -155,8 +155,10 @@ def menu_cliente():
 
 @inventario_bp.route("/perfil_cliente", methods=["GET", "POST"])
 @login_required
-@role_required("cliente")
 def perfil_cliente():
+    # Nota: el nombre del endpoint conserva "_cliente" por compatibilidad con
+    # urls/tests existentes, pero esta vista sirve también al admin (rediseño
+    # 2026-05-12: el theme switcher vive aquí, así que ambos roles deben acceder).
     usuario = current_user
     form = EditarPerfilForm()
     page = max(int(request.args.get("page", 1)), 1)

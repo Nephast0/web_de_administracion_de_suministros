@@ -1,5 +1,71 @@
 # Estado actualizado del proyecto
 
+## Revisión 2026-05-12 (noche) — Rediseño visual "serio" + theme switcher reubicado
+
+### Decisión
+A petición de usuario: **rediseño visual completo más sobrio y ejecutivo**. Las 4 paletas anteriores (`elegant`, `cyberpunk`, `corporate`, `emerald`) se descartan en favor de 4 paletas nuevas pensadas para un sistema de gestión empresarial serio. El theme switcher ya no vive en el navbar — se mueve a la pantalla de perfil (sección "Apariencia").
+
+### Nuevos temas (oscuros, ejecutivos)
+| Theme | Identidad | Primary | Canvas 900 |
+|---|---|---|---|
+| **`slate`** (default) | Corporativo serio | Azul cobalto (`#3b82f6`) | Slate puro (`#0f172a`) |
+| **`graphite`** | Monocromático severo | Gris claro (`#d4d4d8`) | Zinc puro (`#121214`) |
+| **`obsidian`** | Premium ejecutivo | Dorado champagne (`#ca8a04`) | Warm black (`#13100d`) |
+| **`sapphire`** | Tech profundo | Cyan (`#06b6d4`) | Navy intenso (`#081626`) |
+
+Los temas legacy se remapean automáticamente al equivalente más cercano en `theme.js::normalize()` (elegant→slate, cyberpunk→sapphire, corporate→slate, emerald→obsidian) para no romper a usuarios con `localStorage.theme` existente.
+
+### Cambios visuales aplicados
+
+#### Tipografía
+- **Adiós Playfair Display italic.** Toda la app vive ahora en **Inter** (sans). La jerarquía la dan peso y tracking, no la familia.
+- En `@layer base` se definen pesos por nivel: h1 `font-weight: 300`, h2 `400`, h3 `500`. Tracking apretado (-0.025em → -0.015em).
+- Botón "Suministros CNCV" del navbar: pasa de `text-3xl font-bold italic` a `text-xl font-semibold tracking-tight`.
+
+#### Componentes refinados
+- `glass-panel`: `backdrop-blur(8px)` (antes 12px), opacidad `canvas-900/0.6` (antes 800/0.4).
+- `glass-card`: hover sin `scale-*`, sólo cambio de border + bg.
+- `form-input`: focus ring de 2px (antes 3px) con `0.2` de opacidad (antes 0.25).
+- `btn-primary` / `btn-secondary`: ahora `rounded-md` por defecto (no `rounded-full`). Sin shadow neon. `btn-elegant` usa `filter: brightness(1.08)` en vez de `translateY(-1px)`.
+- Scrollbar custom de 6px integrado en el design system (antes inline en perfil).
+
+#### Refactor masivo de templates (21 archivos)
+- **`font-heading italic` → `font-heading`** (el italic dejaba de tener sentido sin Playfair).
+- **`text-transparent bg-clip-text bg-gradient-to-r from-X to-Y` → `text-canvas-100`** (15+ instancias). Los gradientes en texto eran ruido visual.
+- **`font-bold` en headings → `font-semibold`** (más sobrio, mejor jerarquía).
+- **`text-4xl` en headings → `text-3xl`**; **`text-3xl` → `text-2xl`** (cabeceras más razonables).
+- **`tracking-wide` removido** de headings (Inter ya tiene buen tracking nativo).
+- **`shadow-2xl` → `shadow-lg`**, **`shadow-primary-*` eliminado** completamente (neon glow fuera).
+
+### Theme switcher movido a `/perfil_cliente`
+- Eliminado el dropdown del navbar (`base.html` pasó de ~210 a ~175 líneas).
+- Eliminado el script switcher inline.
+- Añadida sección "Apariencia" en `perfil-cliente.html` con 4 tarjetas (botones) clicables, cada una con preview gradient del tema.
+- El estado activo se resalta dinámicamente (border + bg primary-500/10) via script local con `nonce`.
+- Etiqueta "Tema activo: …" que se actualiza al cambiar.
+
+### Endpoint perfil accesible para ambos roles
+- Eliminado `@role_required("cliente")` de `inventario.perfil_cliente`.
+- El template tiene back-button condicional: admin → `inventario.menu_principal`; cliente → `inventario.menu_cliente`.
+- Botón "Ver pedidos" sólo visible para cliente (admin no tiene pedidos personales).
+- Icono `account_circle` en el navbar enlaza al perfil para ambos roles.
+
+### Verificación
+- **34 tests pasan** (mismo número, sin regresiones funcionales).
+- **Preview visual probado**: login se ve sobrio, dashboard admin, perfil con sección apariencia, cambio entre los 4 temas funcional, sapphire muestra borde cyan en la tarjeta activa.
+- **CSS rebuild**: limpio, ~50KB minified.
+
+### Métricas
+- **Archivos modificados**: 26 (21 templates + `input.css` + `tailwind.config.js` + `theme.js` + `base.html` + `inventario.py` + `DESIGN_SYSTEM.md` + `PROJECT_STATUS.md`).
+- **Líneas eliminadas netas**: ~80 (theme switcher inline, gradientes redundantes, italic).
+- **Endpoints Flask**: 63 (sin cambio).
+
+### Pendientes
+- **Encoding bug preexistente**: el `<select>` de moneda en perfil muestra "EspaÃ±ol" en vez de "Español". Encoding mal interpretado en `forms.py::EditarPerfilForm.currency_locale.choices`. No introducido por este rediseño — heredado del estado anterior. Marcar para sesión futura.
+- **A11y completa con paletas nuevas**: contraste en cada tema, focus rings consistentes, navegación por teclado en el theme switcher.
+
+---
+
 ## Revisión 2026-05-12 (tarde) — Auditoría post-antigravity + hardening
 
 ### Estado actual

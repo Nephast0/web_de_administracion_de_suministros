@@ -105,9 +105,12 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans:    ['Inter', 'sans-serif'],
-        heading: ['Playfair Display', 'serif'],
-        mono:    ['Fira Code', 'monospace'],
+        // Una sola familia para todo (Inter). La jerarquía la dan peso/tracking,
+        // no la familia. Adiós Playfair Display — el rediseño 2026-05-12 lo
+        // retiró para un look más sobrio (Linear/Stripe-like).
+        sans:    ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        heading: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        mono:    ['Fira Code', 'ui-monospace', 'monospace'],
       },
     },
   },

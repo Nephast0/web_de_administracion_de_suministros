@@ -1,90 +1,50 @@
 /* =================================================================
- * Suministros CNCV — Tailwind input file
+ * Suministros CNCV — Tailwind input file (rediseño 2026-05-12 tarde)
  *
- * Esta es la fuente única del CSS de la app. Se compila con:
- *   npm run build:css       (production, minified)
+ * Fuente única del CSS de la app. Se compila con:
+ *   npm run build:css       (producción, minified)
  *   npm run dev:css         (watch mode)
- * y produce app/static/css/tailwind.css que el HTML carga.
+ * → app/static/css/tailwind.css
+ *
+ * Filosofía del rediseño:
+ *   - Sobrio, profesional, dashboard ejecutivo (Linear/Stripe/Notion).
+ *   - Glassmorphism atenuado: blur reducido, transparencias menos agresivas.
+ *   - Tipografía 100% Inter (sin serif italics). Headings ligeros con tracking
+ *     apretado en vez de bold serif-italic.
+ *   - Radius md/lg (no full) para botones — pills se reservan a badges.
+ *   - Sombras planas y discretas (sin neon shadows con tinte primary).
  *
  * Estructura:
- *   1) Themes        — CSS variables por [data-theme] (primary, canvas)
- *                      + semantic tokens en :root (success, danger, warning, info)
- *   2) @tailwind     — base + components + utilities
- *   3) Components    — clases reutilizables (glass-*, btn-*, form-*)
- *   4) Utilities     — animaciones custom
+ *   1) Themes        — 4 temas oscuros (slate default, graphite, obsidian, sapphire)
+ *   2) Semantic tokens — success/danger/warning/info (theme-independent)
+ *   3) @tailwind     — base + components + utilities
+ *   4) Components    — glass-*, btn-*, form-*, scrollbar
+ *   5) Animations
  * ================================================================= */
 
-/* ---------- 1) THEMES (must come before @tailwind so the vars exist
-                       when Tailwind utilities resolve rgb(var(...))) ---------- */
+/* ---------- 1) THEMES ----------
+ * primary-*  : color de acento del tema (botones, focus rings, highlights)
+ * canvas-*   : escala de grises del tema (fondo y superficies)
+ * Los CSS vars se guardan como "R G B" para componer con
+ *   rgb(var(--color-X) / <alpha-value>)
+ * en Tailwind. Chart.js los envuelve en rgb() via helpers (ver graficas*.html).
+ */
 
 :root,
-[data-theme="elegant"] {
-  /* Elegant Dark (Default) - Velvet Indigo / Dark Night */
-  --color-primary-50:  244 242 255;
-  --color-primary-100: 235 230 255;
-  --color-primary-200: 217 207 255;
-  --color-primary-300: 191 173 255;
-  --color-primary-400: 160 133 255;
-  --color-primary-500: 128 90  255;
-  --color-primary-600: 104 52  235;
-  --color-primary-700: 86  34  200;
-  --color-primary-800: 71  28  160;
-  --color-primary-900: 59  25  128;
-  --color-primary-950: 38  15  82;
-
-  --color-canvas-50:  247 248 250;
-  --color-canvas-100: 240 242 246;
-  --color-canvas-200: 225 229 236;
-  --color-canvas-300: 202 208 220;
-  --color-canvas-400: 163 172 190;
-  --color-canvas-500: 119 130 152;
-  --color-canvas-600: 86  97  120;
-  --color-canvas-700: 63  72  92;
-  --color-canvas-800: 43  50  66;
-  --color-canvas-900: 27  32  44;
-  --color-canvas-950: 13  16  24;
-}
-
-[data-theme="cyberpunk"] {
-  /* Cyberpunk - Neon Fuchsia / Carbon Black */
-  --color-primary-50:  253 232 243;
-  --color-primary-100: 252 209 232;
-  --color-primary-200: 251 166 211;
-  --color-primary-300: 250 115 186;
-  --color-primary-400: 249 70  162;
-  --color-primary-500: 247 18  134;
-  --color-primary-600: 214 0   106;
-  --color-primary-700: 178 0   87;
-  --color-primary-800: 147 0   72;
-  --color-primary-900: 122 0   61;
-  --color-primary-950: 79  0   39;
-
-  --color-canvas-50:  238 238 238;
-  --color-canvas-100: 220 220 220;
-  --color-canvas-200: 188 188 188;
-  --color-canvas-300: 153 153 153;
-  --color-canvas-400: 115 115 115;
-  --color-canvas-500: 82  82  82;
-  --color-canvas-600: 55  55  55;
-  --color-canvas-700: 38  38  38;
-  --color-canvas-800: 24  24  24;
-  --color-canvas-900: 14  14  14;
-  --color-canvas-950: 8   8   8;
-}
-
-[data-theme="corporate"] {
-  /* Corporate - Trust Blue / Clean Slate */
-  --color-primary-50:  238 248 255;
-  --color-primary-100: 219 240 254;
-  --color-primary-200: 186 230 253;
-  --color-primary-300: 125 211 252;
-  --color-primary-400: 56  189 248;
-  --color-primary-500: 14  165 233;
-  --color-primary-600: 2   132 199;
-  --color-primary-700: 3   105 161;
-  --color-primary-800: 7   89  133;
-  --color-primary-900: 12  74  110;
-  --color-primary-950: 8   47  73;
+[data-theme="slate"] {
+  /* SLATE (default) — corporativo serio. Acento azul cobalto sobre slate puro.
+     Identidad: dashboard ejecutivo, profesional, neutral. */
+  --color-primary-50:  239 246 255;
+  --color-primary-100: 219 234 254;
+  --color-primary-200: 191 219 254;
+  --color-primary-300: 147 197 253;
+  --color-primary-400: 96  165 250;
+  --color-primary-500: 59  130 246;
+  --color-primary-600: 37  99  235;
+  --color-primary-700: 29  78  216;
+  --color-primary-800: 30  64  175;
+  --color-primary-900: 30  58  138;
+  --color-primary-950: 23  37  84;
 
   --color-canvas-50:  248 250 252;
   --color-canvas-100: 241 245 249;
@@ -96,38 +56,99 @@
   --color-canvas-700: 51  65  85;
   --color-canvas-800: 30  41  59;
   --color-canvas-900: 15  23  42;
-  --color-canvas-950: 9   13  24;
+  --color-canvas-950: 8   13  26;
 }
 
-[data-theme="emerald"] {
-  /* Emerald - Fresh Emerald / Forest Zinc */
-  --color-primary-50:  236 253 245;
-  --color-primary-100: 209 250 229;
-  --color-primary-200: 167 243 208;
-  --color-primary-300: 110 231 183;
-  --color-primary-400: 52  211 153;
-  --color-primary-500: 16  185 129;
-  --color-primary-600: 5   150 105;
-  --color-primary-700: 4   120 87;
-  --color-primary-800: 6   95  70;
-  --color-primary-900: 6   78  59;
-  --color-primary-950: 2   44  34;
+[data-theme="graphite"] {
+  /* GRAPHITE — minimalismo monocromático. Acento blanco/gris claro.
+     Identidad: Apple-like, severo, contraste alto sin color.
+     Útil para usuarios que prefieren neutralidad absoluta. */
+  --color-primary-50:  250 250 250;
+  --color-primary-100: 244 244 245;
+  --color-primary-200: 228 228 231;
+  --color-primary-300: 212 212 216;
+  --color-primary-400: 161 161 170;
+  --color-primary-500: 113 113 122;
+  --color-primary-600: 82  82  91;
+  --color-primary-700: 63  63  70;
+  --color-primary-800: 39  39  42;
+  --color-primary-900: 24  24  27;
+  --color-primary-950: 9   9   11;
 
-  --color-canvas-50:  250 250 249;
-  --color-canvas-100: 244 244 242;
-  --color-canvas-200: 228 229 227;
-  --color-canvas-300: 210 212 209;
-  --color-canvas-400: 160 163 159;
-  --color-canvas-500: 113 116 112;
-  --color-canvas-600: 82  85  81;
-  --color-canvas-700: 61  64  60;
-  --color-canvas-800: 38  41  38;
-  --color-canvas-900: 22  26  23;
-  --color-canvas-950: 10  13  11;
+  --color-canvas-50:  250 250 250;
+  --color-canvas-100: 244 244 245;
+  --color-canvas-200: 228 228 231;
+  --color-canvas-300: 212 212 216;
+  --color-canvas-400: 161 161 170;
+  --color-canvas-500: 113 113 122;
+  --color-canvas-600: 82  82  91;
+  --color-canvas-700: 52  52  56;
+  --color-canvas-800: 32  32  36;
+  --color-canvas-900: 18  18  20;
+  --color-canvas-950: 9   9   11;
 }
 
-/* Semantic state tokens — theme-independent. Si algún tema quiere variar
-   (p.ej. cyberpunk con rojos estridentes) basta redeclararlos por selector. */
+[data-theme="obsidian"] {
+  /* OBSIDIAN — premium ejecutivo. Acento dorado-champagne muted.
+     Identidad: lujo discreto, materiales nobles, "private banking".
+     El primary es un amber/oro apagado, no chillón. */
+  --color-primary-50:  254 252 232;
+  --color-primary-100: 254 249 195;
+  --color-primary-200: 254 240 138;
+  --color-primary-300: 253 224 71;
+  --color-primary-400: 234 179 8;
+  --color-primary-500: 202 138 4;
+  --color-primary-600: 161 98  7;
+  --color-primary-700: 133 77  14;
+  --color-primary-800: 113 63  18;
+  --color-primary-900: 87  46  18;
+  --color-primary-950: 51  24  9;
+
+  --color-canvas-50:  250 249 246;
+  --color-canvas-100: 244 242 237;
+  --color-canvas-200: 224 220 211;
+  --color-canvas-300: 192 186 173;
+  --color-canvas-400: 142 133 117;
+  --color-canvas-500: 99  91  76;
+  --color-canvas-600: 67  61  50;
+  --color-canvas-700: 47  42  34;
+  --color-canvas-800: 31  27  22;
+  --color-canvas-900: 19  16  13;
+  --color-canvas-950: 11  9   7;
+}
+
+[data-theme="sapphire"] {
+  /* SAPPHIRE — tech profundo. Acento teal/cyan frío sobre navy intenso.
+     Identidad: ingeniería, datos, dashboards técnicos.
+     Diferencia con slate: canvas más azulado y primary más turquesa. */
+  --color-primary-50:  236 254 255;
+  --color-primary-100: 207 250 254;
+  --color-primary-200: 165 243 252;
+  --color-primary-300: 103 232 249;
+  --color-primary-400: 34  211 238;
+  --color-primary-500: 6   182 212;
+  --color-primary-600: 8   145 178;
+  --color-primary-700: 14  116 144;
+  --color-primary-800: 21  94  117;
+  --color-primary-900: 22  78  99;
+  --color-primary-950: 8   51  68;
+
+  --color-canvas-50:  240 249 255;
+  --color-canvas-100: 224 242 254;
+  --color-canvas-200: 186 230 253;
+  --color-canvas-300: 125 211 252;
+  --color-canvas-400: 56  153 200;
+  --color-canvas-500: 39  111 158;
+  --color-canvas-600: 27  78  120;
+  --color-canvas-700: 21  58  90;
+  --color-canvas-800: 14  39  62;
+  --color-canvas-900: 8   22  38;
+  --color-canvas-950: 4   12  22;
+}
+
+/* ---------- 2) Semantic tokens (theme-independent) ----------
+   Estas paletas NO se redefinen por tema — un rojo de error sigue siendo rojo
+   en los 4 temas. Su semántica es global. */
 :root {
   /* success — emerald */
   --color-success-50:  236 253 245;
@@ -182,84 +203,110 @@
   --color-info-950: 8 47 73;
 }
 
-/* ---------- 2) Tailwind layers ---------- */
+/* ---------- 3) Tailwind layers ---------- */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ---------- 3) Components ---------- */
+/* ---------- 4) Components ---------- */
+
+@layer base {
+  /* Tipografía base de la app. Inter para body y headings (la jerarquía la
+     hace el peso/tracking, no la familia). */
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Headings: peso ligero + tracking apretado = elegancia sin serif italic.
+     Reemplaza el viejo `font-heading italic` Playfair Display. */
+  h1, .h1 { font-weight: 300; letter-spacing: -0.025em; line-height: 1.15; }
+  h2, .h2 { font-weight: 400; letter-spacing: -0.02em;  line-height: 1.2;  }
+  h3, .h3 { font-weight: 500; letter-spacing: -0.015em; line-height: 1.25; }
+  h4, .h4 { font-weight: 500; letter-spacing: -0.01em;  line-height: 1.3;  }
+}
 
 @layer components {
 
-  /* Body backdrop. Uses theme tokens so it updates with data-theme. */
+  /* Fondo de la app. Gradiente radial sutil, no agresivo. */
   body {
-    background-color: rgb(var(--color-canvas-900));
+    background-color: rgb(var(--color-canvas-950));
     background-image:
-      radial-gradient(at 0% 0%,   rgb(var(--color-primary-900) / 0.3) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgb(var(--color-canvas-800)  / 0.3) 0px, transparent 50%);
+      radial-gradient(ellipse at top left,    rgb(var(--color-primary-900) / 0.15) 0px, transparent 50%),
+      radial-gradient(ellipse at bottom right, rgb(var(--color-canvas-800)  / 0.4)  0px, transparent 50%);
     background-attachment: fixed;
+    color: rgb(var(--color-canvas-200));
   }
 
+  /* Glass panel — superficie translúcida principal. Menos blur, borde más fino. */
   .glass-panel {
-    background: rgb(var(--color-canvas-800) / 0.4);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgb(var(--color-canvas-200) / 0.08);
-    border-radius: 1rem;
+    background: rgb(var(--color-canvas-900) / 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgb(var(--color-canvas-700) / 0.5);
+    border-radius: 0.75rem;
   }
 
-  /* Tablas glass — divisores suaves, hover por fila. */
+  /* Glass table — divisores sutiles, hover por fila sin escalado. */
   .glass-table {
-    background: rgb(var(--color-canvas-800) / 0.35);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgb(var(--color-canvas-200) / 0.08);
-    border-radius: 0.75rem;
+    background: rgb(var(--color-canvas-900) / 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgb(var(--color-canvas-700) / 0.5);
+    border-radius: 0.5rem;
     border-collapse: separate;
     border-spacing: 0;
     overflow: hidden;
   }
   .glass-table thead th {
-    background: rgb(var(--color-canvas-900) / 0.5);
-    color: rgb(var(--color-canvas-200));
-    font-weight: 600;
+    background: rgb(var(--color-canvas-950) / 0.6);
+    color: rgb(var(--color-canvas-400));
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-size: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgb(var(--color-canvas-700) / 0.6);
+    letter-spacing: 0.06em;
+    font-size: 0.7rem;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid rgb(var(--color-canvas-700) / 0.5);
   }
   .glass-table tbody td {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgb(var(--color-canvas-700) / 0.35);
+    border-bottom: 1px solid rgb(var(--color-canvas-800) / 0.6);
     color: rgb(var(--color-canvas-300));
+    font-size: 0.875rem;
   }
   .glass-table tbody tr:last-child td { border-bottom: none; }
   .glass-table tbody tr { transition: background-color 0.15s ease; }
-  .glass-table tbody tr:hover { background-color: rgb(var(--color-primary-500) / 0.06); }
+  .glass-table tbody tr:hover { background-color: rgb(var(--color-canvas-800) / 0.4); }
 
-  /* Tarjeta glass — base que se combina con utilities (padding, layout). */
+  /* Glass card — variante de panel para grids clicables (catálogo, menús). */
   .glass-card {
-    background: rgb(var(--color-canvas-800) / 0.45);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgb(var(--color-canvas-200) / 0.08);
-    border-radius: 1rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: rgb(var(--color-canvas-900) / 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgb(var(--color-canvas-700) / 0.5);
+    border-radius: 0.625rem;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
   }
-  .glass-card:hover { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); }
+  .glass-card:hover {
+    border-color: rgb(var(--color-canvas-600));
+    background-color: rgb(var(--color-canvas-900) / 0.75);
+  }
 
-  /* Inputs / selects / textarea — base consistente. Utilities Tailwind
-     adicionales (focus:ring-primary-500, pl-10, ...) sobreescriben sin conflicto. */
+  /* Form inputs / selects / textarea. Borde fino, focus ring discreto (2px). */
   .form-input {
     display: block;
     width: 100%;
-    padding: 0.625rem 0.875rem;
-    font-size: 0.95rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
     line-height: 1.4;
     color: rgb(var(--color-canvas-100));
-    background-color: rgb(var(--color-canvas-900) / 0.6);
+    background-color: rgb(var(--color-canvas-950) / 0.6);
     border: 1px solid rgb(var(--color-canvas-700));
-    border-radius: 0.5rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
     -webkit-appearance: none;
     appearance: none;
   }
@@ -268,65 +315,78 @@
   .form-input:focus {
     outline: none;
     border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgb(var(--color-primary-500) / 0.25);
-    background-color: rgb(var(--color-canvas-900) / 0.85);
+    box-shadow: 0 0 0 2px rgb(var(--color-primary-500) / 0.2);
+    background-color: rgb(var(--color-canvas-950) / 0.85);
   }
   .form-input:disabled,
-  .form-input[readonly] { opacity: 0.7; cursor: not-allowed; }
+  .form-input[readonly] { opacity: 0.6; cursor: not-allowed; }
   textarea.form-input { min-height: 5rem; resize: vertical; }
 
-  /* Botones — base compartido. Variantes (primary/secondary) sólo aportan color.
-     Casi siempre se combinan con .btn-elegant para la animación de hover. */
+  /* Buttons — base compartido. Radius md (no rounded-full salvo badges).
+     Padding generoso para presencia ejecutiva. */
   .btn-primary,
   .btn-secondary {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     padding: 0.55rem 1.1rem;
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 500;
+    font-size: 0.875rem;
     line-height: 1.2;
-    border-radius: 9999px;
+    border-radius: 0.375rem;
     border: 1px solid transparent;
     cursor: pointer;
     text-decoration: none;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     user-select: none;
+    white-space: nowrap;
   }
   .btn-primary {
     background-color: rgb(var(--color-primary-600));
     color: #fff;
-    box-shadow: 0 2px 8px rgb(var(--color-primary-500) / 0.25);
+    border-color: rgb(var(--color-primary-600));
   }
-  .btn-primary:hover { background-color: rgb(var(--color-primary-500)); }
+  .btn-primary:hover {
+    background-color: rgb(var(--color-primary-500));
+    border-color: rgb(var(--color-primary-500));
+  }
   .btn-primary:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgb(var(--color-primary-500) / 0.45);
+    box-shadow: 0 0 0 2px rgb(var(--color-canvas-950)), 0 0 0 4px rgb(var(--color-primary-500) / 0.5);
   }
   .btn-secondary {
-    background-color: rgb(var(--color-canvas-800) / 0.7);
-    color: rgb(var(--color-canvas-100));
+    background-color: rgb(var(--color-canvas-800) / 0.6);
+    color: rgb(var(--color-canvas-200));
     border-color: rgb(var(--color-canvas-700));
   }
   .btn-secondary:hover {
-    background-color: rgb(var(--color-canvas-700) / 0.9);
+    background-color: rgb(var(--color-canvas-800) / 0.9);
     border-color: rgb(var(--color-canvas-600));
+    color: rgb(var(--color-canvas-100));
   }
   .btn-secondary:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgb(var(--color-canvas-500) / 0.45);
+    box-shadow: 0 0 0 2px rgb(var(--color-canvas-950)), 0 0 0 4px rgb(var(--color-canvas-500) / 0.4);
   }
   .btn-primary:disabled,
-  .btn-secondary:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+  .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
-  .btn-elegant { transition: all 0.3s ease; }
-  .btn-elegant:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  /* btn-elegant: animación opcional de elevación. Sutil — sólo brightness,
+     sin transform (que rompía sombras finas). */
+  .btn-elegant { transition: all 0.2s ease; }
+  .btn-elegant:hover { filter: brightness(1.08); }
+
+  /* Scrollbar custom — discreta, encaja con la paleta canvas. */
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-canvas-700));
+    border-radius: 3px;
   }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgb(var(--color-canvas-600)); }
 
-  /* Animation delay utilities — usadas en glass-panel staggered fade-in.
-     Antes vivían como style="animation-delay: Xms" inline (incompatible con CSP estricta). */
+  /* Animation delays — para entrada escalonada de paneles. */
   .animation-delay-0   { animation-delay: 0ms;   }
   .animation-delay-50  { animation-delay: 50ms;  }
   .animation-delay-100 { animation-delay: 100ms; }
@@ -339,16 +399,16 @@
   .animation-delay-600 { animation-delay: 600ms; }
 }
 
-/* ---------- 4) Animations ---------- */
+/* ---------- 5) Animations ---------- */
 
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: fadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     opacity: 0;
   }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }

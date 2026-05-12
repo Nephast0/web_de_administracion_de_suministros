@@ -4,17 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Suministros{% endblock %} - CNCV</title>
+    <title>{% block title %}Suministros{% endblock %} · CNCV</title>
     <!-- Theme bootstrap (must run before first paint to avoid theme flash) -->
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 
     <!-- Compiled Tailwind CSS (replaces the runtime cdn.tailwindcss.com loader) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
-    <!-- Main CSS (Custom) -->
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Inter (sans) + Fira Code (mono).
+         Adiós Playfair Display — el rediseño 2026-05-12 unificó tipografía
+         a Inter (jerarquía por peso/tracking, look más sobrio). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
         rel="stylesheet">
     <!-- Material Icons -->
     <link rel="stylesheet"
@@ -22,16 +25,17 @@
     {% block page_styles %}{% endblock %}
 </head>
 
-<body class="antialiased selection:bg-primary-500 selection:text-white bg-canvas-900 text-canvas-200">
+<body class="antialiased selection:bg-primary-500 selection:text-white">
 
     <!-- Navigation -->
     <nav
-        class="sticky top-0 z-50 w-full glass-panel rounded-none border-x-0 border-t-0 mb-8 border-b border-canvas-200/10 bg-canvas-900/80 backdrop-blur-md">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <!-- Brand -->
-            <a class="text-3xl font-bold font-heading italic tracking-wide text-primary-400 hover:text-primary-300 transition-colors"
+        class="sticky top-0 z-50 w-full border-b border-canvas-800/80 bg-canvas-950/85 backdrop-blur-md mb-8">
+        <div class="container mx-auto px-6 py-3.5 flex justify-between items-center">
+            <!-- Brand: una sola tipografía, contraste por peso. -->
+            <a class="flex items-baseline gap-2 text-canvas-100 hover:text-primary-300 transition-colors no-underline"
                 href="{{ url_for('auth.root') }}">
-                Suministros <span class="text-canvas-100 not-italic font-light">CNCV</span>
+                <span class="text-xl font-semibold tracking-tight">Suministros</span>
+                <span class="text-xl font-light text-canvas-400">CNCV</span>
             </a>
 
             <!-- Mobile Menu Button -->
@@ -40,84 +44,59 @@
                     type="button"
                     aria-label="Abrir menú de navegación"
                     aria-controls="nav-content"
-                    class="flex items-center px-3 py-2 border rounded text-canvas-300 border-canvas-600 hover:text-white hover:border-white transition">
+                    class="flex items-center px-3 py-2 rounded-md border border-canvas-700 text-canvas-300 hover:text-canvas-100 hover:border-canvas-500 transition">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
             </div>
 
-            <!-- Desktop Menu -->
+            <!-- Desktop Menu. Theme switcher movido a /perfil (sección "Apariencia"). -->
             <div id="nav-content" class="w-full hidden lg:flex lg:items-center lg:w-auto pt-4 lg:pt-0">
-                <ul class="lg:flex lg:justify-end lg:items-center gap-8">
-                    <!-- Theme Switcher -->
-                    <li>
-                        <div class="relative group">
-                            <button
-                                class="flex items-center gap-2 text-canvas-400 hover:text-primary-400 transition-colors">
-                                <span class="material-symbols-outlined text-xl">palette</span>
-                                <span class="lg:hidden">Tema</span>
-                            </button>
-                            <div
-                                class="absolute right-0 mt-2 w-48 py-2 bg-canvas-800 border border-canvas-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                                <button data-set-theme="elegant"
-                                    class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-[#6366f1]"></span> Elegant
-                                </button>
-                                <button data-set-theme="cyberpunk"
-                                    class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-[#d946ef]"></span> Cyberpunk
-                                </button>
-                                <button data-set-theme="corporate"
-                                    class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-[#0ea5e9]"></span> Corporate
-                                </button>
-                                <button data-set-theme="emerald"
-                                    class="w-full text-left px-4 py-2 text-sm text-canvas-300 hover:bg-canvas-700 hover:text-primary-400 flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-[#10b981]"></span> Emerald
-                                </button>
-                            </div>
-                        </div>
-                    </li>
+                <ul class="lg:flex lg:justify-end lg:items-center gap-7 text-sm">
                     {% if current_user.is_authenticated %}
                     {% if current_user.rol == 'admin' %}
-                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                    <li><a class="text-canvas-300 hover:text-primary-300 font-medium transition-colors no-underline"
                             href="{{ url_for('inventario.menu_principal') }}">Inicio</a></li>
-                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                    <li><a class="text-canvas-300 hover:text-primary-300 font-medium transition-colors no-underline"
                             href="{{ url_for('proveedores.proveedores') }}">Proveedores</a></li>
-                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                    <li><a class="text-canvas-300 hover:text-primary-300 font-medium transition-colors no-underline"
                             href="{{ url_for('inventario.productos') }}">Inventario</a></li>
-                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                    <li><a class="text-canvas-300 hover:text-primary-300 font-medium transition-colors no-underline"
                             href="{{ url_for('reportes.graficas') }}">Reportes</a></li>
-                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                    <li><a class="text-canvas-300 hover:text-primary-300 font-medium transition-colors no-underline"
                             href="{{ url_for('contabilidad.balance') }}">Contabilidad</a></li>
                     {% else %}
-                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
-                            href="{{ url_for('inventario.menu_cliente') }}">Mi Cuenta</a></li>
-                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
+                    <li><a class="text-canvas-300 hover:text-primary-300 font-medium transition-colors no-underline"
+                            href="{{ url_for('inventario.menu_cliente') }}">Mi cuenta</a></li>
+                    <li><a class="text-canvas-300 hover:text-primary-300 font-medium transition-colors no-underline"
                             href="{{ url_for('inventario.productos_cliente') }}">Catálogo</a></li>
                     {% endif %}
 
-                    <!-- User Dropdown / Info -->
+                    <!-- User block -->
                     <li
-                        class="border-t lg:border-none border-canvas-700 pt-4 lg:pt-0 mt-4 lg:mt-0 lg:ml-6 flex items-center gap-4">
-                        <span class="text-canvas-400 text-sm hidden xl:inline-block font-serif italic">Hola, <span
-                                class="text-canvas-200 font-semibold not-italic font-sans">{{ current_user.usuario
-                                }}</span></span>
+                        class="border-t lg:border-none border-canvas-800 pt-4 lg:pt-0 mt-4 lg:mt-0 lg:ml-4 flex items-center gap-3">
+                        <a href="{{ url_for('inventario.perfil_cliente') }}"
+                            class="flex items-center gap-2 text-canvas-400 hover:text-canvas-100 transition-colors no-underline"
+                            title="Mi perfil">
+                            <span class="material-symbols-outlined text-xl">account_circle</span>
+                            <span class="hidden xl:inline text-canvas-200">{{ current_user.usuario }}</span>
+                        </a>
                         <form action="{{ url_for('auth.logout') }}" method="post" class="m-0 p-0">
                             {{ csrf_token() }}
                             <button type="submit"
-                                class="btn-elegant bg-danger-900/20 border border-danger-500/30 text-danger-200 hover:bg-danger-900/40 hover:text-danger-100 py-1.5 px-4 text-sm rounded-full transition-all">
-                                <span class="material-symbols-outlined text-base align-middle mr-1">logout</span>
+                                aria-label="Cerrar sesión"
+                                class="btn-elegant flex items-center gap-1.5 py-1.5 px-3 text-xs rounded-md border border-canvas-700 text-canvas-300 hover:text-canvas-100 hover:border-canvas-500 transition">
+                                <span class="material-symbols-outlined text-base">logout</span>
                                 Salir
                             </button>
                         </form>
                     </li>
                     {% else %}
-                    <li><a class="text-canvas-300 hover:text-primary-400 font-medium transition-colors font-heading tracking-wide"
-                            href="{{ url_for('auth.login') }}">Iniciar Sesión</a></li>
+                    <li><a class="text-canvas-300 hover:text-primary-300 font-medium transition-colors no-underline"
+                            href="{{ url_for('auth.login') }}">Iniciar sesión</a></li>
                     <li>
-                        <a class="bg-primary-600 hover:bg-primary-500 text-white py-2 px-6 rounded-full shadow-lg shadow-primary-500/20 transition-all font-heading tracking-wide"
+                        <a class="btn-elegant btn-primary no-underline"
                             href="{{ url_for('auth.registro') }}">
-                            Registrate
+                            Registrarse
                         </a>
                     </li>
                     {% endif %}
@@ -127,36 +106,35 @@
     </nav>
 
     <!-- Flash Messages (Toast Style) -->
-    <div class="fixed top-24 right-5 w-full max-w-sm z-50 pointer-events-none px-4 md:px-0">
+    <div class="fixed top-20 right-5 w-full max-w-sm z-50 pointer-events-none px-4 md:px-0">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
         {% set color_classes = {
-        'success': 'bg-canvas-800/90 border-success-500 text-success-100 shadow-success-900/20',
-        'danger': 'bg-canvas-800/90 border-danger-500 text-danger-100 shadow-danger-900/20',
-        'warning': 'bg-canvas-800/90 border-warning-500 text-warning-100 shadow-warning-900/20',
-        'info': 'bg-canvas-800/90 border-info-500 text-info-100 shadow-info-900/20'
+        'success': 'bg-canvas-900/90 border-success-500 text-success-100',
+        'danger':  'bg-canvas-900/90 border-danger-500  text-danger-100',
+        'warning': 'bg-canvas-900/90 border-warning-500 text-warning-100',
+        'info':    'bg-canvas-900/90 border-info-500    text-info-100'
         } %}
-        {% set active_class = color_classes.get(category, 'bg-canvas-800/90 border-canvas-500 text-canvas-100') %}
+        {% set active_class = color_classes.get(category, 'bg-canvas-900/90 border-canvas-500 text-canvas-100') %}
 
         <div
-            class="pointer-events-auto alert-dismissible transform transition-all duration-500 hover:scale-[1.02] p-4 rounded-r-xl rounded-l-sm shadow-2xl mb-4 border-l-4 backdrop-blur-md flex justify-between items-start {{ active_class }}">
-            <div class="flex items-center gap-4">
-                <span class="material-symbols-outlined text-3xl opacity-80">
+            class="pointer-events-auto alert-dismissible transform transition-all duration-300 p-4 rounded-md shadow-lg mb-3 border-l-2 backdrop-blur-md flex justify-between items-start {{ active_class }}">
+            <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-xl opacity-90 mt-0.5">
                     {% if category == 'success' %}check_circle
                     {% elif category == 'danger' %}error
                     {% elif category == 'warning' %}warning
                     {% else %}info{% endif %}
                 </span>
                 <div>
-                    <h4 class="font-heading font-bold text-sm uppercase tracking-wider opacity-70 mb-0.5">{{ category }}
-                    </h4>
-                    <p class="font-light text-sm leading-snug">{{ message }}</p>
+                    <p class="text-xs uppercase tracking-wider opacity-60 mb-0.5 font-medium">{{ category }}</p>
+                    <p class="text-sm leading-snug">{{ message }}</p>
                 </div>
             </div>
-            <button type="button" class="ml-4 opacity-50 hover:opacity-100 transition-opacity p-1"
+            <button type="button" class="ml-3 opacity-50 hover:opacity-100 transition-opacity p-1"
                 data-flash-close aria-label="Cerrar mensaje">
-                <span class="material-symbols-outlined text-xl">close</span>
+                <span class="material-symbols-outlined text-base">close</span>
             </button>
         </div>
         {% endfor %}
@@ -166,28 +144,28 @@
 
     <!-- Toast container (filled by window.showToast) -->
     <div id="toast-container"
-        class="fixed top-24 right-5 w-full max-w-sm z-50 pointer-events-none px-4 md:px-0 space-y-2"></div>
+        class="fixed top-20 right-5 w-full max-w-sm z-50 pointer-events-none px-4 md:px-0 space-y-2"></div>
 
     <!-- Confirmation Modal (controlled by window.confirmDialog) -->
     <div id="confirm-modal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-canvas-950/70 backdrop-blur-sm"
+        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-canvas-950/75 backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-message">
         <div id="confirm-modal-panel"
             class="glass-panel w-full max-w-md p-6 transform transition-all duration-200 scale-95 opacity-0">
             <div class="flex items-start gap-4">
                 <div id="confirm-modal-icon-wrap"
-                    class="shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-danger-500/10 border border-danger-500/30">
+                    class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-danger-500/10 border border-danger-500/30">
                     <span id="confirm-modal-icon"
                         class="material-symbols-outlined text-xl text-danger-400">warning</span>
                 </div>
                 <div class="flex-1 min-w-0">
                     <h3 id="confirm-modal-title"
-                        class="text-lg font-bold font-heading text-canvas-100 mb-1">Confirmar acción</h3>
+                        class="text-base font-medium text-canvas-100 mb-1">Confirmar acción</h3>
                     <p id="confirm-modal-message"
-                        class="text-sm text-canvas-300 font-light leading-relaxed">¿Estás seguro?</p>
+                        class="text-sm text-canvas-400 leading-relaxed">¿Estás seguro?</p>
                 </div>
             </div>
-            <div class="flex justify-end gap-3 mt-6">
+            <div class="flex justify-end gap-2 mt-6">
                 <button type="button" id="confirm-modal-cancel" class="btn-elegant btn-secondary">
                     Cancelar
                 </button>
@@ -204,7 +182,6 @@
     </main>
 
     <!-- Scripts -->
-    <!-- UI helpers (modal, toast, mobile nav, data-confirm interceptor) -->
     <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>
     {% block page_scripts %}{% endblock %}
 </body>

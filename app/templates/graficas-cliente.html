@@ -11,7 +11,7 @@
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <h1
-            class="text-3xl font-bold font-heading italic text-transparent bg-clip-text bg-gradient-to-r from-canvas-100 to-canvas-400">
+            class="text-2xl font-semibold font-heading text-canvas-100">
             Tus Métricas
         </h1>
     </div>
@@ -172,7 +172,8 @@
                     legend: {
                         display: true,
                         labels: {
-                            color: '#e2e8f0' // Slate 200
+                            // Color del label de la leyenda: usa el token canvas-200 del tema.
+                            color: getThemeColor('--color-canvas-200', '#e2e8f0')
                         }
                     }
                 },
