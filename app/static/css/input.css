@@ -19,18 +19,72 @@
 
 :root,
 [data-theme="elegant"] {
-  /* Elegant Dark (Default) - Indigo / Slate */
-  --color-primary-50:  238 242 255;
-  --color-primary-100: 224 231 255;
-  --color-primary-200: 199 210 254;
-  --color-primary-300: 165 180 252;
-  --color-primary-400: 129 140 248;
-  --color-primary-500: 99 102 241;
-  --color-primary-600: 79 70 229;
-  --color-primary-700: 67 56 202;
-  --color-primary-800: 55 48 163;
-  --color-primary-900: 49 46 129;
-  --color-primary-950: 30 27 75;
+  /* Elegant Dark (Default) - Velvet Indigo / Dark Night */
+  --color-primary-50:  244 242 255;
+  --color-primary-100: 235 230 255;
+  --color-primary-200: 217 207 255;
+  --color-primary-300: 191 173 255;
+  --color-primary-400: 160 133 255;
+  --color-primary-500: 128 90  255;
+  --color-primary-600: 104 52  235;
+  --color-primary-700: 86  34  200;
+  --color-primary-800: 71  28  160;
+  --color-primary-900: 59  25  128;
+  --color-primary-950: 38  15  82;
+
+  --color-canvas-50:  247 248 250;
+  --color-canvas-100: 240 242 246;
+  --color-canvas-200: 225 229 236;
+  --color-canvas-300: 202 208 220;
+  --color-canvas-400: 163 172 190;
+  --color-canvas-500: 119 130 152;
+  --color-canvas-600: 86  97  120;
+  --color-canvas-700: 63  72  92;
+  --color-canvas-800: 43  50  66;
+  --color-canvas-900: 27  32  44;
+  --color-canvas-950: 13  16  24;
+}
+
+[data-theme="cyberpunk"] {
+  /* Cyberpunk - Neon Fuchsia / Carbon Black */
+  --color-primary-50:  253 232 243;
+  --color-primary-100: 252 209 232;
+  --color-primary-200: 251 166 211;
+  --color-primary-300: 250 115 186;
+  --color-primary-400: 249 70  162;
+  --color-primary-500: 247 18  134;
+  --color-primary-600: 214 0   106;
+  --color-primary-700: 178 0   87;
+  --color-primary-800: 147 0   72;
+  --color-primary-900: 122 0   61;
+  --color-primary-950: 79  0   39;
+
+  --color-canvas-50:  238 238 238;
+  --color-canvas-100: 220 220 220;
+  --color-canvas-200: 188 188 188;
+  --color-canvas-300: 153 153 153;
+  --color-canvas-400: 115 115 115;
+  --color-canvas-500: 82  82  82;
+  --color-canvas-600: 55  55  55;
+  --color-canvas-700: 38  38  38;
+  --color-canvas-800: 24  24  24;
+  --color-canvas-900: 14  14  14;
+  --color-canvas-950: 8   8   8;
+}
+
+[data-theme="corporate"] {
+  /* Corporate - Trust Blue / Clean Slate */
+  --color-primary-50:  238 248 255;
+  --color-primary-100: 219 240 254;
+  --color-primary-200: 186 230 253;
+  --color-primary-300: 125 211 252;
+  --color-primary-400: 56  189 248;
+  --color-primary-500: 14  165 233;
+  --color-primary-600: 2   132 199;
+  --color-primary-700: 3   105 161;
+  --color-primary-800: 7   89  133;
+  --color-primary-900: 12  74  110;
+  --color-primary-950: 8   47  73;
 
   --color-canvas-50:  248 250 252;
   --color-canvas-100: 241 245 249;
@@ -38,92 +92,38 @@
   --color-canvas-300: 203 213 225;
   --color-canvas-400: 148 163 184;
   --color-canvas-500: 100 116 139;
-  --color-canvas-600: 71 85 105;
-  --color-canvas-700: 51 65 85;
-  --color-canvas-800: 30 41 59;
-  --color-canvas-900: 15 23 42;
-  --color-canvas-950: 2 6 23;
-}
-
-[data-theme="cyberpunk"] {
-  /* Cyberpunk - Fuchsia / Black */
-  --color-primary-50:  253 244 255;
-  --color-primary-100: 250 232 255;
-  --color-primary-200: 245 208 254;
-  --color-primary-300: 240 171 252;
-  --color-primary-400: 232 121 249;
-  --color-primary-500: 217 70 239;
-  --color-primary-600: 192 38 211;
-  --color-primary-700: 162 27 180;
-  --color-primary-800: 134 25 143;
-  --color-primary-900: 112 26 117;
-  --color-primary-950: 74 4 78;
-
-  --color-canvas-50:  250 250 250;
-  --color-canvas-100: 245 245 245;
-  --color-canvas-200: 229 229 229;
-  --color-canvas-300: 212 212 212;
-  --color-canvas-400: 163 163 163;
-  --color-canvas-500: 115 115 115;
-  --color-canvas-600: 82 82 82;
-  --color-canvas-700: 64 64 64;
-  --color-canvas-800: 38 38 38;
-  --color-canvas-900: 23 23 23;
-  --color-canvas-950: 10 10 10;
-}
-
-[data-theme="corporate"] {
-  /* Corporate - Sky Blue / Navy */
-  --color-primary-50:  240 249 255;
-  --color-primary-100: 224 242 254;
-  --color-primary-200: 186 230 253;
-  --color-primary-300: 125 211 252;
-  --color-primary-400: 56 189 248;
-  --color-primary-500: 14 165 233;
-  --color-primary-600: 2 132 199;
-  --color-primary-700: 3 105 161;
-  --color-primary-800: 7 89 133;
-  --color-primary-900: 12 74 110;
-  --color-primary-950: 8 47 73;
-
-  --color-canvas-50:  239 246 255;
-  --color-canvas-100: 219 234 254;
-  --color-canvas-200: 191 219 254;
-  --color-canvas-300: 147 197 253;
-  --color-canvas-400: 96 165 250;
-  --color-canvas-500: 59 130 246;
-  --color-canvas-600: 37 99 235;
-  --color-canvas-700: 29 78 216;
-  --color-canvas-800: 30 64 175;
-  --color-canvas-900: 30 58 138;
-  --color-canvas-950: 23 37 84;
+  --color-canvas-600: 71  85  105;
+  --color-canvas-700: 51  65  85;
+  --color-canvas-800: 30  41  59;
+  --color-canvas-900: 15  23  42;
+  --color-canvas-950: 9   13  24;
 }
 
 [data-theme="emerald"] {
-  /* Emerald - Emerald / Zinc */
+  /* Emerald - Fresh Emerald / Forest Zinc */
   --color-primary-50:  236 253 245;
   --color-primary-100: 209 250 229;
   --color-primary-200: 167 243 208;
   --color-primary-300: 110 231 183;
-  --color-primary-400: 52 211 153;
-  --color-primary-500: 16 185 129;
-  --color-primary-600: 5 150 105;
-  --color-primary-700: 4 120 87;
-  --color-primary-800: 6 95 70;
-  --color-primary-900: 6 78 59;
-  --color-primary-950: 2 44 34;
+  --color-primary-400: 52  211 153;
+  --color-primary-500: 16  185 129;
+  --color-primary-600: 5   150 105;
+  --color-primary-700: 4   120 87;
+  --color-primary-800: 6   95  70;
+  --color-primary-900: 6   78  59;
+  --color-primary-950: 2   44  34;
 
-  --color-canvas-50:  250 250 250;
-  --color-canvas-100: 244 244 245;
-  --color-canvas-200: 228 228 231;
-  --color-canvas-300: 212 212 216;
-  --color-canvas-400: 161 161 170;
-  --color-canvas-500: 113 113 122;
-  --color-canvas-600: 82 82 91;
-  --color-canvas-700: 63 63 70;
-  --color-canvas-800: 39 39 42;
-  --color-canvas-900: 24 24 27;
-  --color-canvas-950: 9 9 11;
+  --color-canvas-50:  250 250 249;
+  --color-canvas-100: 244 244 242;
+  --color-canvas-200: 228 229 227;
+  --color-canvas-300: 210 212 209;
+  --color-canvas-400: 160 163 159;
+  --color-canvas-500: 113 116 112;
+  --color-canvas-600: 82  85  81;
+  --color-canvas-700: 61  64  60;
+  --color-canvas-800: 38  41  38;
+  --color-canvas-900: 22  26  23;
+  --color-canvas-950: 10  13  11;
 }
 
 /* Semantic state tokens — theme-independent. Si algún tema quiere variar
