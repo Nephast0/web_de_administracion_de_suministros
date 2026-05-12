@@ -124,6 +124,7 @@
                                     class="flex items-center justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
                                     <a class="p-2 rounded-lg hover:bg-canvas-700 text-canvas-400 hover:text-primary-400 transition-colors"
                                         href="{{ url_for('proveedores.editar_proveedor', proveedor_id=proveedor.id) }}"
+                                        aria-label="Editar proveedor"
                                         title="Editar">
                                         <span class="material-symbols-outlined text-xl">edit</span>
                                     </a>
@@ -136,7 +137,9 @@
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button
                                             class="p-2 rounded-lg hover:bg-danger-900/20 text-canvas-400 hover:text-danger-400 transition-colors"
-                                            type="submit" title="Eliminar">
+                                            type="submit"
+                                            aria-label="Eliminar proveedor"
+                                            title="Eliminar">
                                             <span class="material-symbols-outlined text-xl">delete</span>
                                         </button>
                                     </form>

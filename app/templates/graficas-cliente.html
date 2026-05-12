@@ -95,18 +95,32 @@
         return response.json();
     }
 
-    // Theme Colors
-    const getThemeColor = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    // Theme Colors. Los tokens CSS están como "R G B" (para combinarlos con
+    // rgb(var(--color-X) / alpha) en Tailwind). Para Chart.js los envolvemos.
+    const rawThemeColor = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    const getThemeColor = (variable, fallback) => {
+        const raw = rawThemeColor(variable);
+        return raw ? `rgb(${raw.replace(/\s+/g, ', ')})` : fallback;
+    };
+    const getThemeColorAlpha = (variable, alpha, fallback) => {
+        const raw = rawThemeColor(variable);
+        return raw ? `rgba(${raw.replace(/\s+/g, ', ')}, ${alpha})` : fallback;
+    };
 
-    // Fallback colors if JS executes before styles are fully computed or in some contexts
     const themeColors = {
-        primary: getThemeColor('--color-primary-500') || '#14b8a6',
-        primaryTransparent: (getThemeColor('--color-primary-500') || '#14b8a6') + '33',
-        secondary: '#f59e0b', // Amber 500
-        danger: '#ef4444', // Red 500
-        success: '#10b981', // Emerald 500
-        text: getThemeColor('--color-canvas-400') || '#94a3b8',
-        grid: getThemeColor('--color-canvas-700') || '#334155'
+        primary:           getThemeColor('--color-primary-500', '#14b8a6'),
+        primaryTransparent: getThemeColorAlpha('--color-primary-500', 0.2,  'rgba(20,184,166,0.2)'),
+        primarySoft:        getThemeColorAlpha('--color-primary-500', 0.6,  'rgba(20,184,166,0.6)'),
+        secondary:    getThemeColor('--color-warning-500',      '#f59e0b'),
+        secondarySoft: getThemeColorAlpha('--color-warning-500', 0.6,  'rgba(245,158,11,0.6)'),
+        danger:    getThemeColor('--color-danger-500',      '#ef4444'),
+        dangerSoft: getThemeColorAlpha('--color-danger-500', 0.6,  'rgba(239,68,68,0.6)'),
+        success:    getThemeColor('--color-success-500',      '#10b981'),
+        successSoft: getThemeColorAlpha('--color-success-500', 0.6,  'rgba(16,185,129,0.6)'),
+        info:    getThemeColor('--color-info-500',      '#3b82f6'),
+        infoSoft: getThemeColorAlpha('--color-info-500', 0.6,  'rgba(59,130,246,0.6)'),
+        text: getThemeColor('--color-canvas-400', '#94a3b8'),
+        grid: getThemeColor('--color-canvas-700', '#334155'),
     };
 
     Chart.defaults.color = themeColors.text;
@@ -119,19 +133,21 @@
         let borderColors = themeColors.primary;
 
         if (isDoughnut) {
+            // 5 segmentos del doughnut → 5 tokens semánticos del design system.
+            // Si en el futuro se necesitan más segmentos, considerar paleta de "series".
             backgroundColors = [
-                themeColors.primary + '99', // 60% approx
-                'rgba(245, 158, 11, 0.6)',  // Amber
-                'rgba(239, 68, 68, 0.6)',   // Red
-                'rgba(16, 185, 129, 0.6)',  // Emerald
-                'rgba(147, 51, 234, 0.6)'   // Purple
+                themeColors.primarySoft,
+                themeColors.secondarySoft,
+                themeColors.dangerSoft,
+                themeColors.successSoft,
+                themeColors.infoSoft,
             ];
             borderColors = [
                 themeColors.primary,
-                '#f59e0b',
-                '#ef4444',
-                '#10b981',
-                '#9333ea'
+                themeColors.secondary,
+                themeColors.danger,
+                themeColors.success,
+                themeColors.info,
             ];
         }
 

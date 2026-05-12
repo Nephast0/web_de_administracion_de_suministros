@@ -8,9 +8,9 @@ from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 from io import StringIO
 from pathlib import Path
-from flask import Blueprint, Response, abort, current_app, jsonify, render_template, request, redirect, url_for
+from flask import Blueprint, Response, abort, current_app, jsonify, render_template, request
 from flask_login import current_user, login_required
-from sqlalchemy import func, case
+from sqlalchemy import func
 
 from ..db import db
 from ..models import Compra, Producto, Usuario, CacheEvent, Cuenta, Apunte, Asiento
@@ -259,15 +259,9 @@ def _cached_json(key: str, builder):
 
 
 
-@reportes_bp.route("/")
-@login_required
-def index():
-    rol = getattr(current_user, "rol", None)
-    if rol == 'admin':
-        return redirect(url_for('reportes.graficas'))
-    if rol == 'cliente':
-        return redirect(url_for('reportes.graficas_cliente'))
-    return redirect(url_for('main.index'))
+# Nota: La ruta "/" la sirve auth.root (registrado antes). La función index()
+# anterior estaba muerta (path collision) y referenciaba un blueprint 'main'
+# que no existe → eliminada en la auditoría 2026-05-12.
 
 
 @reportes_bp.route("/data/cache_stats")

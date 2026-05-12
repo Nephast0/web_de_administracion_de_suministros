@@ -11,7 +11,7 @@ from flask_login import current_user, login_required, logout_user
 
 from ..db import db
 from ..forms import EditarPerfilForm
-from ..models import CestaDeCompra, Compra, Producto, Proveedor, ActividadUsuario, Usuario
+from ..models import CestaDeCompra, Compra, Producto, Proveedor, Usuario
 from .helpers import role_required, write_safe_csv_row
 from ..services.accounting_services import crear_asiento
 

@@ -1,5 +1,4 @@
 from decimal import Decimal
-from datetime import datetime
 from flask import current_app
 from app.db import db
 from app.models import Cuenta, Asiento, Apunte

@@ -193,6 +193,7 @@
                             class="material-symbols-outlined absolute right-1 top-1.5 text-canvas-500 pointer-events-none text-[14px]">expand_more</span>
                     </div>
                     <button type="submit"
+                        aria-label="Buscar actividades"
                         class="btn-elegant btn-primary py-1 px-2 text-xs bg-primary-600 hover:bg-primary-500 shadow-md shadow-primary-500/20">
                         <span class="material-symbols-outlined text-base">search</span>
                     </button>
@@ -232,7 +233,9 @@
                             </td>
                             <td class="px-4 py-3 text-right">
                                 <button class="text-canvas-500 hover:text-danger-400 transition-colors p-1"
-                                    data-action="eliminar-usuario" data-user-id="{{ usuario.id }}" title="Eliminar Usuario">
+                                    data-action="eliminar-usuario" data-user-id="{{ usuario.id }}"
+                                    aria-label="Eliminar usuario"
+                                    title="Eliminar Usuario">
                                     <span class="material-symbols-outlined text-xl">delete</span>
                                 </button>
                             </td>

@@ -1,6 +1,6 @@
 # Design System — Suministros CNCV
 
-> Última revisión: 2026-05-12 (cierre Sprint 4 visual).
+> Última revisión: 2026-05-12 (auditoría post-antigravity + a11y mínima).
 > Stack: Flask + Jinja2 + Tailwind CSS (compilado con `npm`, sin CDN runtime).
 
 Este documento es la fuente única de verdad para decisiones visuales y de
@@ -29,10 +29,19 @@ Toda la paleta vive en variables CSS y se consume desde Tailwind via `rgb(var(--
 
 | Token | 50 → 950 escala | Default (theme `elegant`) |
 |---|---|---|
-| `primary-*` | 11 tonos | Indigo (`#6366f1` en 500) |
-| `canvas-*` | 11 tonos | Slate (`#0f172a` en 900, el fondo) |
+| `primary-*` | 11 tonos | Velvet Indigo (`rgb(128 90 255)` en 500) |
+| `canvas-*` | 11 tonos | Dark Night (`rgb(27 32 44)` en 900, el fondo) |
 
-4 temas registrados: `elegant` (default), `cyberpunk`, `corporate`, `emerald`. Cada uno redefine `--color-primary-*` y `--color-canvas-*` en `[data-theme="X"]` dentro de `app/static/css/input.css`.
+4 temas registrados (revisión 2026-05-12, paletas refinadas):
+
+| Theme | Primary 500 | Canvas 900 | Identidad |
+|---|---|---|---|
+| `elegant` (default) | `rgb(128 90 255)` — violet eléctrico | `rgb(27 32 44)` — azul-noche suave | Glassmorphism oscuro elegante |
+| `cyberpunk` | `rgb(247 18 134)` — neon fuchsia | `rgb(14 14 14)` — carbon black | Hot pink sobre negro casi puro |
+| `corporate` | `rgb(14 165 233)` — trust blue (sky) | `rgb(15 23 42)` — clean slate | Azul confianza sobre slate neutro |
+| `emerald` | `rgb(16 185 129)` — fresh emerald | `rgb(22 26 23)` — forest zinc | Verde sobre zinc con tinte verde |
+
+Cada uno redefine `--color-primary-*` y `--color-canvas-*` en `[data-theme="X"]` dentro de `app/static/css/input.css`.
 
 #### Tokens semánticos (theme-independent)
 
@@ -238,6 +247,32 @@ Clases disponibles: `animation-delay-0`, `-50`, `-100`, `-150`, `-200`, `-250`, 
 | Clase `animation-delay-100` | `style="animation-delay: 100ms"` (la CSP estricta puede romperlo) |
 | `<script nonce="{{ csp_nonce() }}">` en page_scripts | `<script>` inline sin nonce |
 | Un solo `<main>` (provisto por `base.html`) | Otro `<main>` dentro del bloque content |
+| `{{ url_for('blueprint.endpoint') }}` en `href`/`action` | `href="/ruta-hardcoded"` (rompe si renombras endpoint) |
+| `<button aria-label="Acción">` en botones icon-only | `<button>` icon-only sin texto accesible |
+| `getThemeColor('--color-primary-500', '#fallback')` para Chart.js | `getComputedStyle(...).getPropertyValue(...)` crudo (devuelve `"R G B"`, inválido como color) |
+
+---
+
+## 5.1 Chart.js + tokens de tema
+
+Los CSS vars del tema se guardan como `R G B` (sin coma, sin `rgb()`) para que Tailwind las componga con `rgb(var(--color-X) / <alpha-value>)`. Chart.js NO entiende ese formato — necesita un color válido (`rgb(...)`, `rgba(...)`, hex). Por eso `graficas.html` y `graficas-cliente.html` usan helpers que envuelven el valor:
+
+```javascript
+const rawThemeColor = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const getThemeColor      = (v, fb) => { const r = rawThemeColor(v); return r ? `rgb(${r.replace(/\s+/g, ', ')})` : fb; };
+const getThemeColorAlpha = (v, a, fb) => { const r = rawThemeColor(v); return r ? `rgba(${r.replace(/\s+/g, ', ')}, ${a})` : fb; };
+
+const themeColors = {
+  primary:   getThemeColor('--color-primary-500', '#6366f1'),
+  success:   getThemeColor('--color-success-500', '#10b981'),
+  successBg: getThemeColorAlpha('--color-success-500', 0.25, 'rgba(16,185,129,0.25)'),
+  // …
+};
+```
+
+**Reglas para gráficos**:
+- Para series múltiples, usa los 5 tokens semánticos del DS (`primary`, `secondary=warning`, `danger`, `info`, `success`). Si necesitas más de 5 categorías, considera variar tonos (`primary-300`, `primary-700`) en vez de meter acentos nuevos hardcoded.
+- Para fills con alpha, usa `getThemeColorAlpha(var, 0.25, fallback)` — nunca concatenes `+ '40'` al `rgb(...)` (no es válido).
 
 ---
 

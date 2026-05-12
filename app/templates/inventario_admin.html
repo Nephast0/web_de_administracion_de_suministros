@@ -16,7 +16,7 @@
                 Gestión de Inventario
             </h1>
         </div>
-        <a href="/agregar-producto"
+        <a href="{{ url_for('proveedores.agregar_producto') }}"
             class="btn-elegant btn-primary flex items-center gap-2 no-underline bg-primary-600 hover:bg-primary-500 text-white border-none shadow-lg shadow-primary-500/20">
             <span class="material-symbols-outlined">add_circle</span>
             Agregar Producto
@@ -186,6 +186,7 @@
                             <div class="flex items-center justify-center gap-2">
                                 <a href="{{ url_for('proveedores.editar_producto', id=producto.id) }}"
                                     class="p-2 rounded hover:bg-canvas-700 text-canvas-400 hover:text-primary-400 transition-colors"
+                                    aria-label="Editar producto"
                                     title="Editar">
                                     <span class="material-symbols-outlined text-base">edit</span>
                                 </a>
@@ -197,6 +198,7 @@
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit"
                                         class="p-2 rounded hover:bg-danger-900/30 text-canvas-400 hover:text-danger-400 transition-colors"
+                                        aria-label="Eliminar producto"
                                         title="Eliminar">
                                         <span class="material-symbols-outlined text-base">delete</span>
                                     </button>

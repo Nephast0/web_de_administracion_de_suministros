@@ -1,6 +1,68 @@
 # Estado actualizado del proyecto
 
-## Revisión 2026-05-12 (Sprint visual completo — 4 sprints + design system)
+## Revisión 2026-05-12 (tarde) — Auditoría post-antigravity + hardening
+
+### Estado actual
+- **34 tests pasan**, 0 fallos. Suite estable.
+- **0 path collisions** en el `url_map` de Flask (era 1 antes: `/` chocaba entre `auth.root` y `reportes.index`).
+- **0 colores Tailwind hardcodeados** en templates (era 1: `text-purple-400`, `text-pink-400` residuales).
+- **0 URLs hardcodeadas** en `href`/`action` de templates (eran 2: `/agregar-producto`).
+- **0 imports muertos** detectados por análisis AST (eran 3: `Apunte`, `ActividadUsuario`, `case`).
+- **0 botones icon-only sin `aria-label`** (eran 8 — incluye mobile nav toggle, acciones de tabla, eliminar línea de asiento).
+- **Browserslist DB** actualizado (`caniuse-lite` al día), CSS rebuild limpio sin warnings.
+- **Paletas refinadas** (commit `8706f5a` por antigravity): elegant→Velvet Indigo, cyberpunk→Neon Fuchsia, corporate→Trust Blue + Clean Slate, emerald→Fresh Emerald + Forest Zinc.
+
+### Bugs corregidos en esta auditoría
+
+#### Crítico — `getThemeColor()` rompía Chart.js (preexistente)
+El helper JS leía las CSS vars como `"128 90 255"` (formato `R G B` sin `rgb()` ni comas — necesario para componer con `rgb(var(--color-X) / alpha)` en Tailwind). Chart.js recibía ese string como color y silenciosamente caía al default. Además, el truco `color + '40'` para añadir alpha solo funcionaba con hex de 6 chars, no con `rgb()`.
+
+**Arreglo** (`graficas.html`, `graficas-cliente.html`):
+```js
+const getThemeColor      = (v, fb) => raw ? `rgb(${raw.replace(/\s+/g, ', ')})` : fb;
+const getThemeColorAlpha = (v, a, fb) => raw ? `rgba(${raw.replace(/\s+/g, ', ')}, ${a})` : fb;
+```
++ pre-computación de variantes `secondaryBg`, `dangerBg`, `successSoft`, `infoSoft`, etc. con alpha aplicado correctamente.
+
+#### Path collision: `auth.root` vs `reportes.index` en `/`
+Ambos blueprints registraban `/`. Como auth se registraba primero, `reportes.index` era código muerto. Además referenciaba `url_for('main.index')` con un blueprint que no existe → `BuildError` si alguna vez se hubiera ejecutado.
+**Arreglo**: eliminada `reportes.index` (código muerto) + limpiados imports muertos `redirect`, `url_for` que dejó. Documentado en comentario sobre por qué falta el endpoint.
+
+#### URLs hardcodeadas
+`<form action="/agregar-producto">` y `<a href="/agregar-producto">` en `agregar-producto.html` e `inventario_admin.html` migrados a `{{ url_for('proveedores.agregar_producto') }}`.
+
+#### Colores hardcodeados en gráficos
+- `text-purple-400` → `text-primary-400` (`graficas.html`, h3 "Ingresos por Usuario").
+- `text-pink-400`   → `text-success-400` (`graficas.html`, h3 "Ingresos vs Gastos").
+- 5 colores hex hardcoded del doughnut de `graficas-cliente.html` migrados a los 5 tokens semánticos del DS (`primarySoft`, `secondarySoft`, `dangerSoft`, `successSoft`, `infoSoft`).
+- Eliminados `purple`/`pink` de `themeColors` (5-color scheme ahora usa los 5 semánticos del DS).
+
+#### Imports muertos (detectados por análisis AST)
+- `contabilidad.py`: `Apunte` (no referenciado).
+- `inventario.py`: `ActividadUsuario` (no referenciado).
+- `reportes.py`: `case` de SQLAlchemy + `redirect`/`url_for` huérfanos.
+- `accounting_services.py`: `datetime` (no referenciado, sólo `func`).
+
+#### Accesibilidad — 8 botones/links icon-only sin `aria-label`
+- `base.html`: nav-toggle mobile (`Abrir menú de navegación`).
+- `inventario_admin.html`: editar/eliminar producto en filas de tabla.
+- `proveedores.html`: editar/eliminar proveedor.
+- `menu-admin.html`: buscar actividades + eliminar usuario.
+- `contabilidad/nuevo_asiento.html`: eliminar línea del asiento.
+
+### Métricas
+- **Archivos modificados**: 11 (`graficas.html`, `graficas-cliente.html`, `agregar-producto.html`, `inventario_admin.html`, `proveedores.html`, `menu-admin.html`, `base.html`, `nuevo_asiento.html`, `reportes.py`, `inventario.py`, `contabilidad.py`, `accounting_services.py`, `DESIGN_SYSTEM.md`, `PROJECT_STATUS.md`).
+- **Líneas de código eliminadas**: ~30 (función muerta + imports muertos + colores hex literales sustituidos por tokens).
+- **Endpoints Flask totales**: 63 (era 64 con la colisión).
+
+### Pendientes (sin urgencia)
+- **a11y completa**: contraste con paletas nuevas (especialmente cyberpunk, el más saturado), navegación por teclado en modal/dropdown, focus rings consistentes.
+- **CSP `style-src`**: sigue requiriendo `'unsafe-inline'` por Chart.js. Wrapper o sustitución pendiente.
+- **Tabla `proveedor_tipo_producto`**: el modelo `ProveedorTipoProducto` no declara `__tablename__` explícito (usa el default `proveedortipoproducto`). Aceptable pero documentable.
+
+---
+
+## Revisión 2026-05-12 (mañana) — Sprint visual completo (4 sprints + design system)
 
 ### Estado actual
 - **34 tests pasan** (32 previos + 2 nuevos de regresión para `/contabilidad/balance` y `/contabilidad/diario`).

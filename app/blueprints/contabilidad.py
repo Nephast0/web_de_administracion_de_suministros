@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, make_response
 from flask_login import login_required, current_user
 from app.db import db
-from app.models import Asiento, Cuenta, Apunte
+from app.models import Asiento, Cuenta
 from app.forms import AsientoManualForm
 from app.services.accounting_services import crear_asiento, inicializar_plan_cuentas, obtener_saldo_cuenta
 from app.blueprints.helpers import write_safe_csv_row

@@ -19,7 +19,7 @@
             <p class="text-canvas-400 text-sm">Registre un nuevo artículo en el inventario.</p>
         </div>
 
-        <form action="/agregar-producto" method="post" class="space-y-6">
+        <form action="{{ url_for('proveedores.agregar_producto') }}" method="post" class="space-y-6">
             {{ form.hidden_tag() }}
 
             <!-- Proveedor Section -->

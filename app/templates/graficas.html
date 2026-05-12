@@ -137,7 +137,7 @@
         <!-- Revenue by User Chart -->
         <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-primary-900/5 border border-canvas-700/50 animation-delay-200">
             <h3 class="text-lg font-bold text-canvas-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
-                <span class="material-symbols-outlined text-purple-400">person</span>
+                <span class="material-symbols-outlined text-primary-400">person</span>
                 Ingresos por Usuario
             </h3>
             <div class="relative flex-grow min-h-[300px]">
@@ -161,7 +161,7 @@
         <!-- Revenue vs Expenses Chart -->
         <div class="glass-panel p-6 animate-fade-in flex flex-col h-full shadow-xl shadow-primary-900/5 border border-canvas-700/50 animation-delay-250">
             <h3 class="text-lg font-bold text-canvas-200 mb-4 flex items-center gap-2 font-heading tracking-wide">
-                <span class="material-symbols-outlined text-pink-400">compare_arrows</span>
+                <span class="material-symbols-outlined text-success-400">compare_arrows</span>
                 Ingresos vs Gastos
             </h3>
             <div class="relative flex-grow min-h-[300px]">
@@ -272,23 +272,37 @@
 {% block page_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script nonce="{{ csp_nonce() }}">
-    // Theme Colors (read from CSS vars, theme-aware)
-    // Theme Colors (Dynamic)
-    const getThemeColor = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    // Theme Colors (read from CSS vars, theme-aware).
+    // Los tokens viven como "R G B" (sin comas, sin rgb()) para componerlos con Tailwind
+    // via rgb(var(--color-X) / <alpha>). Para Chart.js necesitamos color válido →
+    // los envolvemos en rgb(...) o rgba(...) según haga falta transparencia.
+    const rawThemeColor = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    const getThemeColor = (variable, fallback) => {
+        const raw = rawThemeColor(variable);
+        return raw ? `rgb(${raw.replace(/\s+/g, ', ')})` : fallback;
+    };
+    const getThemeColorAlpha = (variable, alpha, fallback) => {
+        const raw = rawThemeColor(variable);
+        return raw ? `rgba(${raw.replace(/\s+/g, ', ')}, ${alpha})` : fallback;
+    };
 
     const themeColors = {
-        primary: getThemeColor('--color-primary-500') || '#6366f1',
-        primaryTransparent: (getThemeColor('--color-primary-500') || '#6366f1') + '33',
-        secondary: getThemeColor('--color-warning-500') || '#f59e0b', // warning
-        danger: getThemeColor('--color-danger-500') || '#ef4444', // danger
-        success: getThemeColor('--color-success-500') || '#10b981', // success
-        info: getThemeColor('--color-info-500') || '#3b82f6', // info
-        purple: '#a855f7',    // Purple 500
-        pink: '#ec4899',      // Pink 500
-        text: getThemeColor('--color-canvas-300') || '#cbd5e1', // Canvas 300
-        textMuted: getThemeColor('--color-canvas-400') || '#94a3b8', // Canvas 400
-        grid: getThemeColor('--color-canvas-700') || '#334155', // Canvas 700
-        background: getThemeColor('--color-canvas-900') || '#0f172a' // Canvas 900
+        primary:    getThemeColor('--color-primary-500', '#6366f1'),
+        primaryBg:  getThemeColorAlpha('--color-primary-500', 0.2, 'rgba(99,102,241,0.2)'),
+        // Semánticos: full + variante con alpha 0.25 para fills de barras.
+        secondary:    getThemeColor('--color-warning-500',      '#f59e0b'),
+        secondaryBg:  getThemeColorAlpha('--color-warning-500', 0.25, 'rgba(245,158,11,0.25)'),
+        danger:    getThemeColor('--color-danger-500',      '#ef4444'),
+        dangerBg:  getThemeColorAlpha('--color-danger-500', 0.25, 'rgba(239,68,68,0.25)'),
+        success:   getThemeColor('--color-success-500',      '#10b981'),
+        successBg: getThemeColorAlpha('--color-success-500', 0.25, 'rgba(16,185,129,0.25)'),
+        info:    getThemeColor('--color-info-500',      '#3b82f6'),
+        infoBg:  getThemeColorAlpha('--color-info-500', 0.25, 'rgba(59,130,246,0.25)'),
+        // Tipografía / fondo del propio gráfico.
+        text:       getThemeColor('--color-canvas-300', '#cbd5e1'),
+        textMuted:  getThemeColor('--color-canvas-400', '#94a3b8'),
+        grid:       getThemeColor('--color-canvas-700', '#334155'),
+        background: getThemeColor('--color-canvas-900', '#0f172a'),
     };
 
     // Chart.js Global Defaults
@@ -371,7 +385,9 @@
             valueType: 'quantity',
             suffix: ' uds',
             requiresInterval: false,
-            colorScheme: [themeColors.primary, themeColors.secondary, themeColors.danger, themeColors.info, themeColors.purple]
+            // 5 colores semánticos del design system. Si en el futuro se necesitan
+            // más de 5 categorías, considerar paleta de "series" o tonos de primary-*.
+            colorScheme: [themeColors.primary, themeColors.secondary, themeColors.danger, themeColors.info, themeColors.success]
         },
         {
             chartName: 'ventas_totales',
@@ -422,7 +438,7 @@
             valueType: 'currency',
             requiresInterval: true,
             indexAxis: 'y', // Horizontal Layout
-            colorScheme: themeColors.purple
+            colorScheme: themeColors.primary
         },
         {
             chartName: 'ingresos_gastos',
@@ -433,8 +449,8 @@
             requiresInterval: true,
             multiDataset: true,
             datasets: [
-                { label: 'Ingresos', dataKey: 'ingresos', color: themeColors.success, bgColor: themeColors.success + '40' }, // '40' is hex opacity
-                { label: 'Gastos', dataKey: 'gastos', color: themeColors.danger, bgColor: themeColors.danger + '40' }
+                { label: 'Ingresos', dataKey: 'ingresos', color: themeColors.success, bgColor: themeColors.successBg },
+                { label: 'Gastos',   dataKey: 'gastos',   color: themeColors.danger,  bgColor: themeColors.dangerBg }
             ],
             valueType: 'currency'
         }
