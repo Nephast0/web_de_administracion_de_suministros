@@ -1,36 +1,29 @@
-{% extends "base.html" %}
-{% block title %}Perfil{% endblock %}
+{% extends "base_shop.html" %}
+{% block title %}Mi cuenta{% endblock %}
+
+{# Perfil EXCLUSIVO de cliente. Look e-commerce (extiende base_shop.html).
+   NO tiene sección "Apariencia" — el tema de la tienda es de marca y no es
+   algo que el cliente personalice. Para admin, ver `perfil-admin.html`. #}
 
 {% block content %}
-<div class="container mx-auto my-6 px-4 pb-12">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center gap-4">
-            {% set back_url = url_for('inventario.menu_principal') if current_user.rol == 'admin' else url_for('inventario.menu_cliente') %}
-            <a href="{{ back_url }}"
-                class="flex items-center justify-center w-9 h-9 rounded-md border border-canvas-700 text-canvas-400 hover:text-canvas-100 hover:border-canvas-500 transition-colors bg-canvas-900/50"
-                aria-label="Volver">
-                <span class="material-symbols-outlined text-xl">arrow_back</span>
-            </a>
-            <div>
-                <h1 class="text-2xl text-canvas-100">Perfil</h1>
-                <p class="text-sm text-canvas-500">Información personal, seguridad y preferencias.</p>
-            </div>
+<div class="container mx-auto px-4 lg:px-6 py-6 lg:py-8">
+
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div>
+            <h1 class="text-2xl text-canvas-100">Mi cuenta</h1>
+            <p class="text-sm text-canvas-500 mt-0.5">Datos personales, seguridad y actividad reciente.</p>
         </div>
-        {% if current_user.rol != 'admin' %}
         <a href="{{ url_for('inventario.pedidos') }}"
-            class="btn-elegant btn-secondary flex items-center gap-2 no-underline">
-            <span class="material-symbols-outlined text-base">list_alt</span>
-            <span class="hidden sm:inline">Ver pedidos</span>
+            class="btn-elegant btn-secondary inline-flex items-center gap-2 no-underline self-start sm:self-auto">
+            <span class="material-symbols-outlined text-base">receipt_long</span>
+            Ver pedidos
         </a>
-        {% endif %}
-    </div>
+    </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Columna izquierda (2/3): info + seguridad + apariencia -->
+        <!-- Columna izquierda (2/3): info personal + seguridad -->
         <div class="lg:col-span-2 space-y-6">
 
-            <!-- Información personal -->
             <section class="glass-panel p-6 animate-fade-in">
                 <header class="flex items-center gap-2 pb-4 mb-5 border-b border-canvas-800">
                     <span class="material-symbols-outlined text-canvas-400 text-xl">badge</span>
@@ -51,7 +44,7 @@
                                 value="{{ usuario.usuario }}" disabled>
                         </div>
                         <div class="md:col-span-2 space-y-1.5">
-                            <label class="block text-xs font-medium text-canvas-400 uppercase tracking-wider">Dirección</label>
+                            <label class="block text-xs font-medium text-canvas-400 uppercase tracking-wider">Dirección de envío</label>
                             {{ form.direccion(class_="form-input") }}
                         </div>
                         <div class="space-y-1.5">
@@ -96,66 +89,11 @@
                     </div>
                 </form>
             </section>
-
-            <!-- Apariencia (theme switcher movido aquí desde el navbar) -->
-            <section class="glass-panel p-6 animate-fade-in animation-delay-100">
-                <header class="flex items-center gap-2 pb-4 mb-5 border-b border-canvas-800">
-                    <span class="material-symbols-outlined text-canvas-400 text-xl">palette</span>
-                    <h2 class="text-base text-canvas-100">Apariencia</h2>
-                </header>
-                <p class="text-sm text-canvas-400 mb-5">
-                    Elige la identidad visual de la aplicación. El cambio se guarda en este navegador
-                    y se aplica automáticamente en todas las pantallas.
-                </p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <!-- Slate -->
-                    <button type="button" data-set-theme="slate"
-                        class="theme-card group flex items-center gap-3 p-4 rounded-md border border-canvas-700 hover:border-canvas-500 bg-canvas-900/40 hover:bg-canvas-900/70 transition-all text-left">
-                        <span class="w-10 h-10 rounded-md border border-canvas-700 shrink-0 flex items-center justify-center"
-                              style="background: linear-gradient(135deg, rgb(15 23 42) 50%, rgb(59 130 246) 50%);"></span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-canvas-100">Slate</p>
-                            <p class="text-xs text-canvas-500">Corporativo · azul cobalto sobre slate</p>
-                        </div>
-                    </button>
-                    <!-- Graphite -->
-                    <button type="button" data-set-theme="graphite"
-                        class="theme-card group flex items-center gap-3 p-4 rounded-md border border-canvas-700 hover:border-canvas-500 bg-canvas-900/40 hover:bg-canvas-900/70 transition-all text-left">
-                        <span class="w-10 h-10 rounded-md border border-canvas-700 shrink-0 flex items-center justify-center"
-                              style="background: linear-gradient(135deg, rgb(18 18 20) 50%, rgb(212 212 216) 50%);"></span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-canvas-100">Graphite</p>
-                            <p class="text-xs text-canvas-500">Monocromático · acento gris claro</p>
-                        </div>
-                    </button>
-                    <!-- Obsidian -->
-                    <button type="button" data-set-theme="obsidian"
-                        class="theme-card group flex items-center gap-3 p-4 rounded-md border border-canvas-700 hover:border-canvas-500 bg-canvas-900/40 hover:bg-canvas-900/70 transition-all text-left">
-                        <span class="w-10 h-10 rounded-md border border-canvas-700 shrink-0 flex items-center justify-center"
-                              style="background: linear-gradient(135deg, rgb(19 16 13) 50%, rgb(202 138 4) 50%);"></span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-canvas-100">Obsidian</p>
-                            <p class="text-xs text-canvas-500">Premium · acento dorado champagne</p>
-                        </div>
-                    </button>
-                    <!-- Sapphire -->
-                    <button type="button" data-set-theme="sapphire"
-                        class="theme-card group flex items-center gap-3 p-4 rounded-md border border-canvas-700 hover:border-canvas-500 bg-canvas-900/40 hover:bg-canvas-900/70 transition-all text-left">
-                        <span class="w-10 h-10 rounded-md border border-canvas-700 shrink-0 flex items-center justify-center"
-                              style="background: linear-gradient(135deg, rgb(8 22 38) 50%, rgb(6 182 212) 50%);"></span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-canvas-100">Sapphire</p>
-                            <p class="text-xs text-canvas-500">Tech · acento cyan sobre navy profundo</p>
-                        </div>
-                    </button>
-                </div>
-                <p id="theme-active-label" class="mt-4 text-xs text-canvas-500"></p>
-            </section>
         </div>
 
         <!-- Columna derecha (1/3): actividad reciente -->
         <aside class="lg:col-span-1">
-            <section class="glass-panel p-0 overflow-hidden h-full flex flex-col animate-fade-in animation-delay-150">
+            <section class="glass-panel p-0 overflow-hidden h-full flex flex-col animate-fade-in animation-delay-100">
                 <header class="px-5 py-4 border-b border-canvas-800 flex justify-between items-center">
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-canvas-400 text-xl">history</span>
@@ -195,37 +133,4 @@
         </aside>
     </div>
 </div>
-{% endblock %}
-
-{% block page_scripts %}
-<script nonce="{{ csp_nonce() }}">
-    // Resalta el tema activo en la sección Apariencia y muestra etiqueta de tema actual.
-    (function () {
-        var THEMES = {
-            slate:    'Slate · corporativo',
-            graphite: 'Graphite · monocromático',
-            obsidian: 'Obsidian · premium dorado',
-            sapphire: 'Sapphire · tech cyan',
-        };
-        var label = document.getElementById('theme-active-label');
-        function paint() {
-            var t = document.documentElement.getAttribute('data-theme') || 'slate';
-            document.querySelectorAll('[data-set-theme]').forEach(function (btn) {
-                var active = btn.getAttribute('data-set-theme') === t;
-                btn.classList.toggle('border-primary-500', active);
-                btn.classList.toggle('bg-primary-500/10', active);
-                btn.classList.toggle('border-canvas-700', !active);
-            });
-            if (label) label.textContent = 'Tema activo: ' + (THEMES[t] || t);
-        }
-        paint();
-        // Re-pintar tras click (delegated handler en ui.js cambia el atributo).
-        document.addEventListener('click', function (e) {
-            if (e.target.closest('[data-set-theme]')) {
-                // ui.js corre primero (capture en su delegated); le damos un tick.
-                setTimeout(paint, 0);
-            }
-        });
-    })();
-</script>
 {% endblock %}

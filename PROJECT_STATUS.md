@@ -1,5 +1,75 @@
 # Estado actualizado del proyecto
 
+## Revisión 2026-05-13 (tarde) — Shop UI para cliente + búsqueda server-side + perfil separado
+
+### Cambios
+
+#### Layout shop dedicado (`base_shop.html`)
+- Nuevo `base_shop.html`: topbar e-commerce (logo · nav principal · búsqueda · cesta con badge · perfil · logout) + footer.
+- En mobile: drawer de menú + overlay de búsqueda toggleables desde la topbar.
+- Los 6 templates de cliente (`menu-cliente`, `productos-cliente`, `cesta`, `confirmacion-de-compra`, `pedidos`, `graficas-cliente`) migrados a `extends "base_shop.html"`. El admin sigue usando `base.html` (sidebar) sin tocar nada.
+- Partial nuevo `_flash_and_modals.html`: flash + toast + modal de confirmación extraídos de `base.html` para evitar drift cuando se actualice uno de los dos layouts.
+- Context processor `cart_count` en `app/__init__.py` que inyecta el contador para el badge del icono cesta (defensivo: try/except, solo cliente, devuelve 0 en cualquier error).
+
+#### Búsqueda server-side en catálogo
+- Helper `_build_productos_cliente_query(args)` en `inventario.py` con 5 filtros AND-combinables:
+  - `q` → ilike OR contra `modelo`, `marca`, `descripcion`.
+  - `categoria` → match exacto contra `tipo_producto`.
+  - `marca` → match exacto contra `marca`.
+  - `precio_min` / `precio_max` → rango Decimal.
+- Endpoint `inventario.productos_cliente` pasa al template: `productos`, `filtros` (dict crudo para repintar), `categorias_disponibles`, `marcas_disponibles`.
+- URL compartible: `/productos_cliente?q=GeForce&categoria=Tarjeta Gráfica`.
+- 4 tests de regresión nuevos (`ProductosClienteSearchTest`).
+
+#### Templates cliente con look e-commerce
+
+| Template | Cambios |
+|---|---|
+| `menu-cliente.html` | Hero con CTA "Ver catálogo", grid de categorías destacadas (top-stock), grid de novedades (últimos 6 productos). Banner pedidos pendientes. |
+| `productos-cliente.html` | Sidebar de filtros (1/4) + grid responsive de cards (3/4). Cada card: icono placeholder representativo, marca/modelo, precio destacado, badge stock semántico, botón "Añadir a cesta". Chips de filtros activos con "x" individual + "Limpiar todos". |
+| `cesta.html` | Layout 2 columnas: items con stepper + eliminar a la izquierda, card sticky "Resumen del pedido" con subtotal/IVA estimado/total + CTA "Tramitar" a la derecha. Empty state con CTA al catálogo. Recálculo en vivo al cambiar cantidad. |
+| `confirmacion-de-compra.html` | Stepper visual de 3 pasos (Cesta done · Datos active · Confirmar pending). Form de envío + método pago a la izquierda, total + CTA sticky a la derecha. |
+| `pedidos.html` | Cards en mobile/tablet + tabla compacta en desktop (decisión: tablas se rompen en mobile; en desktop el escaneo horizontal es óptimo). Filtros heredados de ADR-001. |
+| `graficas-cliente.html` | Header ajustado al nuevo topbar (sin back link redundante). Lógica Chart.js intacta. |
+
+#### Perfil separado por rol
+- `perfil-admin.html` (NUEVO): extiende `base.html` (sidebar admin). Mantiene la sección "Apariencia" con el theme switcher.
+- `perfil-cliente.html` (REESCRITO): extiende `base_shop.html`. Sin sección "Apariencia" — el tema de la tienda es de marca y NO es algo que el cliente pueda cambiar.
+- Endpoint `inventario.perfil_cliente` ahora hace render condicional por rol:
+  ```python
+  template_name = "perfil-admin.html" if usuario.rol == "admin" else "perfil-cliente.html"
+  ```
+- 2 tests de regresión nuevos (`PerfilTemplateSplitTest`): admin muestra `data-set-theme`/Apariencia; cliente NO los muestra.
+- Defensa en profundidad documentada en `theme.js` (el bloqueo real es server-side, no client-side).
+
+### Verificación
+
+- **42/42 tests OK** (40 previos + 2 nuevos del perfil split).
+- **CSS rebuild** limpio.
+- **Smoke visual** (preview):
+  - Login cliente → home con hero + categorías + novedades.
+  - Catálogo con sidebar filtros + grid cards.
+  - Búsqueda `?q=GeForce` → chip activo + 1 producto.
+  - Añadir a cesta → badge se actualiza a 2 en el topbar.
+  - Cesta con sticky summary + total destacado.
+  - Confirmación con stepper visual.
+  - Perfil cliente: sin "Apariencia" ✅.
+  - Perfil admin: sidebar admin intacto + "Apariencia" visible ✅.
+
+### Métricas
+
+- **Archivos creados (4)**: `base_shop.html`, `_flash_and_modals.html`, `perfil-admin.html`, (el `perfil-cliente.html` se considera reescritura, no creación).
+- **Archivos modificados (8)**: `app/__init__.py` (context_processor), `app/blueprints/inventario.py` (helper + endpoint home + render condicional perfil), `app/static/js/theme.js` (nota defensiva), `tests/test_flows.py` (6 tests nuevos), `app/templates/base.html` (refactor a partial), y los 6 templates de cliente.
+- **Tests**: 36 → 42 (+6: 4 búsqueda + 2 perfil split).
+- **Endpoints Flask**: 63 (sin cambio).
+
+### Pendientes
+- Live search (XHR/JSON) en el topbar — sigue siendo GET full-page; trabajo futuro.
+- Imágenes reales de productos: actualmente iconos `material-symbols` como placeholder por categoría. Si se añade `Producto.imagen_url` en el futuro, las cards lo absorben sin restructurar.
+- Subtotal/IVA en cesta y confirmación es estimación cliente-side (21% fijo); idealmente el backend calcula con la tasa real del proveedor.
+
+---
+
 ## Revisión 2026-05-13 (madrugada) — Rediseño de navegación (sidebar) + fix seguridad back-button
 
 ### Cambios

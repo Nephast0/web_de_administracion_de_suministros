@@ -1,95 +1,134 @@
-{% extends "base.html" %}
-{% block title %}Menú Cliente{% endblock %}
+{% extends "base_shop.html" %}
+{% block title %}Inicio{% endblock %}
+
+{# Mapeo categoría → icono material-symbols. Si no está en el mapa, usa "category". #}
+{% set CATEGORY_ICONS = {
+    'SSD': 'memory_alt',
+    'HDD': 'storage',
+    'RAM': 'memory',
+    'CPU': 'memory',
+    'GPU': 'video_settings',
+    'Monitor': 'desktop_windows',
+    'Teclado': 'keyboard',
+    'Ratón': 'mouse',
+    'Portátil': 'laptop',
+    'Hardware': 'developer_board',
+    'Router': 'router',
+    'Cable': 'cable',
+    'Impresora': 'print',
+} %}
+{% macro category_icon(name) -%}
+  {{ CATEGORY_ICONS.get(name, 'category') }}
+{%- endmacro %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-4xl w-full">
-        <!-- Quick Actions -->
-        <div class="flex justify-end items-center mb-8">
-            <div class="flex items-center gap-3">
-                <a href="{{ url_for('inventario.cesta') }}"
-                    class="glass-panel px-4 py-2 hover:bg-canvas-700/50 transition-colors flex items-center gap-2 text-canvas-300 hover:text-primary-400 group no-underline"
-                    aria-label="Ir a la cesta">
-                    <span
-                        class="material-symbols-outlined group-hover:scale-110 transition-transform">shopping_cart</span>
-                    <span class="hidden md:inline">Cesta</span>
-                </a>
-                <a href="{{ url_for('inventario.perfil_cliente') }}"
-                    class="glass-panel px-4 py-2 hover:bg-canvas-700/50 transition-colors flex items-center gap-2 text-canvas-300 hover:text-primary-400 group no-underline"
-                    aria-label="Ir al perfil">
-                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">person</span>
-                    <span class="hidden md:inline">Perfil</span>
+<div class="container mx-auto px-4 lg:px-6 py-8 lg:py-12">
+
+    <!-- Hero -->
+    <section class="relative overflow-hidden rounded-2xl border border-canvas-800/80 bg-gradient-to-br from-canvas-900/80 via-canvas-900/60 to-primary-900/20 px-6 lg:px-12 py-10 lg:py-16 mb-10">
+        <div class="absolute -top-20 -right-10 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative max-w-2xl">
+            <p class="text-xs font-medium uppercase tracking-widest text-primary-300 mb-3">Suministros CNCV</p>
+            <h1 class="text-3xl lg:text-4xl font-semibold tracking-tight text-canvas-100 mb-4">
+                Equipa tu negocio con<br class="hidden lg:inline">
+                <span class="text-primary-300">los suministros adecuados.</span>
+            </h1>
+            <p class="text-canvas-400 text-base lg:text-lg mb-6 leading-relaxed">
+                Catálogo curado de componentes, periféricos y soluciones de red. Pedidos directos, facturación clara, sin sorpresas.
+            </p>
+            <div class="flex flex-wrap gap-3">
+                <a href="{{ url_for('inventario.productos_cliente') }}"
+                    class="btn-elegant btn-primary no-underline">
+                    <span class="material-symbols-outlined text-base">storefront</span>
+                    Ver catálogo
                 </a>
                 <a href="{{ url_for('inventario.pedidos') }}"
-                    class="glass-panel px-4 py-2 hover:bg-canvas-700/50 transition-colors flex items-center gap-2 text-canvas-300 hover:text-primary-400 group no-underline"
-                    aria-label="Ver pedidos">
-                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">list_alt</span>
-                    <span class="hidden md:inline">Pedidos</span>
+                    class="btn-elegant btn-secondary no-underline">
+                    <span class="material-symbols-outlined text-base">receipt_long</span>
+                    Mis pedidos
                 </a>
             </div>
         </div>
+    </section>
 
-        <!-- Main Dashboard -->
-        <div class="glass-panel p-8 text-center animate-fade-in relative overflow-hidden">
-            <!-- Decorative background elements -->
-            <div
-                class="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none">
+    {% if pedidos_pendientes and pedidos_pendientes > 0 %}
+    <section class="mb-8">
+        <div class="rounded-lg border border-warning-500/30 bg-warning-500/5 p-4 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-warning-400">pending_actions</span>
+                <p class="text-sm text-canvas-200">
+                    Tienes <strong class="text-warning-300">{{ pedidos_pendientes }}</strong> pedido{{ '' if pedidos_pendientes == 1 else 's' }} pendiente{{ '' if pedidos_pendientes == 1 else 's' }} de procesar.
+                </p>
             </div>
-            <div
-                class="absolute bottom-0 left-0 w-64 h-64 bg-warning-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none">
+            <a href="{{ url_for('inventario.pedidos') }}"
+                class="text-sm font-medium text-warning-300 hover:text-warning-200 no-underline whitespace-nowrap">
+                Ver pedidos →
+            </a>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Categorías destacadas -->
+    {% if categorias_destacadas %}
+    <section class="mb-12">
+        <div class="flex items-end justify-between mb-5">
+            <div>
+                <h2 class="text-xl font-semibold text-canvas-100 tracking-tight">Explora por categoría</h2>
+                <p class="text-sm text-canvas-500 mt-0.5">Selecciona una categoría para filtrar el catálogo.</p>
             </div>
-
-            <h2 class="text-2xl text-canvas-200 mb-8 font-heading">Bienvenido a tu panel de cliente</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <a href="{{ url_for('inventario.productos_cliente') }}"
-                    class="group glass-card p-6 flex flex-col items-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all no-underline cursor-pointer border border-canvas-700/50 hover:border-primary-500/50">
-                    <div
-                        class="w-16 h-16 rounded-full bg-canvas-800 flex items-center justify-center group-hover:bg-primary-500/20 transition-colors">
-                        <span class="material-symbols-outlined text-4xl text-primary-400">inventory_2</span>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold text-canvas-200 group-hover:text-primary-400 transition-colors">
-                            Catálogo de Productos</h3>
-                        <p class="text-canvas-400 text-sm mt-2">Explora y añade productos a tu cesta</p>
-                    </div>
-                </a>
-
-                <a href="{{ url_for('reportes.graficas_cliente') }}"
-                    class="group glass-card p-6 flex flex-col items-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all no-underline cursor-pointer border border-canvas-700/50 hover:border-warning-500/50">
-                    <div
-                        class="w-16 h-16 rounded-full bg-canvas-800 flex items-center justify-center group-hover:bg-warning-500/20 transition-colors">
-                        <span class="material-symbols-outlined text-4xl text-warning-400">monitoring</span>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold text-canvas-200 group-hover:text-warning-400 transition-colors">Mis
-                            Métricas</h3>
-                        <p class="text-canvas-400 text-sm mt-2">Visualiza tus gastos y productos favoritos</p>
-                    </div>
-                </a>
-            </div>
-
-            {% if pedidos_pendientes and pedidos_pendientes > 0 %}
-            <div class="mt-8 mx-auto max-w-lg">
-                <div
-                    class="bg-warning-500/10 border border-warning-500/30 rounded-lg p-4 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-warning-400">pending_actions</span>
-                        <span class="text-warning-100">Tienes <strong>{{ pedidos_pendientes }}</strong> pedidos
-                            pendientes</span>
-                    </div>
-                    <a href="{{ url_for('inventario.pedidos') }}"
-                        class="text-sm font-bold text-warning-400 hover:text-warning-300 underline">
-                        Ver pedidos
-                    </a>
+            <a href="{{ url_for('inventario.productos_cliente') }}"
+                class="text-sm text-canvas-400 hover:text-canvas-100 transition-colors no-underline hidden sm:inline-flex items-center gap-1">
+                Ver todas
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+            </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {% for cat in categorias_destacadas %}
+            <a href="{{ url_for('inventario.productos_cliente', categoria=cat.nombre) }}"
+                class="glass-card group p-5 no-underline flex flex-col gap-3 transition-all hover:border-primary-500/50 hover:bg-canvas-900/70">
+                <div class="w-12 h-12 rounded-md bg-canvas-800/80 group-hover:bg-primary-500/15 flex items-center justify-center transition-colors">
+                    <span class="material-symbols-outlined text-2xl text-primary-300">{{ category_icon(cat.nombre) }}</span>
                 </div>
-            </div>
-            {% endif %}
+                <div>
+                    <p class="font-medium text-canvas-100 group-hover:text-primary-200 transition-colors">{{ cat.nombre }}</p>
+                    <p class="text-xs text-canvas-500 mt-0.5">{{ cat.stock }} unidades</p>
+                </div>
+            </a>
+            {% endfor %}
         </div>
+    </section>
+    {% endif %}
 
-        <div class="mt-12 text-center text-canvas-500 text-sm">
-            <p>&copy; 2024 Suministros Informáticos CNCV</p>
+    <!-- Novedades -->
+    {% if novedades %}
+    <section class="mb-12">
+        <div class="flex items-end justify-between mb-5">
+            <div>
+                <h2 class="text-xl font-semibold text-canvas-100 tracking-tight">Novedades</h2>
+                <p class="text-sm text-canvas-500 mt-0.5">Los productos más recientes añadidos al catálogo.</p>
+            </div>
+            <a href="{{ url_for('inventario.productos_cliente') }}"
+                class="text-sm text-canvas-400 hover:text-canvas-100 transition-colors no-underline hidden sm:inline-flex items-center gap-1">
+                Ver todas
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+            </a>
         </div>
-    </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {% for p in novedades %}
+            <a href="{{ url_for('inventario.productos_cliente', q=p.modelo) }}"
+                class="glass-card group p-4 no-underline flex flex-col gap-2 transition-all hover:border-primary-500/50 hover:bg-canvas-900/70">
+                <div class="aspect-square w-full rounded-md bg-canvas-800/60 group-hover:bg-canvas-800 flex items-center justify-center transition-colors">
+                    <span class="material-symbols-outlined text-4xl text-canvas-500 group-hover:text-primary-300 transition-colors">{{ category_icon(p.tipo_producto) }}</span>
+                </div>
+                <div class="min-h-[3.5rem]">
+                    <p class="text-xs text-canvas-500">{{ p.marca or '—' }}</p>
+                    <p class="text-sm text-canvas-100 leading-tight line-clamp-2">{{ p.modelo }}</p>
+                </div>
+                <p class="text-sm font-mono text-primary-300">{{ p.precio | currency }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 </div>
 {% endblock %}

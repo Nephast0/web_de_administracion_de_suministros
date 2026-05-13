@@ -11,8 +11,15 @@
  * Expone:
  *   window.setTheme(name)  — cambia el tema y lo persiste
  *
- * El cambio de tema vive sólo en la pantalla de perfil (sección "Apariencia"),
- * usando <button data-set-theme="…"> + delegated listener en ui.js.
+ * IMPORTANTE — defensa en profundidad (sprint 2026-05-13):
+ *   El theme switcher SOLO debe verse en perfil-admin.html. El cliente NO
+ *   expone ningún `[data-set-theme]` en su UI — el tema de la tienda es de
+ *   marca y no editable. El bloqueo REAL vive en el render condicional del
+ *   endpoint `inventario.perfil_cliente`, que escoge perfil-admin.html para
+ *   admin y perfil-cliente.html (sin sección Apariencia) para cliente.
+ *   Este script seguirá funcionando si alguien filtra el botón a un template
+ *   cliente, así que si se quiere reforzar más, conviene gate-ar también
+ *   server-side qué tema puede activar el cliente.
  * ================================================================= */
 (function () {
   'use strict';

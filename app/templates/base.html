@@ -165,45 +165,6 @@
                 </div>
             </header>
 
-            <!-- Flash messages (debajo del topbar) -->
-            <div class="fixed top-20 right-5 w-full max-w-sm z-30 pointer-events-none px-4 md:px-0">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                {% for category, message in messages %}
-                {% set color_classes = {
-                    'success': 'bg-canvas-900/90 border-success-500 text-success-100',
-                    'danger':  'bg-canvas-900/90 border-danger-500  text-danger-100',
-                    'warning': 'bg-canvas-900/90 border-warning-500 text-warning-100',
-                    'info':    'bg-canvas-900/90 border-info-500    text-info-100'
-                } %}
-                {% set active_class = color_classes.get(category, 'bg-canvas-900/90 border-canvas-500 text-canvas-100') %}
-                <div class="pointer-events-auto alert-dismissible transform transition-all duration-300 p-4 rounded-md shadow-lg mb-3 border-l-2 backdrop-blur-md flex justify-between items-start {{ active_class }}">
-                    <div class="flex items-start gap-3">
-                        <span class="material-symbols-outlined text-xl opacity-90 mt-0.5">
-                            {% if category == 'success' %}check_circle
-                            {% elif category == 'danger' %}error
-                            {% elif category == 'warning' %}warning
-                            {% else %}info{% endif %}
-                        </span>
-                        <div>
-                            <p class="text-xs uppercase tracking-wider opacity-60 mb-0.5 font-medium">{{ category }}</p>
-                            <p class="text-sm leading-snug">{{ message }}</p>
-                        </div>
-                    </div>
-                    <button type="button" class="ml-3 opacity-50 hover:opacity-100 transition-opacity p-1"
-                        data-flash-close aria-label="Cerrar mensaje">
-                        <span class="material-symbols-outlined text-base">close</span>
-                    </button>
-                </div>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
-            </div>
-
-            <!-- Toast container -->
-            <div id="toast-container"
-                class="fixed top-20 right-5 w-full max-w-sm z-30 pointer-events-none px-4 md:px-0 space-y-2"></div>
-
             <!-- Main content -->
             <main class="flex-1 animate-fade-in">
                 {% block content %}{% endblock %}
@@ -211,29 +172,8 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal (controlled by window.confirmDialog) -->
-    <div id="confirm-modal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-canvas-950/75 backdrop-blur-sm"
-        role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-message">
-        <div id="confirm-modal-panel"
-            class="glass-panel w-full max-w-md p-6 transform transition-all duration-200 scale-95 opacity-0">
-            <div class="flex items-start gap-4">
-                <div id="confirm-modal-icon-wrap"
-                    class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-danger-500/10 border border-danger-500/30">
-                    <span id="confirm-modal-icon"
-                        class="material-symbols-outlined text-xl text-danger-400">warning</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <h3 id="confirm-modal-title" class="text-base font-medium text-canvas-100 mb-1">Confirmar acción</h3>
-                    <p id="confirm-modal-message" class="text-sm text-canvas-400 leading-relaxed">¿Estás seguro?</p>
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" id="confirm-modal-cancel" class="btn-elegant btn-secondary">Cancelar</button>
-                <button type="button" id="confirm-modal-confirm" class="btn-elegant btn-primary">Confirmar</button>
-            </div>
-        </div>
-    </div>
+    {# Overlays (flash + toast + modal) compartidos con base_shop.html #}
+    {% include "_flash_and_modals.html" %}
 
     <!-- UI helpers + sidebar drawer toggle -->
     <script src="{{ url_for('static', filename='js/ui.js') }}" defer></script>

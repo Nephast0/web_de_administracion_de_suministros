@@ -151,8 +151,32 @@ def menu_principal():
 @login_required
 @role_required("cliente")
 def menu_cliente():
-    # role_required ya filtra. El template no necesita reverificar.
-    return render_template("menu-cliente.html")
+    # Home tipo tienda: hero + categorías destacadas + novedades + estado de pedidos.
+    # Categorías destacadas: tipo_producto distintos con más unidades en stock total.
+    categorias_raw = db.session.query(
+        Producto.tipo_producto, db.func.sum(Producto.cantidad).label("stock_total")
+    ).filter(Producto.tipo_producto.isnot(None)) \
+     .group_by(Producto.tipo_producto) \
+     .order_by(db.func.sum(Producto.cantidad).desc()) \
+     .limit(4).all()
+    categorias_destacadas = [
+        {"nombre": c.tipo_producto, "stock": int(c.stock_total or 0)} for c in categorias_raw
+    ]
+
+    # Novedades: últimos productos por fecha.
+    novedades = Producto.query.order_by(Producto.fecha.desc()).limit(6).all()
+
+    # Pedidos pendientes del usuario actual (badge informativo).
+    pedidos_pendientes = Compra.query.filter_by(
+        usuario_id=current_user.id, estado="Pendiente"
+    ).count()
+
+    return render_template(
+        "menu-cliente.html",
+        categorias_destacadas=categorias_destacadas,
+        novedades=novedades,
+        pedidos_pendientes=pedidos_pendientes,
+    )
 
 
 @inventario_bp.route("/perfil_cliente", methods=["GET", "POST"])
@@ -209,8 +233,14 @@ def perfil_cliente():
     end = start + per_page
     actividades_page = actividades[start:end]
 
+    # Render condicional por rol (sprint 2026-05-13):
+    #   - admin   → perfil-admin.html (extiende base.html sidebar + sección Apariencia)
+    #   - cliente → perfil-cliente.html (extiende base_shop.html, SIN Apariencia)
+    # El nombre del endpoint conserva "_cliente" por compatibilidad con `url_for`
+    # existentes; no es un alias del template.
+    template_name = "perfil-admin.html" if usuario.rol == "admin" else "perfil-cliente.html"
     return render_template(
-        "perfil-cliente.html",
+        template_name,
         form=form,
         usuario=usuario,
         actividades=actividades_page,
@@ -279,11 +309,62 @@ def exportar_productos():
     return output
 
 
+def _build_productos_cliente_query(args):
+    """Construye la query de catálogo cliente con filtros server-side.
+
+    Filtros soportados (todos opcionales, AND-combinables):
+      - q              : substring contra modelo, marca, descripcion (ilike OR)
+      - categoria      : match exacto contra tipo_producto
+      - marca          : match exacto contra marca
+      - precio_min     : Decimal >= filtro
+      - precio_max     : Decimal <= filtro
+    Retorna (query, filtros_dict) — filtros_dict mantiene strings crudos para
+    repintar el formulario en el template.
+    """
+    q          = (args.get("q") or "").strip()
+    categoria  = (args.get("categoria") or "").strip()
+    marca      = (args.get("marca") or "").strip()
+    precio_min_raw = (args.get("precio_min") or "").strip()
+    precio_max_raw = (args.get("precio_max") or "").strip()
+
+    query = Producto.query
+    if q:
+        like = f"%{q}%"
+        query = query.filter(or_(
+            Producto.modelo.ilike(like),
+            Producto.marca.ilike(like),
+            Producto.descripcion.ilike(like),
+        ))
+    if categoria:
+        query = query.filter(Producto.tipo_producto == categoria)
+    if marca:
+        query = query.filter(Producto.marca == marca)
+    if precio_min_raw:
+        try:
+            query = query.filter(Producto.precio >= Decimal(precio_min_raw))
+        except (InvalidOperation, ValueError):
+            pass
+    if precio_max_raw:
+        try:
+            query = query.filter(Producto.precio <= Decimal(precio_max_raw))
+        except (InvalidOperation, ValueError):
+            pass
+
+    filtros = {
+        "q": q,
+        "categoria": categoria,
+        "marca": marca,
+        "precio_min": precio_min_raw,
+        "precio_max": precio_max_raw,
+    }
+    return query.order_by(Producto.fecha.desc()), filtros
+
+
 @inventario_bp.route("/productos_cliente", methods=["GET", "POST"])
 @login_required
 @role_required("cliente")
 def productos_cliente():
-    query, filtros = _build_productos_query(request.args)
+    query, filtros = _build_productos_cliente_query(request.args)
     page = max(int(request.args.get("page", 1)), 1)
     per_page = min(int(request.args.get("page_size", DEFAULT_PAGE_SIZE)), MAX_PAGE_SIZE)
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -295,12 +376,23 @@ def productos_cliente():
         and producto.cantidad is not None
         and producto.cantidad <= producto.cantidad_minima
     ]
+
+    # Opciones para los selects/lists de filtros (distinct sobre toda la tabla).
+    categorias_disponibles = sorted({
+        p.tipo_producto for p in Producto.query.with_entities(Producto.tipo_producto).distinct() if p.tipo_producto
+    })
+    marcas_disponibles = sorted({
+        p.marca for p in Producto.query.with_entities(Producto.marca).distinct() if p.marca
+    })
+
     return render_template(
         "productos-cliente.html",
         productos=productos,
         alertas=alertas,
         filtros=filtros,
         pagination=pagination,
+        categorias_disponibles=categorias_disponibles,
+        marcas_disponibles=marcas_disponibles,
     )
 
 

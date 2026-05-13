@@ -1,85 +1,79 @@
-{% extends "base.html" %}
-{% block title %}Gráficas de cliente{% endblock %}
+{% extends "base_shop.html" %}
+{% block title %}Mis gráficas{% endblock %}
 
 {% block content %}
-<div class="container mx-auto my-6 px-4 pb-12">
-    <!-- Header -->
-    <div class="flex items-center gap-4 mb-8">
-        <a href="{{ url_for('inventario.menu_cliente') }}"
-            class="flex items-center justify-center w-10 h-10 rounded-full border border-canvas-700 text-canvas-400 hover:text-primary-400 hover:border-primary-400 transition-all bg-canvas-900/50"
-            aria-label="Volver al menú del cliente">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
-        <h1
-            class="text-2xl font-semibold font-heading text-canvas-100">
-            Tus Métricas
-        </h1>
-    </div>
+<div class="container mx-auto px-4 lg:px-6 py-6 lg:py-8">
 
-    <!-- Controls -->
-    <div class="glass-panel p-6 mb-8 flex flex-col md:flex-row items-center justify-center gap-4">
-        <label for="intervaloCliente" class="text-canvas-300 font-medium">Intervalo para historial de compras:</label>
-        <div class="relative w-full md:w-64">
-            <select id="intervaloCliente" class="form-input appearance-none">
-                <option value="dia">Diario</option>
-                <option value="semana">Semanal</option>
-                <option value="mes" selected>Mensual</option>
-                <option value="trimestre">Trimestral</option>
-                <option value="anio">Anual</option>
-            </select>
-            <span
-                class="material-symbols-outlined absolute right-3 top-2.5 text-canvas-500 pointer-events-none">expand_more</span>
+    <!-- Header (el back se sirve por el topbar; aquí solo título + control) -->
+    <header class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl text-canvas-100">Mis gráficas</h1>
+            <p class="text-sm text-canvas-500 mt-0.5">Visualiza tus compras, productos favoritos y estado de pedidos.</p>
         </div>
-    </div>
+        <div class="flex items-center gap-2">
+            <label for="intervaloCliente" class="text-xs uppercase tracking-wider text-canvas-500">Intervalo</label>
+            <div class="relative">
+                <select id="intervaloCliente" class="form-input pr-9 appearance-none text-sm w-44">
+                    <option value="dia">Diario</option>
+                    <option value="semana">Semanal</option>
+                    <option value="mes" selected>Mensual</option>
+                    <option value="trimestre">Trimestral</option>
+                    <option value="anio">Anual</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-2.5 top-2.5 text-canvas-500 pointer-events-none text-base">expand_more</span>
+            </div>
+        </div>
+    </header>
 
-    <!-- Charts Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Spend Over Time -->
-        <div class="glass-panel p-6 animate-fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-canvas-200">Gasto en el tiempo</h3>
+    <!-- Charts grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        <section class="glass-panel p-5 animate-fade-in">
+            <header class="flex justify-between items-center mb-5">
+                <h2 class="text-sm font-medium text-canvas-200 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base text-canvas-400">trending_up</span>
+                    Gasto en el tiempo
+                </h2>
                 <a id="exportCompras" href="#"
-                    class="text-primary-400 hover:text-primary-300 text-sm flex items-center gap-1 transition-colors"
+                    class="text-canvas-400 hover:text-canvas-100 text-xs flex items-center gap-1 transition-colors no-underline"
                     download>
                     <span class="material-symbols-outlined text-base">download</span> Exportar
                 </a>
-            </div>
-            <div class="relative h-64 w-full">
-                <canvas id="comprasEnTiempo"></canvas>
-            </div>
-        </div>
+            </header>
+            <div class="relative h-64 w-full"><canvas id="comprasEnTiempo"></canvas></div>
+        </section>
 
-        <!-- Favorite Products -->
-        <div class="glass-panel p-6 animate-fade-in animation-delay-100">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-canvas-200">Productos preferidos</h3>
+        <section class="glass-panel p-5 animate-fade-in animation-delay-100">
+            <header class="flex justify-between items-center mb-5">
+                <h2 class="text-sm font-medium text-canvas-200 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base text-canvas-400">favorite</span>
+                    Productos preferidos
+                </h2>
                 <a href="{{ url_for('reportes.chart_export_cliente', chart_name='cliente_productos_favoritos') }}"
-                    class="text-primary-400 hover:text-primary-300 text-sm flex items-center gap-1 transition-colors"
+                    class="text-canvas-400 hover:text-canvas-100 text-xs flex items-center gap-1 transition-colors no-underline"
                     download>
                     <span class="material-symbols-outlined text-base">download</span> Exportar
                 </a>
-            </div>
-            <div class="relative h-64 w-full">
-                <canvas id="productosFavoritos"></canvas>
-            </div>
-        </div>
+            </header>
+            <div class="relative h-64 w-full"><canvas id="productosFavoritos"></canvas></div>
+        </section>
 
-        <!-- Order Status -->
-        <div class="glass-panel p-6 animate-fade-in lg:col-span-2 animation-delay-200">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-canvas-200">Estado de tus pedidos</h3>
+        <section class="glass-panel p-5 animate-fade-in lg:col-span-2 animation-delay-200">
+            <header class="flex justify-between items-center mb-5">
+                <h2 class="text-sm font-medium text-canvas-200 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base text-canvas-400">donut_large</span>
+                    Estado de tus pedidos
+                </h2>
                 <a href="{{ url_for('reportes.chart_export_cliente', chart_name='cliente_estados_pedido') }}"
-                    class="text-primary-400 hover:text-primary-300 text-sm flex items-center gap-1 transition-colors"
+                    class="text-canvas-400 hover:text-canvas-100 text-xs flex items-center gap-1 transition-colors no-underline"
                     download>
                     <span class="material-symbols-outlined text-base">download</span> Exportar
                 </a>
-            </div>
+            </header>
             <div class="relative h-64 w-full flex justify-center">
-                <div class="w-full md:w-1/2 h-full">
-                    <canvas id="estadoPedidos"></canvas>
-                </div>
+                <div class="w-full md:w-1/2 h-full"><canvas id="estadoPedidos"></canvas></div>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 {% endblock %}

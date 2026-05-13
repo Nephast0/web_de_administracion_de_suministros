@@ -263,6 +263,28 @@ def create_app():
         """Expone el nonce CSP al template como `csp_nonce()` (callable)."""
         return {"csp_nonce": lambda: getattr(g, "csp_nonce", "")}
 
+    @app.context_processor
+    def inject_cart_count():
+        """Expone `cart_count` (cantidad total de items en cesta) al template.
+
+        Sólo se calcula para clientes autenticados; el badge del topbar del
+        shop lo usa para mostrar la cantidad de items pendientes. Defensivo:
+        cualquier error (tabla inexistente en tests tempranos, sesión rota)
+        cae a 0 sin romper la respuesta.
+        """
+        def _count():
+            try:
+                if not current_user.is_authenticated:
+                    return 0
+                if getattr(current_user, "rol", None) != "cliente":
+                    return 0
+                from .models import CestaDeCompra
+                rows = CestaDeCompra.query.filter_by(usuario_id=current_user.id).all()
+                return sum(int(r.cantidad or 0) for r in rows)
+            except Exception:
+                return 0
+        return {"cart_count": _count()}
+
     @app.after_request
     def apply_security_headers(response):
         """Añade cabeceras de seguridad básicas, HSTS y anti-caché para sesiones autenticadas.

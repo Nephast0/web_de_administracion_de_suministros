@@ -14,6 +14,7 @@ from pathlib import Path
 
 from flask import url_for
 from datetime import datetime, timezone
+from decimal import Decimal
 from werkzeug.datastructures import MultiDict
 
 # Entorno de pruebas sin acceso a dependencias externas: inyectamos un stub
@@ -1034,6 +1035,155 @@ class CacheHeadersTest(BaseTestCase):
         cc = resp.headers.get("Cache-Control", "")
         # Acepta vacío o cualquier política que NO sea no-store agresivo.
         self.assertNotIn("no-store", cc.lower())
+
+
+class ProductosClienteSearchTest(BaseTestCase):
+    """Regresión de búsqueda y filtros server-side en /productos_cliente.
+
+    Cubre que los 5 filtros (q, categoria, marca, precio_min, precio_max)
+    funcionan AND-combinables y respetan el contrato del template.
+    """
+
+    def _setup_data(self):
+        proveedor = Proveedor(
+            nombre="Proveedor Demo",
+            telefono="123456789",
+            direccion="Dirección demo",
+            email="demo@example.com",
+            cif="A1234567B",
+            tasa_de_descuento=0,
+            iva=21,
+            tipo_producto="Hardware",
+        )
+        db.session.add(proveedor)
+        db.session.flush()
+
+        productos = [
+            Producto(proveedor_id=proveedor.id, tipo_producto="SSD",   modelo="Samsung 980 1TB",
+                     descripcion="NVMe rápido", cantidad=10, cantidad_minima=2,
+                     precio=Decimal("89.00"), marca="Samsung", num_referencia="SSD-001"),
+            Producto(proveedor_id=proveedor.id, tipo_producto="SSD",   modelo="Kingston KC3000 2TB",
+                     descripcion="NVMe enterprise", cantidad=5, cantidad_minima=1,
+                     precio=Decimal("159.00"), marca="Kingston", num_referencia="SSD-002"),
+            Producto(proveedor_id=proveedor.id, tipo_producto="RAM",   modelo="Corsair Vengeance 32GB",
+                     descripcion="DDR5 6000MHz", cantidad=20, cantidad_minima=4,
+                     precio=Decimal("129.00"), marca="Corsair", num_referencia="RAM-001"),
+        ]
+        for p in productos:
+            db.session.add(p)
+
+        cliente = Usuario(
+            nombre="Cliente Search",
+            usuario="cli_search",
+            direccion="Calle X",
+            contrasenya="Segura123!",
+            rol="cliente",
+            fecha_registro=datetime(2024, 1, 1),
+        )
+        db.session.add(cliente)
+        db.session.commit()
+        return cliente
+
+    def _setup_and_login(self):
+        with self.app.app_context():
+            cliente = self._setup_data()
+            cli_id = cliente.id
+        with self.client.session_transaction() as session:
+            session["_user_id"] = cli_id
+            session["_fresh"] = True
+        return cli_id
+
+    def test_sin_filtros_devuelve_todos(self):
+        self._setup_and_login()
+        resp = self.client.get("/productos_cliente")
+        self.assertEqual(resp.status_code, 200)
+        body = resp.data.decode("utf-8")
+        self.assertIn("Samsung 980 1TB", body)
+        self.assertIn("Kingston KC3000 2TB", body)
+        self.assertIn("Corsair Vengeance 32GB", body)
+
+    def test_filtro_q_busca_modelo_marca_descripcion(self):
+        self._setup_and_login()
+        # q="Samsung" → debe encontrar el SSD Samsung (por marca) pero no los otros.
+        resp = self.client.get("/productos_cliente?q=Samsung")
+        body = resp.data.decode("utf-8")
+        self.assertIn("Samsung 980 1TB", body)
+        self.assertNotIn("Kingston KC3000", body)
+        self.assertNotIn("Corsair Vengeance", body)
+
+        # q="DDR5" → match por descripción de la RAM Corsair.
+        resp = self.client.get("/productos_cliente?q=DDR5")
+        body = resp.data.decode("utf-8")
+        self.assertIn("Corsair Vengeance 32GB", body)
+        self.assertNotIn("Samsung 980", body)
+
+    def test_filtro_categoria_y_rango_precio(self):
+        self._setup_and_login()
+        # categoria=SSD + precio_max=100 → sólo el Samsung 980 (89.00) entra.
+        resp = self.client.get("/productos_cliente?categoria=SSD&precio_max=100")
+        body = resp.data.decode("utf-8")
+        self.assertIn("Samsung 980 1TB", body)
+        self.assertNotIn("Kingston KC3000", body)  # 159 > 100
+        self.assertNotIn("Corsair Vengeance", body)  # categoria != SSD
+
+    def test_filtro_marca(self):
+        self._setup_and_login()
+        resp = self.client.get("/productos_cliente?marca=Corsair")
+        body = resp.data.decode("utf-8")
+        self.assertIn("Corsair Vengeance 32GB", body)
+        self.assertNotIn("Samsung 980", body)
+        self.assertNotIn("Kingston KC3000", body)
+
+
+class PerfilTemplateSplitTest(BaseTestCase):
+    """Regresión de la separación perfil-admin / perfil-cliente.
+
+    El theme switcher debe verse SOLO en admin (no en cliente). Cualquier
+    cambio futuro que filtre `data-set-theme` al template del cliente romperá
+    estos tests.
+    """
+
+    def _crear_user(self, rol, usuario_str):
+        with self.app.app_context():
+            u = Usuario(
+                nombre=f"User {usuario_str}",
+                usuario=usuario_str,
+                direccion="Calle X",
+                contrasenya="Segura123!",
+                rol=rol,
+                fecha_registro=datetime(2024, 1, 1),
+            )
+            db.session.add(u)
+            db.session.commit()
+            return u.id
+
+    def _login(self, user_id):
+        with self.client.session_transaction() as session:
+            session["_user_id"] = user_id
+            session["_fresh"] = True
+
+    def test_admin_perfil_muestra_apariencia(self):
+        uid = self._crear_user("admin", "admin_perf")
+        self._login(uid)
+        resp = self.client.get("/perfil_cliente")
+        self.assertEqual(resp.status_code, 200)
+        body = resp.data.decode("utf-8")
+        # Sección Apariencia + los 4 botones data-set-theme deben estar presentes.
+        self.assertIn("Apariencia", body)
+        self.assertIn('data-set-theme="slate"', body)
+        self.assertIn('data-set-theme="graphite"', body)
+        self.assertIn('data-set-theme="obsidian"', body)
+        self.assertIn('data-set-theme="sapphire"', body)
+
+    def test_cliente_perfil_NO_muestra_apariencia(self):
+        uid = self._crear_user("cliente", "cli_perf")
+        self._login(uid)
+        resp = self.client.get("/perfil_cliente")
+        self.assertEqual(resp.status_code, 200)
+        body = resp.data.decode("utf-8")
+        # Ni la sección ni ningún botón data-set-theme deben aparecer.
+        self.assertNotIn("Apariencia", body)
+        self.assertNotIn("data-set-theme", body)
 
 
 if __name__ == "__main__":
